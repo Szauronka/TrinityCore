@@ -1039,6 +1039,13 @@ WorldPacket const* MountResult::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Spells::UpdateSpellVisual::Read()
+{
+    _worldPacket >> SpellID;
+    _worldPacket >> SpellXSpellVisualId;
+    _worldPacket >> TargetGUID;
+}
+
 WorldPacket const* MissileCancel::Write()
 {
     _worldPacket << OwnerGUID;

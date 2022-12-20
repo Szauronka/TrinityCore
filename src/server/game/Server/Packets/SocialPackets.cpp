@@ -146,3 +146,8 @@ WorldPacket const* WorldPackets::Social::SocialContractRequestResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Social::QuickJoinAutoAcceptRequests::Read()
+{
+    EnableAutoAccept = _worldPacket.ReadBit();
+}

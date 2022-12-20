@@ -30,6 +30,16 @@ namespace WorldPackets
 {
     namespace Quest
     {
+        class DisplayQuestPopup final : public ServerPacket
+        {
+        public:
+            DisplayQuestPopup(uint32 questID) : ServerPacket(SMSG_DISPLAY_QUEST_POPUP, 4), QuestID(questID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+        };
+
         class QuestGiverStatusQuery final : public ClientPacket
         {
         public:

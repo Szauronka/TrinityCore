@@ -229,6 +229,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.emplace();
     auraData.CastID = aura->GetCastId();
     auraData.SpellID = aura->GetId();
+    auraData.SpellXSpellVisualID = aura->GetSpellXSpellVisualId();
     auraData.Visual = aura->GetSpellVisual();
     auraData.Flags = GetFlags();
     if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DO_NOT_DISPLAY_DURATION))

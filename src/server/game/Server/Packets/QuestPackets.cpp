@@ -40,6 +40,13 @@ ByteBuffer& operator<<(ByteBuffer& data, ConditionalQuestText const& conditional
     return data;
 }
 
+WorldPacket const* WorldPackets::Quest::DisplayQuestPopup::Write()
+{
+    _worldPacket << QuestID;
+
+    return &_worldPacket;
+}
+
 void QuestGiverStatusQuery::Read()
 {
     _worldPacket >> QuestGiverGUID;

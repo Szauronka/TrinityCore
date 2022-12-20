@@ -693,6 +693,7 @@ namespace WorldPackets
         class SendContactList;
         class SetContactNotes;
         class SocialContractRequest;
+        class QuickJoinAutoAcceptRequests;
     }
 
     namespace Spells
@@ -717,6 +718,7 @@ namespace WorldPackets
         class SpellClick;
         class MissileTrajectoryCollision;
         class UpdateMissileTrajectory;
+        class UpdateSpellVisual;
         class TradeSkillSetFavorite;
     }
 
@@ -1502,6 +1504,7 @@ class TC_GAME_API WorldSession
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
         void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
+        void HandleUpdateSpellVisualOpcode(WorldPackets::Spells::UpdateSpellVisual& packet);
 
         void HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet);
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
@@ -1819,6 +1822,8 @@ class TC_GAME_API WorldSession
         void HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& requestLatestSplashScreen);
 
         void HandleSocialContractRequest(WorldPackets::Social::SocialContractRequest& socialContractRequest);
+
+        void HandleQuickJoinAutoAcceptRequests(WorldPackets::Social::QuickJoinAutoAcceptRequests& packet);
 
         union ConnectToKey
         {

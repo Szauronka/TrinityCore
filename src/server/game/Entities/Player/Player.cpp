@@ -22998,6 +22998,13 @@ uint8 Player::GetStartLevel(uint8 race, uint8 playerClass, Optional<int32> chara
     else if (playerClass == CLASS_DEMON_HUNTER)
         startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL), startLevel);
 
+    if (playerClass == CLASS_EVOKER)
+    {
+        if(race == RACE_DRACTHYR_ALLIANCE || race == RACE_DRACTHYR_HORDE)
+            startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_EVOKER_PLAYER_LEVEL), startLevel);
+    }
+
+
     if (characterTemplateId)
     {
         if (m_session->HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))

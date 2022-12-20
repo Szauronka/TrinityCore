@@ -182,3 +182,6 @@ void WorldSession::HandleSocialContractRequest(WorldPackets::Social::SocialContr
     response.ShowSocialContract = false;
     SendPacket(response.Write());
 }
+
+void WorldSession::HandleQuickJoinAutoAcceptRequests(WorldPackets::Social::QuickJoinAutoAcceptRequests& packet)
+{ }

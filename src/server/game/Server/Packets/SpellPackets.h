@@ -186,6 +186,7 @@ namespace WorldPackets
         {
             ObjectGuid CastID;
             int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
             SpellCastVisual Visual;
             uint16 Flags = 0;
             uint32 ActiveFlags = 0;
@@ -1059,6 +1060,18 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Result = 0;
+        };
+
+        class UpdateSpellVisual final : public ClientPacket
+        {
+        public:
+            UpdateSpellVisual(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_SPELL_VISUAL, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 SpellID = 0;
+            int32 SpellXSpellVisualId = 0;
+            ObjectGuid TargetGUID;
         };
 
         class MissileCancel final : public ServerPacket
