@@ -39,6 +39,15 @@ namespace WorldPackets
             bool IsSoftInteract = false;
         };
 
+        class LegacyLootRules final : public ServerPacket
+        {
+        public:
+            LegacyLootRules() : ServerPacket(SMSG_LEGACY_LOOT_RULES, 4) { }
+            WorldPacket const* Write() override;
+
+            bool LegacyRulesActive = false;
+        };
+
         struct LootItemData
         {
             uint8 Type              = 0;

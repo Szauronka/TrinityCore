@@ -818,4 +818,14 @@ void ChoiceResponse::Read()
     _worldPacket >> ResponseIdentifier;
     IsReroll = _worldPacket.ReadBit();
 }
+void UiMapQuestLinesRequest::Read()
+{
+    _worldPacket >> UiMapID;
+}
+WorldPacket const* UiMapQuestLinesResponse::Write()
+{
+    _worldPacket << int32(UiMapID);
+
+    return &_worldPacket;
+}
 }

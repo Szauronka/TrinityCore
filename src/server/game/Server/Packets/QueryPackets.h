@@ -89,7 +89,7 @@ namespace WorldPackets
         class QueryCreatureResponse final : public ServerPacket
         {
         public:
-            QueryCreatureResponse() : ServerPacket(SMSG_QUERY_CREATURE_RESPONSE, 76) { }
+            QueryCreatureResponse() : ServerPacket(SMSG_QUERY_CREATURE_RESPONSE, 164) { }
 
             WorldPacket const* Write() override;
 
@@ -242,7 +242,7 @@ namespace WorldPackets
         class QueryGameObjectResponse final : public ServerPacket
         {
         public:
-            QueryGameObjectResponse() : ServerPacket(SMSG_QUERY_GAME_OBJECT_RESPONSE, 165) { }
+            QueryGameObjectResponse() : ServerPacket(SMSG_QUERY_GAME_OBJECT_RESPONSE, 205) { }
 
             WorldPacket const* Write() override;
 

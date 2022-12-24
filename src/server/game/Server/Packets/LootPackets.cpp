@@ -234,3 +234,10 @@ WorldPacket const* WorldPackets::Loot::AELootTargets::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Loot::LegacyLootRules::Write()
+{
+    _worldPacket.WriteBit(LegacyRulesActive);
+
+    return &_worldPacket;
+}
