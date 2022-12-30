@@ -318,7 +318,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
     &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
-    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
+    &Spell::EffectRemovePhase,                              //232 SPELL_EFFECT_REMOVE_PHASE
     &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
     &Spell::EffectUnused,                                   //235 SPELL_EFFECT_235
@@ -5341,6 +5341,19 @@ void Spell::EffectGrantBattlePetLevel()
         return;
 
     playerCaster->GetSession()->GetBattlePetMgr()->GrantBattlePetLevel(unitTarget->GetBattlePetCompanionGUID(), damage);
+}
+
+void Spell::EffectRemovePhase()
+{
+    bool Visibility = false;
+
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    PhasingHandler::RemovePhase(unitTarget->ToPlayer(), effectInfo->MiscValue, Visibility);
 }
 
 void Spell::EffectGiveExperience()

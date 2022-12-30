@@ -378,6 +378,7 @@ class TC_GAME_API Spell
         void EffectAddGarrisonFollower();
         void EffectActivateGarrisonBuilding();
         void EffectGrantBattlePetLevel();
+        void EffectRemovePhase();
         void EffectGiveExperience();
         void EffectGiveRestedExperience();
         void EffectHealBattlePetPct();
