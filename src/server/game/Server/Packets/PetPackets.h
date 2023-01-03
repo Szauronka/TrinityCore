@@ -100,7 +100,7 @@ namespace WorldPackets
         class PetSpells final : public ServerPacket
         {
         public:
-            PetSpells() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 100) { }
+            PetSpells() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 140) { }
 
             WorldPacket const* Write() override;
 

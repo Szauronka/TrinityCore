@@ -521,6 +521,7 @@ class TC_GAME_API Quest
 
         bool IsAutoPush() const { return HasFlagEx(QUEST_FLAGS_EX_AUTO_PUSH); }
         bool IsWorldQuest() const { return HasFlagEx(QUEST_FLAGS_EX_IS_WORLD_QUEST); }
+        bool IsEmissaryQuest() const { return _questInfoID == QUEST_INFO_EMISSARY_QUEST; }
 
         // Possibly deprecated flag
         bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_UNAVAILABLE); }
@@ -777,9 +778,14 @@ class TC_GAME_API Quest
 
 struct QuestStatusData
 {
+    QuestStatusData() : Slot(MAX_QUEST_LOG_SIZE), Status(QUEST_STATUS_NONE), Timer(0), Explored(false)
+    {
+    }
+
     uint16 Slot = MAX_QUEST_LOG_SIZE;
     QuestStatus Status = QUEST_STATUS_NONE;
     uint32 Timer = 0;
+    std::vector<int32> ObjectiveData;
     bool Explored = false;
 };
 

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
@@ -274,7 +276,35 @@ private:
     GuidVector _childrenGUIDs;
 };
 
+//197 areatrigger
+struct at_fargodeep_mine : public AreaTriggerScript
+{
+    at_fargodeep_mine() : AreaTriggerScript("at_fargodeep_mine") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->AreaExploredOrEventHappens(62);
+
+        return true;
+    }
+};
+
+//87 areatrigger
+struct at_jasperlode_mine : public AreaTriggerScript
+{
+    at_jasperlode_mine() : AreaTriggerScript("at_jasperlode_mine") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->AreaExploredOrEventHappens(76);
+
+        return true;
+    }
+};
+
 void AddSC_elwynn_forest()
 {
     RegisterCreatureAI(npc_cameron);
+    new at_fargodeep_mine();
+    new at_jasperlode_mine();
 }

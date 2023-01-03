@@ -400,6 +400,21 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaFailEvent failEvent, int32 fail
     }
 }
 
+void PlayerAchievementMgr::ResetCriteriaID(CriteriaType type, uint32 id)
+{
+    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::ResetCriteriaID(%u)", id);
+    CriteriaList list = GetCriteriaByType(type);
+
+    for (Criteria const* crit : list)
+    {
+        if (crit->Entry->ID == id)
+        {
+            RemoveCriteriaProgress(crit);
+            break;
+        }
+    }
+}
+
 void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
 {
     VisibleAchievementCheck filterInvisible;
@@ -704,6 +719,11 @@ void PlayerAchievementMgr::SendPacket(WorldPacket const* data) const
 CriteriaList const& PlayerAchievementMgr::GetCriteriaByType(CriteriaType type, uint32 asset) const
 {
     return sCriteriaMgr->GetPlayerCriteriaByType(type, asset);
+}
+
+CriteriaList const& PlayerAchievementMgr::GetCriteriaByType(CriteriaType type) const
+{
+    return sCriteriaMgr->GetPlayerCriteriaByType(type);
 }
 
 GuildAchievementMgr::GuildAchievementMgr(Guild* owner) : _owner(owner)

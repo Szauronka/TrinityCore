@@ -785,6 +785,45 @@ namespace WorldPackets
 
             int32 UiMapID = 0;
         };
+
+        class QueryTreasurePicker final : public ClientPacket
+        {
+        public:
+            QueryTreasurePicker(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TREASURE_PICKER, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID = 0;
+            uint32 TresurePickerID = 0;
+        };
+
+        class QueryQuestRewardResponse final : public ServerPacket
+        {
+        public:
+            QueryQuestRewardResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            struct CurrencyReward
+            {
+                uint32 CurrencyID = 0;
+                uint32 CurrencyCount = 0;
+            };
+
+            struct ItemReward
+            {
+                WorldPackets::Item::ItemInstance Item;
+                uint32 ItemCount = 0;
+            };
+
+            uint32 QuestID = 0;
+            uint32 TresurePickerID = 0;
+            uint64 MoneyReward = 0;
+            uint32 BonusCount = 0;
+            uint8 Flags = 0;
+            std::vector<CurrencyReward> CurrencyRewards;
+            std::vector<ItemReward> ItemRewards;
+        };
     }
 }
 

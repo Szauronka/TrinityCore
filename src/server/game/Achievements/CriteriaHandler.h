@@ -333,6 +333,11 @@ public:
 
     CriteriaList const& GetPlayerCriteriaByType(CriteriaType type, uint32 asset) const;
 
+    CriteriaList const& GetPlayerCriteriaByType(CriteriaType type) const
+    {
+        return _criteriasByType[size_t(type)];
+    }
+
     CriteriaList const& GetGuildCriteriaByType(CriteriaType type) const
     {
         return _guildCriteriasByType[size_t(type)];

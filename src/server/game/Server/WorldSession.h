@@ -517,6 +517,7 @@ namespace WorldPackets
         class MountSetFavorite;
         class CloseInteraction;
         class ConversationLineStarted;
+        class QueryCountdownTimer;
         class RequestLatestSplashScreen;
     }
 
@@ -642,6 +643,8 @@ namespace WorldPackets
         class QuestGiverStatusMultipleQuery;
         class QuestGiverHello;
         class QueryQuestInfo;
+        class QueryTreasurePicker;
+        class UiMapQuestLinesRequest;
         class QuestGiverChooseReward;
         class QuestGiverCloseQuest;
         class QuestGiverCompleteQuest;
@@ -1264,6 +1267,7 @@ class TC_GAME_API WorldSession
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
         void HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet);
+        void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& packet);
 
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
@@ -1531,7 +1535,9 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverCloseQuest(WorldPackets::Quest::QuestGiverCloseQuest& questGiverCloseQuest);
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
+        void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
+        void HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet);
         void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);

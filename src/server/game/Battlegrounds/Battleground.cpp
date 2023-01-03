@@ -1223,6 +1223,25 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     }
 }
 
+void Battleground::SendStartTimer(TimerType type)
+{
+	if (type != WORLD_TIMER_TYPE_PVP)
+		return;
+
+    Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
+
+	if (Milliseconds(GetElapsedTime()) >= countdownMaxForBGType)
+		return;
+
+	m_PrematureCountDownTimer = 0;
+
+	WorldPackets::Misc::StartTimer startTimer;
+	startTimer.Type == WorldPackets::Misc::StartTimer::Pvp;;
+	startTimer.TimeLeft = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime() / 1000));
+	startTimer.TotalTime = countdownMaxForBGType;
+	SendPacketToAll(startTimer.Write());
+}
+
 // This method should be called only once ... it adds pointer to queue
 void Battleground::AddToBGFreeSlotQueue()
 {

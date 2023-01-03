@@ -2149,6 +2149,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsLockedToDungeonEncounter(uint32 dungeonEncounterId) const;
 
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
+        bool HasWorldQuestEnabled(uint8 expansion) const;
+        void UpdateWorldQuestPosition(float x, float y);
         bool UpdatePosition(Position const& pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData) override;
         void AtEnterCombat() override;
@@ -2388,6 +2390,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendLootReleaseAll() const;
         void SendNotifyLootItemRemoved(ObjectGuid lootObj, ObjectGuid owner, uint8 lootListId) const;
         void SendNotifyLootMoneyRemoved(ObjectGuid lootObj) const;
+
+        uint32 m_areaQuestTimer;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -2706,6 +2710,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
+        PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
+        QuestObjectiveCriteriaMgr* GetQuestObjectiveCriteriaMgr() const { return m_questObjectiveCriteriaMgr.get(); }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         SceneMgr const& GetSceneMgr() const { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }

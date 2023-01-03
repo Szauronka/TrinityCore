@@ -127,6 +127,7 @@
 #include "VehiclePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
@@ -6210,6 +6211,84 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 
     return true;
 }
+
+bool Player::HasWorldQuestEnabled(uint8 expansion) const
+{
+    if (expansion == EXPANSION_LEGION)
+        return MeetPlayerCondition(41005);
+    if (expansion == EXPANSION_BATTLE_FOR_AZEROTH)
+        return GetQuestStatus(51918) == QUEST_STATUS_REWARDED ||    // Union of Kul'Tiras
+        GetQuestStatus(51916) == QUEST_STATUS_REWARDED;             // Union of Zandalar
+    if (expansion == EXPANSION_SHADOWLANDS)
+        return GetQuestStatus(59609) == QUEST_STATUS_REWARDED;      // No Rest For the Dead
+    if (expansion == EXPANSION_DRAGONFLIGHT)
+        return GetQuestStatus(59609) == QUEST_STATUS_REWARDED; // complete 16363 achievment
+
+
+    return false;
+}
+
+void Player::UpdateWorldQuestPosition(float x, float y)
+{
+    if (time(nullptr) < m_areaQuestTimer)
+        return;
+
+    m_areaQuestTimer = time(nullptr) + 2;
+
+    for (auto& bonus_quest : sObjectMgr->BonusQuestsRects)
+    {
+        if (IsQuestRewarded(bonus_quest.first))
+            continue;
+
+        bool found = false;
+
+        for (uint32 i = 0; i < bonus_quest.second.size(); ++i)
+        {
+            if (bonus_quest.second[i].IsIn(GetMapId(), x, y))
+                found = true;
+        }
+
+        uint32 slot = FindQuestSlot(bonus_quest.first);
+        
+        Quest const* quest = sObjectMgr->GetQuestTemplate(bonus_quest.first);
+
+        if (!quest)
+            continue;
+
+        if (!found && slot < MAX_QUEST_LOG_SIZE)
+        {
+            SetQuestSlot(slot, 0);
+            RemoveActiveQuest(quest->GetQuestId(), true);
+        }
+        else if (found && slot >= MAX_QUEST_LOG_SIZE)
+        {
+            if (!CanTakeQuest(quest, false))
+                continue;
+
+            if (quest->IsWorldQuest())
+            {
+                // Uniting the Isles, required for Legion world quests
+                if (!HasWorldQuestEnabled(quest->GetExpansion()))
+                    continue;
+
+                if (!sWorldQuestMgr->IsQuestActive(quest->GetQuestId()))
+                    continue;
+            }
+
+            AddQuest(quest, this);
+            slot = FindQuestSlot(quest->GetQuestId());
+            auto itr = m_QuestStatus.find(quest->GetQuestId());
+            if (itr != m_QuestStatus.end())
+            {
+                QuestStatusData& questStatusData = itr->second;
+                uint8 index = 0;
+                for (auto obj : questStatusData.ObjectiveData)
+                    SetQuestSlotCounter(slot, index++, obj);
+            }
+        }
+    }
+}
+
 
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const
 {

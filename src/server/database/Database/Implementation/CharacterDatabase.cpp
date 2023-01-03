@@ -777,6 +777,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE, "UPDATE character_instance_lock SET expiryTime = ?, extended = 0 WHERE guid = ? AND mapId = ? AND lockId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INSTANCE, "DELETE FROM instance WHERE instanceId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_INSTANCE, "INSERT INTO instance (instanceId, data, completedEncountersMask, entranceWorldSafeLocId) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+
+    // World Quests
+    PrepareStatement(CHAR_SEL_WORLD_QUEST, "SELECT id, rewardid, starttime FROM world_quest", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_DEL_WORLD_QUEST, "DELETE FROM world_quest WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_WORLD_QUEST, "REPLACE INTO world_quest (id, rewardid, starttime) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

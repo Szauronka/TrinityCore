@@ -777,3 +777,8 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::QueryCountdownTimer::Read()
+{
+	uint32(Type) = _worldPacket.read<uint32>();
+}

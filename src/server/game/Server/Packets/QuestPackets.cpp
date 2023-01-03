@@ -828,4 +828,34 @@ WorldPacket const* UiMapQuestLinesResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Quest::QueryTreasurePicker::Read()
+{
+    _worldPacket >> QuestID;
+    _worldPacket >> TresurePickerID;
+}
+
+WorldPacket const* WorldPackets::Quest::QueryQuestRewardResponse::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << TresurePickerID;
+    _worldPacket << uint32(ItemRewards.size());
+    _worldPacket << uint32(CurrencyRewards.size());
+    _worldPacket << MoneyReward;
+    _worldPacket << Flags;
+
+    for (auto const& currency : CurrencyRewards)
+    {
+        _worldPacket << currency.CurrencyID;
+        _worldPacket << currency.CurrencyCount;
+    }
+
+    for (auto const& item : ItemRewards)
+    {
+        _worldPacket << item.Item;
+        _worldPacket << item.ItemCount;
+    }
+
+    return &_worldPacket;
+}
 }

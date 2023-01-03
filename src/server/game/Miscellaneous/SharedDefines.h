@@ -4479,7 +4479,13 @@ enum LockType
     LOCKTYPE_COVENANT_VENTHYR           = 158,
     LOCKTYPE_COVENANT_KYRIAN            = 159,
     LOCKTYPE_COVENANT_NECROLORD         = 160,
-    LOCKTYPE_PROFESSION_ENGINEERING     = 161
+    LOCKTYPE_PROFESSION_ENGINEERING     = 161,
+    LOCKTYPE_DRAGON_ISLES_HERBALISM     = 162,
+    LOCKTYPE_DRAGON_ISLES_ENCHANTING    = 169,
+    LOCKTYPE_DRAGON_ISLES_TRESURE       = 170,
+    LOCKTYPE_DRAGON_ISLES_OPEN_KNEELING = 186,
+    LOCKTYPE_DRAGON_ISLES_MINING        = 188
+
 };
 
 // this is important type for npcs!
@@ -4598,7 +4604,8 @@ enum CreatureFamily
     CREATURE_FAMILY_CAMEL               = 298,
     CREATURE_FAMILY_COURSER             = 299,
     CREATURE_FAMILY_MAMMOTH             = 300,
-    CREATURE_FAMILY_INCUBUS             = 302
+    CREATURE_FAMILY_INCUBUS             = 302,
+    CREATURE_FAMILY_LESSER_DRAGONKIN    = 303
 };
 
 enum CreatureTypeFlags
@@ -5232,6 +5239,14 @@ enum QuestSort
     QUEST_SORT_COVENANT_ASSAULTS                = 604,
     QUEST_SORT_PROTOFORM_SYNTHESIS              = 606,
     QUEST_SORT_CH_6_SYMBOL_TRACKING             = 607,
+    QUEST_SORT_TEMPEST_UNLEASHED                = 608,
+    QUEST_SORT_DRAGONSCALE_EXPEDICION           = 609,
+    QUEST_SORT_PRIMALIST_STORMS                 = 610,
+    QUEST_SORT_ISKAARA_TUSKARR                  = 611,
+    QUEST_SORT_MARUUK_CENTAUR                   = 612,
+    QUEST_SORT_VALDRAKKEN_ACCORD                = 613,
+    QUEST_SORT_ENGINE_OF_INNOVATION             = 616,
+    QUEST_SORT_ARTISIANS_CONSORTIUM             = 617
 };
 
 constexpr uint8 ClassByQuestSort(int32 QuestSort)
@@ -5592,6 +5607,23 @@ enum SkillType
     SKILL_STYGIA_CRAFTING                           = 2811,
     SKILL_LANGUAGE_CYPHER                           = 2817,
     SKILL_PROTOFORM_SYNTHESIS                       = 2819,
+    SKILL_ARCANA_MANIPULATION                       = 2821,
+    SKILL_DRAGON_ISLES_BLACKSMITHING                = 2822,
+    SKILL_DRAGON_ISLES_ALCHEMY                      = 2823,
+    SKILL_DRAGON_ISLES_COOCKING                     = 2824,
+    SKILL_DRAGON_ISLES_ENCHANTING                   = 2825,
+    SKILL_DRAGON_ISLES_FISHING                      = 2826,
+    SKILL_DRAGON_ISLES_ENGINEERING                  = 2827,
+    SKILL_DRAGON_ISLES_INSCRIPTION                  = 2828,
+    SKILL_DRAGON_ISLES_JEWELCRAFTING                = 2829,
+    SKILL_DRAGON_ISLES_LEATHERWORKING               = 2830,
+    SKILL_DRAGON_ISLES_TAILORING                    = 2831,
+    SKILL_DRAGON_ISLES_HERBALISM                    = 2832,
+    SKILL_DRAGON_ISLES_MINING                       = 2833,
+    SKILL_DRAGON_ISLES_SKINING                      = 2834,
+    SKILL_CRAFTING                                  = 2846,
+    SKILL_DRAGON_ISLES_TUSKARR_FISHING_GEAR         = 2847,
+    SKILL_PET_LESSER_DRAGONKIN                      = 2850,
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
@@ -5620,6 +5652,9 @@ constexpr SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_DRAENOR_MINING: return SKILL_DRAENOR_MINING;
         case LOCKTYPE_LEGION_MINING: return SKILL_LEGION_MINING;
         case LOCKTYPE_KUL_TIRAN_MINING: return SKILL_KUL_TIRAN_MINING;
+        case LOCKTYPE_DRAGON_ISLES_ENCHANTING: return SKILL_DRAGON_ISLES_ENCHANTING;
+        case LOCKTYPE_DRAGON_ISLES_HERBALISM: return SKILL_DRAGON_ISLES_HERBALISM;
+        case LOCKTYPE_DRAGON_ISLES_MINING: return SKILL_DRAGON_ISLES_MINING;
         default: break;
     }
     return SKILL_NONE;
@@ -5654,7 +5689,8 @@ enum SkillCategory
     SKILL_CATEGORY_SECONDARY     = 9,                       // secondary professions
     SKILL_CATEGORY_LANGUAGES     = 10,
     SKILL_CATEGORY_PROFESSION    = 11,                      // primary professions
-    SKILL_CATEGORY_GENERIC       = 12
+    SKILL_CATEGORY_GENERIC       = 12,
+    SKILL_CATEGORY_UNK2          = 27
 };
 
 // TotemCategory.db2 (9.0.2.37176)
@@ -5704,6 +5740,7 @@ enum TotemCategory
     TC_UNLEASHED_VOID_FOCUS                 = 357,
     TC_MASTERCRAFT                          = 358,
     TC_VIRTUOSO_ENGRAVING_SET               = 359,
+    TC_ENGINEERING_MULTITOOL                = 362
 };
 
 enum UnitDynFlags
@@ -6557,6 +6594,13 @@ enum VoidTransferError
     VOID_TRANSFER_ERROR_INVENTORY_FULL    = 7,
     VOID_TRANSFER_ERROR_ITEM_INVALID      = 8,
     VOID_TRANSFER_ERROR_TRANSFER_UNKNOWN  = 9
+};
+
+enum TimerType
+{
+    WORLD_TIMER_TYPE_PVP                      = 0,
+    WORLD_TIMER_TYPE_CHALLENGE_MODE           = 1,
+    WORLD_TIMER_TIMER_TYPE_PROVING_GROUND     = 2,
 };
 
 #define CURRENCY_PRECISION 100

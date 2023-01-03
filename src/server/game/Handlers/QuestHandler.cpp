@@ -37,6 +37,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include <WorldQuestMgr.h>
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
@@ -799,10 +800,31 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
 
 void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& /*packet*/)
 {
+    if (!GetPlayer())
+        return;
+    //WorldPackets::Quest::WorldQuestUpdateInfo* worldQuestInfo = 0;
     WorldPackets::Quest::WorldQuestUpdateResponse response;
-
+    sWorldQuestMgr->BuildPacket(GetPlayer(), response);
     /// @todo: 7.x Has to be implemented
-    //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
+    //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(worldQuestInfo->LastUpdate, worldQuestInfo->QuestID, worldQuestInfo->Timer, worldQuestInfo->VariableID, worldQuestInfo->Value));
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& packet)
+{
+    WorldPackets::Quest::UiMapQuestLinesRequest;
+    sWorldQuestMgr->GetWorldQuestTemplate(packet.UiMapID);
+}
+
+void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)
+{
+    auto quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
+
+    WorldPackets::Quest::QueryQuestRewardResponse response;
+    response.QuestID = packet.QuestID;
+    response.TresurePickerID = packet.TresurePickerID;
+    sWorldQuestMgr->BuildRewardPacket(GetPlayer(), response.QuestID, response);
 
     SendPacket(response.Write());
 }

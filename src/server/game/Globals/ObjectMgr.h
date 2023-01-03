@@ -863,6 +863,7 @@ struct SceneTemplate
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> WorldQuestContainer;
 
 typedef std::unordered_map<uint32, std::string> PhaseNameContainer;
 
@@ -1297,6 +1298,18 @@ class TC_GAME_API ObjectMgr
         void LoadGameobjectQuestEnders();
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
+
+        struct BonusQuestRectEntry
+        {
+            int32 MinX, MinY, MaxX, MaxY;
+            uint32 MapID;
+
+            bool IsIn(uint32 mapID, int x, int y)
+            {
+                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         QuestRelations* GetGOQuestRelationMapHACK() { return &_goQuestRelations; }
         QuestRelationResult GetGOQuestRelations(uint32 entry) const { return GetQuestRelationsFrom(_goQuestRelations, entry, true); }
@@ -1786,6 +1799,7 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        WorldQuestContainer const& GetWorldQuestStore() const { return _worldQuestStore; }
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
         JumpChargeParams const* GetJumpChargeParams(int32 id) const;
@@ -1976,6 +1990,7 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+        WorldQuestContainer _worldQuestStore;
 
         std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;
 
