@@ -507,7 +507,6 @@ std::vector<WorldQuestReward const*> WorldQuestMgr::GetRewardsForPlayerById(Play
 
 void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdateResponse& packet)
 {
-    WorldQuestUpdateInfo* quest = 0;
     for (auto& expansionWorldQuests : _activeWorldQuests)
     {
         for (auto& itr : expansionWorldQuests.second[player->GetTeamId()])
@@ -518,12 +517,13 @@ void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestU
 
             if (WorldQuestTemplate const* worldQuestTemplate = activeWorldQuest->GetTemplate())
             {
-                quest->QuestID = activeWorldQuest->QuestId;
-                quest->LastUpdate = activeWorldQuest->StartTime;
-                quest->VariableID = worldQuestTemplate->VariableId;
-                quest->Timer = worldQuestTemplate->Duration;
-                quest->Value = worldQuestTemplate->Value;
-                packet.WorldQuestUpdates.push_back(*quest);
+                WorldPackets::Quest::WorldQuestUpdateResponse::WorldQuestUpdateInfo quest;
+                quest.QuestID = activeWorldQuest->QuestId;
+                quest.LastUpdate = activeWorldQuest->StartTime;
+                quest.VariableID = worldQuestTemplate->VariableId;
+                quest.Timer = worldQuestTemplate->Duration;
+                quest.Value = worldQuestTemplate->Value;
+                packet.WorldQuestUpdates.push_back(quest);
             }
         }
     }
@@ -548,8 +548,8 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
             WorldPackets::Quest::QueryQuestRewardResponse::ItemReward itemReward;
             itemReward.Item.ItemID = worldQuestReward->RewardId;
             itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonuses();
-            //itemReward.Item.ItemBonus->GetContext() = worldQuestReward->RewardContext;
-            //itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, worldQuestReward->RewardContext);
+            itemReward.Item.ItemBonus->Context = (ItemContext)worldQuestReward->RewardContext;
+            itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, (ItemContext(worldQuestReward->RewardContext)));
             itemReward.ItemCount = worldQuestReward->RewardCount;
             packet.ItemRewards.push_back(itemReward);
             break;

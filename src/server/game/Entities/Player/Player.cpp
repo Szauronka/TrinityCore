@@ -6198,6 +6198,8 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
+    UpdateWorldQuestPosition(x, y);
+
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
     //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
@@ -9011,6 +9013,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.AreaID = zoneId;
     packet.SubareaID = areaId;
 
+    sWorldQuestMgr->FillInitWorldStates(packet);
     sWorldStateMgr->FillInitialWorldStates(packet, GetMap(), areaId);
 
     SendDirectMessage(packet.Write());
@@ -13858,6 +13861,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                 case GossipOptionNpc::GarrisonTradeskillNpc:
                 case GossipOptionNpc::GarrisonRecruitment:
                 case GossipOptionNpc::AdventureMap:
+                    canTalk = true;
+                    break;
                 case GossipOptionNpc::GarrisonTalent:
                 case GossipOptionNpc::ContributionCollector:
                 case GossipOptionNpc::IslandsMissionNpc:
@@ -14731,6 +14736,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         if (questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
             limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
 
+        if (quest->IsWorldQuest())
+            limittime = sWorldQuestMgr->GetTimerForQuest(quest_id);
+
         AddTimedQuest(quest_id);
         questStatusData.Timer = limittime * IN_MILLISECONDS;
         endTime = GameTime::GetGameTime() + limittime;
@@ -15034,6 +15042,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
         SendDisplayToast(0, DisplayToastType::Money, false, moneyRew, DisplayToastMethod::QuestComplete, quest_id);
     }
+
+    if (quest->IsWorldQuest())
+        sWorldQuestMgr->RewardQuestForPlayer(this, quest->GetQuestId());
 
     // honor reward
     if (uint32 honor = quest->CalculateHonorGain(GetLevel()))
@@ -17944,6 +17955,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         LearnSpell(BattlePets::SPELL_BATTLE_PET_TRAINING, false);
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
+
+    // Add active emissary quests on player at login
+    sWorldQuestMgr->AddEmissaryQuestsOnPlayerIfNeeded(this);
+
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
 
     PushQuests();

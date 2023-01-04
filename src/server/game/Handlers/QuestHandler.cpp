@@ -819,8 +819,6 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
 
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)
 {
-    auto quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
-
     WorldPackets::Quest::QueryQuestRewardResponse response;
     response.QuestID = packet.QuestID;
     response.TresurePickerID = packet.TresurePickerID;

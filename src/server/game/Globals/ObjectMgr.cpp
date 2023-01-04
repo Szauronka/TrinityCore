@@ -64,6 +64,7 @@
 #include "ThreadPool.h"
 #include "Timer.h"
 #include "TransportMgr.h"
+#include "WorldQuestMgr.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
@@ -5388,6 +5389,9 @@ void ObjectMgr::LoadQuests()
     for (ParagonReputationEntry const* paragonReputation : sParagonReputationStore)
         if (Quest const* quest = GetQuestTemplate(paragonReputation->QuestID))
             const_cast<Quest*>(quest)->SetSpecialFlag(QUEST_SPECIAL_FLAGS_REPEATABLE);
+
+    sWorldQuestMgr->LoadWorldQuestTemplates();
+    sWorldQuestMgr->LoadWorldQuestRewardTemplates();
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }

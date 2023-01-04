@@ -2596,6 +2596,17 @@ ItemClassEntry const* DB2Manager::GetItemClassByOldEnum(uint32 itemClass) const
     return _itemClassByOldEnum[itemClass];
 }
 
+std::vector<int32> DB2Manager::GetItemBonusTreeVector(uint32 itemId, ItemContext itemContext) const
+{
+    std::set<uint32> bonusListIDs = GetDefaultItemBonusTree(itemId, itemContext);
+    std::vector<int32> vectorBonusListIDs;
+
+    for (uint32 bonusList : bonusListIDs)
+        vectorBonusListIDs.push_back(bonusList);
+
+    return vectorBonusListIDs;
+}
+
 bool DB2Manager::HasItemCurrencyCost(uint32 itemId) const
 {
     return _itemsWithCurrencyCost.count(itemId) > 0;

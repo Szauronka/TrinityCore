@@ -655,24 +655,22 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        struct WorldQuestUpdateInfo
-        {
-            WorldQuestUpdateInfo(time_t lastUpdate, uint32 questID, uint32 timer, int32 variableID, int32 value) :
-                LastUpdate(lastUpdate), QuestID(questID), Timer(timer), VariableID(variableID), Value(value) { }
-            Timestamp<> LastUpdate;
-            uint32 QuestID;
-            uint32 Timer;
-            // WorldState
-            int32 VariableID;
-            int32 Value;
-        };
-
         class WorldQuestUpdateResponse final : public ServerPacket
         {
         public:
             WorldQuestUpdateResponse() : ServerPacket(SMSG_WORLD_QUEST_UPDATE_RESPONSE, 100) { }
 
             WorldPacket const* Write() override;
+
+            struct WorldQuestUpdateInfo
+            {
+                Timestamp<> LastUpdate;
+                uint32 QuestID   = 0;
+                uint32 Timer     = 0;
+                // WorldState
+                int32 VariableID = 0;
+                int32 Value      = 0;
+            };
 
             std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
         };
@@ -784,6 +782,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 UiMapID = 0;
+            uint32 QuestLineXQuestID = 0;
         };
 
         class QueryTreasurePicker final : public ClientPacket

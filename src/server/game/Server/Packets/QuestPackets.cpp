@@ -825,6 +825,7 @@ void UiMapQuestLinesRequest::Read()
 WorldPacket const* UiMapQuestLinesResponse::Write()
 {
     _worldPacket << int32(UiMapID);
+    _worldPacket << QuestLineXQuestID;
 
     return &_worldPacket;
 }
