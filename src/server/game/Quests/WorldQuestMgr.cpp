@@ -546,11 +546,12 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
         case WORLD_QUEST_REWARD_ITEM:
         {
             WorldPackets::Quest::QueryQuestRewardResponse::ItemReward itemReward;
+            WorldPackets::Quest::QueryQuestRewardResponse response;
             itemReward.Item.ItemID = worldQuestReward->RewardId;
             itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonuses();
             itemReward.Item.ItemBonus->Context = (ItemContext)worldQuestReward->RewardContext;
             itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, (ItemContext(worldQuestReward->RewardContext)));
-            itemReward.ItemCount = worldQuestReward->RewardCount;
+            response.ItemCount = worldQuestReward->RewardCount;
             packet.ItemRewards.push_back(itemReward);
             break;
         }

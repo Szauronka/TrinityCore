@@ -777,12 +777,11 @@ namespace WorldPackets
         class UiMapQuestLinesResponse final : public ServerPacket
         {
         public:
-            UiMapQuestLinesResponse() : ServerPacket(SMSG_UI_MAP_QUEST_LINES_RESPONSE) { }
+            UiMapQuestLinesResponse() : ServerPacket(SMSG_UI_MAP_QUEST_LINES_RESPONSE, 8) { }
 
             WorldPacket const* Write() override;
 
             int32 UiMapID = 0;
-            uint32 QuestLineXQuestID = 0;
         };
 
         class QueryTreasurePicker final : public ClientPacket
@@ -793,33 +792,38 @@ namespace WorldPackets
             void Read() override;
 
             uint32 QuestID = 0;
-            uint32 TresurePickerID = 0;
+            uint32 TreasurePickerID = 0;
         };
 
         class QueryQuestRewardResponse final : public ServerPacket
         {
         public:
-            QueryQuestRewardResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE) { }
+            QueryQuestRewardResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE, 100) { }
 
             WorldPacket const* Write() override;
 
             struct CurrencyReward
             {
                 uint32 CurrencyID = 0;
-                uint32 CurrencyCount = 0;
+                uint32 Amount = 0;
+                uint32 CurrencyCount = 2;
             };
 
             struct ItemReward
             {
                 WorldPackets::Item::ItemInstance Item;
-                uint32 ItemCount = 0;
+                bool HasItemBonus = false;
+                uint32 ContentTuningID = 0;
+                uint32 Contex = 0;
             };
 
             uint32 QuestID = 0;
-            uint32 TresurePickerID = 0;
+            uint32 TreasurePickerID = 0;
+            uint32 ItemCount = 0;
+            uint32 CurrencyCount = 0;
             uint64 MoneyReward = 0;
-            uint32 BonusCount = 0;
-            uint8 Flags = 0;
+            uint64 BonusCount = 0;
+            uint32 Flags = 0;
             std::vector<CurrencyReward> CurrencyRewards;
             std::vector<ItemReward> ItemRewards;
         };

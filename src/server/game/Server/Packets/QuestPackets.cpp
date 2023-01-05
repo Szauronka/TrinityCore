@@ -822,10 +822,10 @@ void UiMapQuestLinesRequest::Read()
 {
     _worldPacket >> UiMapID;
 }
+
 WorldPacket const* UiMapQuestLinesResponse::Write()
 {
-    _worldPacket << int32(UiMapID);
-    _worldPacket << QuestLineXQuestID;
+    _worldPacket << UiMapID;
 
     return &_worldPacket;
 }
@@ -833,28 +833,34 @@ WorldPacket const* UiMapQuestLinesResponse::Write()
 void WorldPackets::Quest::QueryTreasurePicker::Read()
 {
     _worldPacket >> QuestID;
-    _worldPacket >> TresurePickerID;
+    _worldPacket >> TreasurePickerID;
 }
 
-WorldPacket const* WorldPackets::Quest::QueryQuestRewardResponse::Write()
+WorldPacket const* QueryQuestRewardResponse::Write()
 {
     _worldPacket << QuestID;
-    _worldPacket << TresurePickerID;
+    _worldPacket << TreasurePickerID;
+    _worldPacket << ItemCount;
+    _worldPacket << CurrencyCount;
     _worldPacket << uint32(ItemRewards.size());
     _worldPacket << uint32(CurrencyRewards.size());
     _worldPacket << MoneyReward;
+    _worldPacket << BonusCount;
     _worldPacket << Flags;
 
     for (auto const& currency : CurrencyRewards)
     {
-        _worldPacket << currency.CurrencyID;
         _worldPacket << currency.CurrencyCount;
+        _worldPacket << currency.CurrencyID;
+        _worldPacket << currency.Amount;
     }
 
     for (auto const& item : ItemRewards)
     {
         _worldPacket << item.Item;
-        _worldPacket << item.ItemCount;
+        _worldPacket.WriteBit(item.HasItemBonus);
+        _worldPacket << item.ContentTuningID;
+        _worldPacket << item.Contex;
     }
 
     return &_worldPacket;
