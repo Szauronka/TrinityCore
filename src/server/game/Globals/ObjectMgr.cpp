@@ -4531,6 +4531,7 @@ void ObjectMgr::LoadQuests()
     _questTemplates.clear();
     _questTemplatesAutoPush.clear();
     _questObjectives.clear();
+    _worldQuestStore.clear();
 
     _exclusiveQuestGroups.clear();
 
@@ -4587,6 +4588,10 @@ void ObjectMgr::LoadQuests()
         auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields)).first;
         if (itr->second.IsAutoPush())
             _questTemplatesAutoPush.push_back(&itr->second);
+
+        if (newQuest->IsWorldQuest() || newQuest->IsEmissaryQuest())
+            _worldQuestStore[newQuest->QuestInfoID].push_back(newQuest->GetQuestId());
+
     } while (result->NextRow());
 
     struct QuestLoaderHelper
