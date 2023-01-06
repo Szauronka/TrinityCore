@@ -642,6 +642,7 @@ namespace WorldPackets
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
         class QuestGiverHello;
+        class QueryAdventureMapPOI;
         class QueryQuestInfo;
         class QueryTreasurePicker;
         class UiMapQuestLinesRequest;
@@ -1537,6 +1538,8 @@ class TC_GAME_API WorldSession
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
+        bool AdventureMapPOIAvailable(uint32 adventureMapPOIID);
+        void HandleQueryAdventureMapPOI(WorldPackets::Quest::QueryAdventureMapPOI& packet);
         void HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet);
         void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
 

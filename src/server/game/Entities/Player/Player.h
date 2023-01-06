@@ -1655,6 +1655,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int32 objectId, int64 addCount, ObjectGuid victimGuid = ObjectGuid::Empty);
         bool HasQuestForItem(uint32 itemId) const;
         bool HasQuestForGO(int32 goId) const;
+        uint16 m_adventure_questID = 0;
         void UpdateVisibleGameobjectsOrSpellClicks();
         bool CanShareQuest(uint32 questId) const;
 
@@ -1675,6 +1676,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
         void SendQuestGiverStatusMultiple();
         void SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId = 0, Item* item = nullptr) const;
+
+        uint16 getAdventureQuestID();
 
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }
         ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }

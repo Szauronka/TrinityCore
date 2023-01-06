@@ -676,7 +676,7 @@ WorldPacket const* WorldQuestUpdateResponse::Write()
 {
     _worldPacket << uint32(WorldQuestUpdates.size());
 
-    for (WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
+    for (WorldPackets::Quest::WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
     {
         _worldPacket << worldQuestUpdate.LastUpdate;
         _worldPacket << uint32(worldQuestUpdate.QuestID);
@@ -818,6 +818,36 @@ void ChoiceResponse::Read()
     _worldPacket >> ResponseIdentifier;
     IsReroll = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Quest::AreaPoiUpdate::Write()
+{
+    _worldPacket << static_cast<uint64>(Pois.size());
+    for (auto const& v : Pois)
+    {
+        _worldPacket << v.LastUpdate;
+        _worldPacket << v.QuestID;
+        _worldPacket << v.Timer;
+        _worldPacket << v.VariableID;
+        _worldPacket << v.Value;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Quest::QueryAdventureMapPOI::Read()
+{
+    _worldPacket >> AdventureMapPOIID;
+}
+
+WorldPacket const* WorldPackets::Quest::QueryAdventureMapPOIResponse::Write()
+{
+    _worldPacket << AdventureMapPOIID;
+    _worldPacket.WriteBit(Result);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void UiMapQuestLinesRequest::Read()
 {
     _worldPacket >> UiMapID;
@@ -825,7 +855,11 @@ void UiMapQuestLinesRequest::Read()
 
 WorldPacket const* UiMapQuestLinesResponse::Write()
 {
-    _worldPacket << UiMapID;
+    _worldPacket << int32(UiMapID);
+    _worldPacket << uint32(QuestLineXQuestID.size());
+
+    for (uint32 const& questID : QuestLineXQuestID)
+        _worldPacket << uint32(questID);
 
     return &_worldPacket;
 }

@@ -655,6 +655,16 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        struct WorldQuestUpdateInfo
+        {
+            Timestamp<> LastUpdate;
+            uint32 QuestID = 0;
+            uint32 Timer = 0;
+            //int32 WorldState = 0;
+            int32 VariableID = 0;
+            int32 Value = 0;
+        };
+
         class WorldQuestUpdateResponse final : public ServerPacket
         {
         public:
@@ -662,17 +672,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            struct WorldQuestUpdateInfo
-            {
-                Timestamp<> LastUpdate;
-                uint32 QuestID   = 0;
-                uint32 Timer     = 0;
-                // WorldState
-                int32 VariableID = 0;
-                int32 Value      = 0;
-            };
-
-            std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
+            std::vector<WorldPackets::Quest::WorldQuestUpdateInfo> WorldQuestUpdates;
         };
 
         struct PlayerChoiceResponseRewardEntry
@@ -764,6 +764,37 @@ namespace WorldPackets
             bool IsReroll = false;
         };
 
+        class AreaPoiUpdate final : public ServerPacket
+        {
+        public:
+            AreaPoiUpdate() : ServerPacket(SMSG_AREA_POI_UPDATE_RESPONSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<WorldPackets::Quest::WorldQuestUpdateInfo> Pois;
+        };
+
+        class QueryAdventureMapPOI final : public ClientPacket
+        {
+        public:
+            QueryAdventureMapPOI(WorldPacket&& packet) : ClientPacket(CMSG_CHECK_IS_ADVENTURE_MAP_POI_VALID, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 AdventureMapPOIID = 0;
+        };
+
+        class QueryAdventureMapPOIResponse final : public ServerPacket
+        {
+        public:
+            QueryAdventureMapPOIResponse() : ServerPacket(SMSG_PLAYER_IS_ADVENTURE_MAP_POI_VALID, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 AdventureMapPOIID = 0;
+            bool Result = false;
+        };
+
         class UiMapQuestLinesRequest final : public ClientPacket
         {
         public:
@@ -782,6 +813,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 UiMapID = 0;
+            std::vector<uint32> QuestLineXQuestID;
         };
 
         class QueryTreasurePicker final : public ClientPacket

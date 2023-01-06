@@ -517,7 +517,7 @@ void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestU
 
             if (WorldQuestTemplate const* worldQuestTemplate = activeWorldQuest->GetTemplate())
             {
-                WorldPackets::Quest::WorldQuestUpdateResponse::WorldQuestUpdateInfo quest;
+                WorldPackets::Quest::WorldQuestUpdateInfo quest;
                 quest.QuestID = activeWorldQuest->QuestId;
                 quest.LastUpdate = activeWorldQuest->StartTime;
                 quest.VariableID = worldQuestTemplate->VariableId;

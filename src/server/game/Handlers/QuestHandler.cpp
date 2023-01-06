@@ -811,8 +811,134 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& /*packet*/)
+bool WorldSession::AdventureMapPOIAvailable(uint32 adventureMapPOIID)
 {
+    auto adventureMapPOIEntry = sAdventureMapPOIStore.LookupEntry(adventureMapPOIID);
+    if (!adventureMapPOIEntry)
+        return false;
+
+    auto available = false;
+
+    if (adventureMapPOIEntry->ID == adventureMapPOIID && _player->MeetPlayerCondition(adventureMapPOIEntry->PlayerConditionID))
+        //  if (sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), adventureMapPOIEntry->PlayerConditionID))
+    {
+        switch (adventureMapPOIEntry->Type)
+        {
+        case 1:
+            if (auto quest = sObjectMgr->GetQuestTemplate(adventureMapPOIEntry->QuestID))
+                available = !_player->getAdventureQuestID() && _player->CanTakeQuest(quest, false);
+            break;
+        default:
+            break;
+        }
+    }
+
+    return available;
+}
+
+void WorldSession::HandleQueryAdventureMapPOI(WorldPackets::Quest::QueryAdventureMapPOI& packet)
+{
+    AdventureMapPOIEntry const* poiEntry = sAdventureMapPOIStore.LookupEntry(packet.AdventureMapPOIID);
+    if (!poiEntry)
+        return;
+
+
+    bool active = true;
+    if (poiEntry->PlayerConditionID)
+        active = active && _player->MeetPlayerCondition(poiEntry->PlayerConditionID);
+
+    switch (packet.AdventureMapPOIID)
+    {
+    case 40: // Zuldazar
+        if (_player->GetTeam() == HORDE)
+        {
+            active = true;
+        }
+        break;
+    case 41:
+        if (_player->GetTeam() == HORDE)
+        {
+            active = true;
+        }
+        break;
+    case 42:
+        if (_player->GetTeam() == HORDE)
+        {
+            active = true;
+        }
+        break;
+    case 148: // Tiragarde Sound
+        if (_player->GetTeam() == HORDE)
+        {
+            active = true;
+        }
+        break;
+    case 149: //Drustvar
+        if (_player->GetTeam() == HORDE)
+        {
+            active = true;
+        }
+        break;
+    case 150: //Stormsong Valley
+        if (_player->GetTeam() == HORDE)
+        {
+            active = true;
+        }
+        break;
+    case 43: // Tiragarde Sound
+        if (_player->GetTeam() == ALLIANCE)
+        {
+            active = true;
+        }
+        break;
+    case 44: // Drustvar
+        if (_player->GetTeam() == ALLIANCE)
+        {
+            active = true;
+        }
+        break;
+    case 45: //Stormsong Valley
+        if (_player->GetTeam() == ALLIANCE)
+        {
+            active = true;
+        }
+        break;
+    case 151: //Zuldazar
+        if (_player->GetTeam() == ALLIANCE)
+        {
+            active = true;
+        }
+        break;
+    case 152: //Nazmir
+        if (_player->GetTeam() == ALLIANCE)
+        {
+            active = true;
+        }
+        break;
+    case 153:// Vol'dun
+        if (_player->GetTeam() == ALLIANCE)
+        {
+            active = true;
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (poiEntry->QuestID)
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(poiEntry->QuestID))
+            active = active && _player->CanTakeQuest(quest, false);
+
+    WorldPackets::Quest::QueryAdventureMapPOIResponse result;
+    result.AdventureMapPOIID = packet.AdventureMapPOIID;
+    result.Result = active;
+    SendPacket(result.Write());
+}
+
+void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& packet)
+{
+    WorldPackets::Quest::UiMapQuestLinesRequest;
+    sWorldQuestMgr->GetWorldQuestTemplate(packet.UiMapID);
 }
 
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)

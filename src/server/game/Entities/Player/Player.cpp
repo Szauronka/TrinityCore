@@ -29037,3 +29037,12 @@ void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusR
 
     SendDirectMessage(displayToast.Write());
 }
+
+uint16 Player::getAdventureQuestID()
+{
+    // if not 0 check if the adventure quest is still in the quest journal, otherwise return 0
+    if (m_adventure_questID && GetQuestStatus(m_adventure_questID) != QUEST_STATUS_REWARDED && GetQuestStatus(m_adventure_questID) != QUEST_STATUS_NONE)
+        return m_adventure_questID;
+
+    return 0;
+}
