@@ -1240,6 +1240,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PVP_TIER, "SELECT MAX(ID) + 1 FROM pvp_tier", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PVP_TIER, "SELECT ID, Name_lang FROM pvp_tier_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
+    // QuestPoiBlob.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT ID, MapID, UiMapID, NumPoints, QuestID, ObjectiveIndex, ObjectiveID, PlayerConditionID, UNK_9_0_1 FROM quest_poi_blob WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT MAX(ID) + 1 FROM quest_poi_blob", CONNECTION_SYNCH);
+
     // QuestFactionReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_FACTION_REWARD, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_faction_reward WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

@@ -6237,7 +6237,7 @@ void Player::UpdateWorldQuestPosition(float x, float y)
 
     m_areaQuestTimer = time(nullptr) + 2;
 
-    for (auto& bonus_quest : sObjectMgr->BonusQuestsRects)
+    for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
     {
         if (IsQuestRewarded(bonus_quest.first))
             continue;
@@ -6251,9 +6251,7 @@ void Player::UpdateWorldQuestPosition(float x, float y)
         }
 
         uint32 slot = FindQuestSlot(bonus_quest.first);
-        
         Quest const* quest = sObjectMgr->GetQuestTemplate(bonus_quest.first);
-
         if (!quest)
             continue;
 

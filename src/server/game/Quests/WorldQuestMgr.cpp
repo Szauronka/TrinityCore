@@ -221,11 +221,11 @@ void WorldQuestMgr::LoadActiveWorldQuests()
 
 void WorldQuestMgr::Update()
 {
-    for (auto& expansionWorldQuest : _activeWorldQuests)
+    for (auto expansionWorldQuest : _activeWorldQuests)
     {
-        for (auto& teamWorldQuest : expansionWorldQuest.second)
+        for (auto teamWorldQuest : expansionWorldQuest.second)
         {
-            auto& worldQuests = teamWorldQuest.second;
+            auto worldQuests = teamWorldQuest.second;
 
             for (auto itr = worldQuests.begin(); itr != worldQuests.end();)
             {
@@ -507,9 +507,9 @@ std::vector<WorldQuestReward const*> WorldQuestMgr::GetRewardsForPlayerById(Play
 
 void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdateResponse& packet)
 {
-    for (auto& expansionWorldQuests : _activeWorldQuests)
+    for (auto expansionWorldQuests : _activeWorldQuests)
     {
-        for (auto& itr : expansionWorldQuests.second[player->GetTeamId()])
+        for (auto itr : expansionWorldQuests.second[player->GetTeamId()])
         {
             ActiveWorldQuest* activeWorldQuest = itr.second;
             if (player->IsQuestRewarded(itr.first))

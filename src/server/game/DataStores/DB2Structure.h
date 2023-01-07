@@ -3031,6 +3031,19 @@ struct QuestMoneyRewardEntry
     std::array<uint32, 10> Difficulty;
 };
 
+struct QuestPOIBlobEntry
+{
+    int32       ID;
+    int16       MapID;
+    int32       UiMapID;
+    uint8       NumPoints;
+    uint32      QuestID;
+    int32       ObjectiveIndex;
+    int32       ObjectiveID;
+    uint32      PlayerConditionID;
+    uint32      UNK_9_0_1;
+};
+
 struct QuestPackageItemEntry
 {
     uint32 ID;

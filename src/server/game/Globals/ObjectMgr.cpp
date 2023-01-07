@@ -4589,8 +4589,10 @@ void ObjectMgr::LoadQuests()
         if (itr->second.IsAutoPush())
             _questTemplatesAutoPush.push_back(&itr->second);
 
+        Quest* newQuest = new Quest(fields);
+
         if (newQuest->IsWorldQuest() || newQuest->IsEmissaryQuest())
-            _worldQuestStore[newQuest->QuestInfoID].push_back(newQuest->GetQuestId());
+            _worldQuestStore[newQuest->_questInfoID].push_back(newQuest->GetQuestId());
 
     } while (result->NextRow());
 

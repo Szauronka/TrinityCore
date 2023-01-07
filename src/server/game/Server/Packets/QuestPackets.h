@@ -764,6 +764,14 @@ namespace WorldPackets
             bool IsReroll = false;
         };
 
+        class RequestAreaPoiUpdate final : public ClientPacket
+        {
+        public:
+            RequestAreaPoiUpdate(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_AREA_POI_UPDATE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class AreaPoiUpdate final : public ServerPacket
         {
         public:

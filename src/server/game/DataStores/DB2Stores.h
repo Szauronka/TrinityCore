@@ -183,8 +183,10 @@ TC_GAME_API extern DB2Storage<PvpTalentEntry>                       sPvpTalentSt
 TC_GAME_API extern DB2Storage<PvpTalentCategoryEntry>               sPvpTalentCategoryStore;
 TC_GAME_API extern DB2Storage<PvpTalentSlotUnlockEntry>             sPvpTalentSlotUnlockStore;
 TC_GAME_API extern DB2Storage<PvpTierEntry>                         sPvpTierStore;
+TC_GAME_API extern DB2Storage<QuestPOIBlobEntry>                    sQuestPOIBlobStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
 TC_GAME_API extern DB2Storage<QuestInfoEntry>                       sQuestInfoStore;
+TC_GAME_API extern DB2Storage<QuestLineXQuestEntry>                 sQuestLineXQuestStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
@@ -497,6 +499,8 @@ public:
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     bool IsUiMapPhase(uint32 phaseId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
+
+    std::vector<QuestLineXQuestEntry const*> const* GetQuestsOrderForQuestLine(uint32 questLineId) const;
 
 private:
     friend class DB2HotfixGeneratorBase;

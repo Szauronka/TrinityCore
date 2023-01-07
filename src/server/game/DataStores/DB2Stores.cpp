@@ -245,6 +245,7 @@ DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2",
 DB2Storage<PvpTalentCategoryEntry>              sPvpTalentCategoryStore("PvpTalentCategory.db2", &PvpTalentCategoryLoadInfo::Instance);
 DB2Storage<PvpTalentSlotUnlockEntry>            sPvpTalentSlotUnlockStore("PvpTalentSlotUnlock.db2", &PvpTalentSlotUnlockLoadInfo::Instance);
 DB2Storage<PvpTierEntry>                        sPvpTierStore("PvpTier.db2", &PvpTierLoadInfo::Instance);
+DB2Storage< QuestPOIBlobEntry>                  sQuestPOIBlobStore("QuestPOIBlob.db2", &QuestPOIBlobLoadInfo::Instance);
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", &QuestFactionRewardLoadInfo::Instance);
 DB2Storage<QuestInfoEntry>                      sQuestInfoStore("QuestInfo.db2", &QuestInfoLoadInfo::Instance);
 DB2Storage<QuestLineXQuestEntry>                sQuestLineXQuestStore("QuestLineXQuest.db2", &QuestLineXQuestLoadInfo::Instance);
@@ -409,6 +410,7 @@ typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidati
 typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
 typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
+typedef std::unordered_map<uint32 /*questLineID*/, std::vector<QuestLineXQuestEntry const*>> QuestLinesContainer;
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
 typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
 typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
@@ -464,6 +466,7 @@ namespace
     std::unordered_map<std::pair<uint32 /*level*/, int32 /*expansion*/>, ExpectedStatEntry const*> _expectedStatsByLevel;
     std::unordered_map<uint32 /*contentTuningId*/, std::vector<ContentTuningXExpectedEntry const*>> _expectedStatModsByContentTuning;
     FactionTeamContainer _factionTeams;
+    QuestLinesContainer _questsOrderByQuestLine;
     std::unordered_map<uint32, std::set<FriendshipRepReactionEntry const*, DB2Manager::FriendshipRepReactionEntryComparator>> _friendshipRepReactions;
     HeirloomItemsContainer _heirlooms;
     GlyphBindableSpellsContainer _glyphBindableSpells;
@@ -845,6 +848,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sPvpTalentCategoryStore);
     LOAD_DB2(sPvpTalentSlotUnlockStore);
     LOAD_DB2(sPvpTierStore);
+    LOAD_DB2(sQuestPOIBlobStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestInfoStore);
     LOAD_DB2(sQuestLineXQuestStore);
@@ -3480,4 +3484,13 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
     if (left->MountTypeID == right->MountTypeID)
         return left->OrderIndex < right->OrderIndex;
     return left->MountTypeID < right->MountTypeID;
+}
+
+std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsOrderForQuestLine(uint32 questLineId) const
+{
+    auto itr = _questsOrderByQuestLine.find(questLineId);
+    if (itr != _questsOrderByQuestLine.end())
+        return &itr->second;
+
+    return nullptr;
 }
