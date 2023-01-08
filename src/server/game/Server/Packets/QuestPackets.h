@@ -842,20 +842,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            struct CurrencyReward
-            {
-                uint32 CurrencyID = 0;
-                uint32 Amount = 0;
-                uint32 CurrencyCount = 2;
-            };
 
-            struct ItemReward
-            {
-                WorldPackets::Item::ItemInstance Item;
-                bool HasItemBonus = false;
-                uint32 ContentTuningID = 0;
-                uint32 Contex = 0;
-            };
 
             uint32 QuestID = 0;
             uint32 TreasurePickerID = 0;
@@ -864,8 +851,7 @@ namespace WorldPackets
             uint64 MoneyReward = 0;
             uint64 BonusCount = 0;
             uint32 Flags = 0;
-            std::vector<CurrencyReward> CurrencyRewards;
-            std::vector<ItemReward> ItemRewards;
+            QuestGiverOfferReward QuestData;
         };
     }
 }

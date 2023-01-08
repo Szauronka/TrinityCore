@@ -102,6 +102,7 @@ private:
     WorldQuestRewardByQuestInfoMap _worldQuestRewardByQuestInfos;
 
     ActiveWorldQuestMap _activeWorldQuests;
+    //std::vector<uint32, ActiveWorldQuestMap> _activeWorldQuests;
 };
 
 #define sWorldQuestMgr WorldQuestMgr::instance()
@@ -111,10 +112,10 @@ struct WorldQuestTemplate
     WorldQuestTemplate(uint32 questId, uint32 duration, uint32 variableId, uint8 value) :
         QuestId(questId), Duration(duration), VariableId(variableId), Value(value) { }
 
-    uint32 QuestId;
-    uint32 Duration;
-    uint32 VariableId;
-    uint8 Value;
+    uint32 QuestId = 0;
+    uint32 Duration = 0;
+    uint32 VariableId = 0;
+    uint8 Value = 0;
 
     Quest const* GetQuest() const { return sObjectMgr->GetQuestTemplate(QuestId); }
 };
@@ -124,12 +125,12 @@ struct WorldQuestReward
     WorldQuestReward(uint32 id, uint8 questType, uint8 rewardType, uint32 rewardId, uint32 rewardCount, uint32 rewardContext) :
         Id(id), QuestType(questType), RewardType(rewardType), RewardId(rewardId), RewardCount(rewardCount), RewardContext(rewardContext) { }
 
-    uint32 Id;
-    uint8 QuestType;
-    uint8 RewardType;
-    uint32 RewardId;
-    uint32 RewardCount;
-    uint32 RewardContext;
+    uint32 Id = 0;
+    uint8 QuestType = 0;
+    uint8 RewardType = 0;
+    uint32 RewardId = 0;
+    uint32 RewardCount = 0;
+    uint32 RewardContext = 0;
 };
 
 struct ActiveWorldQuest
@@ -137,16 +138,16 @@ struct ActiveWorldQuest
     ActiveWorldQuest(uint32 questId, uint32 rewardId, int32 startTime) :
         QuestId(questId), RewardId(rewardId), StartTime(startTime) { }
 
-    uint32 QuestId;
-    uint32 RewardId;
-    int32 StartTime;
+    uint32 QuestId = 0;
+    uint32 RewardId = 0;
+    int32 StartTime = 0;
 
     WorldQuestTemplate const* GetTemplate() const { return sWorldQuestMgr->GetWorldQuestTemplate(QuestId); }
 
     int32 GetRemainingTime() const
     {
         if (WorldQuestTemplate const* worldQuestTemplate = GetTemplate())
-            return (StartTime + worldQuestTemplate->Duration) - time(nullptr);
+            return (StartTime + worldQuestTemplate->Duration) - time(0);
 
         return 0;
     }

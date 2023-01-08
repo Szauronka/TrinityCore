@@ -229,7 +229,7 @@ void WorldQuestMgr::Update()
 
             for (auto itr = worldQuests.begin(); itr != worldQuests.end();)
             {
-                if (itr->second->GetRemainingTime() <= 0)
+                if (itr->second->GetRemainingTime() == 0)
                 {
                     DisableQuest(itr->second);
                     itr = teamWorldQuest.second.erase(itr);
@@ -304,7 +304,7 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* worldQuestTemplate)
         SessionMap const& smap = sWorld->GetAllSessions();
         for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
             if (Player* player = iter->second->GetPlayer())
-                if (player->HasWorldQuestEnabled(quest->GetExpansion()))
+                if (player->HasWorldQuestEnabled(quest->GetExpansion() >= EXPANSION_LEGION))
                     if (player->GetQuestStatus(worldQuestTemplate->QuestId) == QUEST_STATUS_NONE)
                         player->AddQuest(quest, nullptr);
     }
@@ -438,7 +438,7 @@ ActiveWorldQuest* WorldQuestMgr::GetActiveWorldQuest(uint32 questId)
     if (!quest)
         return nullptr;
 
-    auto expansionTemplates = _activeWorldQuests.find(quest->GetExpansion());
+    auto expansionTemplates = _activeWorldQuests.find(quest->GetExpansion() >= EXPANSION_LEGION);
     if (expansionTemplates == _activeWorldQuests.end())
         return nullptr;
 
@@ -518,10 +518,10 @@ void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestU
             if (WorldQuestTemplate const* worldQuestTemplate = activeWorldQuest->GetTemplate())
             {
                 WorldPackets::Quest::WorldQuestUpdateInfo quest;
-                quest.QuestID = activeWorldQuest->QuestId;
                 quest.LastUpdate = activeWorldQuest->StartTime;
-                quest.VariableID = worldQuestTemplate->VariableId;
+                quest.QuestID = activeWorldQuest->QuestId;
                 quest.Timer = worldQuestTemplate->Duration;
+                quest.VariableID = worldQuestTemplate->VariableId;
                 quest.Value = worldQuestTemplate->Value;
                 packet.WorldQuestUpdates.push_back(quest);
             }
@@ -535,43 +535,6 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
     if (!activeWorldQuest)
         return;
 
-    std::vector<WorldQuestReward const*> worldQuestRewards = GetRewardsForPlayerById(player, activeWorldQuest->RewardId);
-    if (!worldQuestRewards.size())
-        return;
-
-    for (WorldQuestReward const* worldQuestReward : worldQuestRewards)
-    {
-        switch (worldQuestReward->RewardType)
-        {
-        case WORLD_QUEST_REWARD_ITEM:
-        {
-            WorldPackets::Quest::QueryQuestRewardResponse::ItemReward itemReward;
-            WorldPackets::Quest::QueryQuestRewardResponse response;
-            itemReward.Item.ItemID = worldQuestReward->RewardId;
-            itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonuses();
-            itemReward.Item.ItemBonus->Context = (ItemContext)worldQuestReward->RewardContext;
-            itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, (ItemContext(worldQuestReward->RewardContext)));
-            response.ItemCount = worldQuestReward->RewardCount;
-            packet.ItemRewards.push_back(itemReward);
-            break;
-        }
-        case WORLD_QUEST_REWARD_CURRENCY:
-        {
-            WorldPackets::Quest::QueryQuestRewardResponse::CurrencyReward currencyReward;
-            currencyReward.CurrencyID = worldQuestReward->RewardId;
-            currencyReward.CurrencyCount = worldQuestReward->RewardCount;
-            packet.CurrencyRewards.push_back(currencyReward);
-            break;
-        }
-        case WORLD_QUEST_REWARD_GOLD:
-        {
-            packet.MoneyReward = worldQuestReward->RewardCount;
-            break;
-        }
-        default:
-            break;
-        }
-    }
 }
 
 void WorldQuestMgr::FillInitWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
@@ -646,10 +609,10 @@ TeamId WorldQuestMgr::GetQuestTeamId(Quest const* quest)
     if (quest->GetAllowableRaces().RawValue == uint64(-1))
         return TEAM_NEUTRAL;
 
-    if (quest->GetAllowableRaces().RawValue & uint64(2971749453))
+    if (quest->GetAllowableRaces().RawValue & TEAM_ALLIANCE)
         return TEAM_ALLIANCE;
 
-    if (quest->GetAllowableRaces().RawValue & uint64(1308668850))
+    if (quest->GetAllowableRaces().RawValue & TEAM_HORDE)
         return TEAM_HORDE;
 
     return TEAM_NEUTRAL;
