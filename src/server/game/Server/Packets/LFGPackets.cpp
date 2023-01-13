@@ -403,3 +403,9 @@ WorldPacket const* WorldPackets::LFG::LFGTeleportDenied::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::LFG::OpenLfgDungeonFinder::Write()
+{
+    _worldPacket << uint32(DungeonEntry);
+    return &_worldPacket;
+}

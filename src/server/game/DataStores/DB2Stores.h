@@ -123,6 +123,9 @@ TC_GAME_API extern DB2Storage<GuildColorBackgroundEntry>            sGuildColorB
 TC_GAME_API extern DB2Storage<GuildColorBorderEntry>                sGuildColorBorderStore;
 TC_GAME_API extern DB2Storage<GuildColorEmblemEntry>                sGuildColorEmblemStore;
 TC_GAME_API extern DB2Storage<GuildPerkSpellsEntry>                 sGuildPerkSpellsStore;
+TC_GAME_API extern DB2Storage<GroupFinderActivityEntry>             sGroupFinderActivityStore;
+TC_GAME_API extern DB2Storage<GroupFinderActivityGrpEntry>          sGroupFinderActivityGrpStore;
+TC_GAME_API extern DB2Storage<GroupFinderCategoryEntry>             sGroupFinderCategoryStore;
 TC_GAME_API extern DB2Storage<HolidaysEntry>                        sHolidaysStore;
 TC_GAME_API extern DB2Storage<ImportPriceArmorEntry>                sImportPriceArmorStore;
 TC_GAME_API extern DB2Storage<ImportPriceQualityEntry>              sImportPriceQualityStore;
@@ -387,6 +390,7 @@ public:
 
     uint32 GetEmptyAnimStateID() const;
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
+    std::vector<uint32> GetActivity(uint32 activityID) const;
     static bool IsInArea(uint32 objectAreaId, uint32 areaId);
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
     std::vector<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;

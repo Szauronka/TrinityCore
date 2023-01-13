@@ -159,6 +159,9 @@ DB2Storage<GuildColorBackgroundEntry>           sGuildColorBackgroundStore("Guil
 DB2Storage<GuildColorBorderEntry>               sGuildColorBorderStore("GuildColorBorder.db2", &GuildColorBorderLoadInfo::Instance);
 DB2Storage<GuildColorEmblemEntry>               sGuildColorEmblemStore("GuildColorEmblem.db2", &GuildColorEmblemLoadInfo::Instance);
 DB2Storage<GuildPerkSpellsEntry>                sGuildPerkSpellsStore("GuildPerkSpells.db2", &GuildPerkSpellsLoadInfo::Instance);
+DB2Storage<GroupFinderActivityEntry>            sGroupFinderActivityStore("GroupFinderActivity.db2", &GroupFinderActivityLoadInfo::Instance);
+DB2Storage<GroupFinderActivityGrpEntry>         sGroupFinderActivityGrpStore("GroupFinderActivityGrp.db2", &GroupFinderActivityGrpLoadInfo::Instance);
+DB2Storage<GroupFinderCategoryEntry>            sGroupFinderCategoryStore("GroupFinderCategory.db2", &GroupFinderCategoryLoadInfo::Instance);
 DB2Storage<HeirloomEntry>                       sHeirloomStore("Heirloom.db2", &HeirloomLoadInfo::Instance);
 DB2Storage<HolidaysEntry>                       sHolidaysStore("Holidays.db2", &HolidaysLoadInfo::Instance);
 DB2Storage<ImportPriceArmorEntry>               sImportPriceArmorStore("ImportPriceArmor.db2", &ImportPriceArmorLoadInfo::Instance);
@@ -401,6 +404,7 @@ typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModified
 typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
+typedef std::unordered_map<uint32, std::vector <GroupFinderActivityEntry const*>>GroupFinderActivityContainer;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
@@ -481,6 +485,8 @@ namespace
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
+    GroupFinderActivityContainer _groupFinderActivityByID;
+    std::vector<GroupFinderActivityEntry const*> _groupFinderActivity;
     MapDifficultyContainer _mapDifficulties;
     std::unordered_map<uint32, DB2Manager::MapDifficultyConditionsContainer> _mapDifficultyConditions;
     std::unordered_map<uint32, MountEntry const*> _mountsBySpellId;
@@ -760,6 +766,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGuildColorBorderStore);
     LOAD_DB2(sGuildColorEmblemStore);
     LOAD_DB2(sGuildPerkSpellsStore);
+    LOAD_DB2(sGroupFinderActivityStore);
+    LOAD_DB2(sGroupFinderActivityGrpStore);
+    LOAD_DB2(sGroupFinderCategoryStore);
     LOAD_DB2(sHeirloomStore);
     LOAD_DB2(sHolidaysStore);
     LOAD_DB2(sImportPriceArmorStore);
@@ -1288,6 +1297,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (JournalTierEntry const* journalTier : sJournalTierStore)
         _journalTiersByIndex.push_back(journalTier);
+
+    for (GroupFinderActivityEntry const* activities : sGroupFinderActivityStore)
+        _groupFinderActivity.push_back(activities);
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;

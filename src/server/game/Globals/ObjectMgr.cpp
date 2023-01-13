@@ -6314,6 +6314,11 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID) const
     return nullptr;
 }
 
+Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType const& lowguid) const
+{
+	return ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(lowguid));
+}
+
 void ObjectMgr::LoadInstanceEncounters()
 {
     uint32 oldMSTime = getMSTime();
