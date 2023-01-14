@@ -1874,6 +1874,42 @@ struct GuildPerkSpellsEntry
     int32 SpellID;
 };
 
+struct GroupFinderActivityEntry
+{
+    int32 ID;
+    LocalizedString FullName;
+    LocalizedString ShortName;
+    uint8 GroupFinderCategoryID;
+    int8 OrderIndex;
+    uint16 GroupFinderActivityGrpID;
+    uint32 Flags;
+    uint16 MinGearLevelSuggestion;
+    int32 PlayerConditionID;
+    uint16 MapID;
+    uint8 DifficultyID;
+    uint16 AreaID;
+    uint8 MaxPlayers;
+    uint8 DisplayType;
+    int32 OverrideContentTuningID;
+    int32 MapChallengeModeID;
+};
+
+struct GroupFinderActivityGrpEntry
+{
+    int32 ID;
+    LocalizedString Name;
+    uint8 OrderIndex;
+};
+
+struct GroupFinderCategoryEntry
+{
+    int32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    int32 OrderIndex;
+    int32 Flags;
+};
+
 struct HeirloomEntry
 {
     LocalizedString SourceText;
@@ -3065,6 +3101,13 @@ struct QuestV2Entry
     uint32 ID;
     uint16 UniqueBitFlag;
     int32 UiQuestDetailsTheme;
+};
+
+struct QuestXGroupActivityEntry
+{
+    int32 ID;
+    uint32 QuestID;
+    uint32 GroupFinderActivityID;
 };
 
 struct QuestXPEntry

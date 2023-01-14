@@ -427,6 +427,16 @@ namespace WorldPackets
 
             lfg::LfgTeleportResult Reason;
         };
+
+        class OpenLfgDungeonFinder final : public ServerPacket
+        {
+        public:
+            OpenLfgDungeonFinder() : ServerPacket(SMSG_OPEN_LFG_DUNGEON_FINDER) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 DungeonEntry = 0;
+        };
     }
 }
 

@@ -745,6 +745,26 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GUILD_PERK_SPELLS, "SELECT ID, SpellID FROM guild_perk_spells WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GUILD_PERK_SPELLS, "SELECT MAX(ID) + 1 FROM guild_perk_spells", CONNECTION_SYNCH);
 
+    // GroupFinderActivity.db2
+    PrepareStatement(HOTFIX_SEL_GROUP_FINDER_ACTIVITY, "SELECT ID, FullName, ShortName, GroupFinderCategoryID, OrderIndex, GroupFinderActivityGrpID, "
+        "MinLevel, MaxLevelSuggestion, Flags, MinGearLevelSuggestion, MapID, DifficultyID, AreaID, MaxPlayers, DisplayType FROM group_finder_activity"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_HEIRLOOM, "SELECT MAX(ID) + 1 FROM group_finder_activity", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GROUP_FINDER_ACTIVITY, "SELECT ID, FullName_lang, ShortName_lang FROM group_finder_activity_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // GroupFinderActivityGrp.db2
+    PrepareStatement(HOTFIX_SEL_GROUP_FINDER_ACTIVITY_GRP, "SELECT ID, Name, OrderIndex FROM group_finder_activity_grp WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_HEIRLOOM, "SELECT MAX(ID) + 1 FROM group_finder_activity_grp", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GROUP_FINDER_ACTIVITY_GRP, "SELECT ID, Name_lang FROM group_finder_activity_grp_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // GroupFinderCategory.db2
+    PrepareStatement(HOTFIX_SEL_GROUP_FINDER_CATEGORY, "SELECT ID, Name, OrderIndex, Flags FROM group_finder_category WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_HEIRLOOM, "SELECT MAX(ID) + 1 FROM group_finder_category", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GROUP_FINDER_CATEGORY, "SELECT ID, Name_lang FROM group_finder_category_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
     // Heirloom.db2
     PrepareStatement(HOTFIX_SEL_HEIRLOOM, "SELECT SourceText, ID, ItemID, LegacyUpgradedItemID, StaticUpgradedItemID, SourceTypeEnum, Flags, "
         "LegacyItemID, UpgradeItemID1, UpgradeItemID2, UpgradeItemID3, UpgradeItemID4, UpgradeItemID5, UpgradeItemID6, UpgradeItemBonusListID1, "
@@ -1277,6 +1297,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // QuestV2.db2
     PrepareStatement(HOTFIX_SEL_QUEST_V2, "SELECT ID, UniqueBitFlag, UiQuestDetailsTheme FROM quest_v2 WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_V2, "SELECT MAX(ID) + 1 FROM quest_v2", CONNECTION_SYNCH);
+
+    // QuestXGroupActivity.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_X_GROUP_ACTIVITY, "SELECT ID, QuestID, GroupFinderActivityID FROM quest_x_group_activity"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_X_GROUP_ACTIVITY, "SELECT MAX(ID) + 1 FROM quest_x_group_activity", CONNECTION_SYNCH);
 
     // QuestXp.db2
     PrepareStatement(HOTFIX_SEL_QUEST_XP, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, Difficulty7, "

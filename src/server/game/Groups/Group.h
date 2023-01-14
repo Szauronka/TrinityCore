@@ -179,10 +179,10 @@ class TC_GAME_API Group
             ObjectGuid  guid;
             std::string name;
             Races       race;
-            uint8       _class;
-            uint8       group;
-            uint8       flags;
-            uint8       roles;
+            uint8       _class = 0;
+            uint8       group = 0;
+            uint8       flags = 0;
+            uint8       roles = 0;
             bool        readyChecked;
         };
         typedef std::list<MemberSlot> MemberSlotList;

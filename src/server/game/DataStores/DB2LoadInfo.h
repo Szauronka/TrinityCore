@@ -368,6 +368,19 @@ struct ArtifactPowerRankLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 6, &ArtifactPowerRankMeta::Instance, HOTFIX_SEL_ARTIFACT_POWER_RANK };
 };
 
+struct QuestXGroupActivityLoadInfo
+{
+
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_INT, "QuestID" },
+        { false, FT_INT, "GroupFinderActivityID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &QuestXGroupActivityMeta::Instance, HOTFIX_SEL_QUEST_X_GROUP_ACTIVITY };
+};
+
 struct ArtifactQuestXpLoadInfo
 {
     static constexpr DB2FieldMeta Fields[11] =
@@ -2309,6 +2322,57 @@ struct GuildPerkSpellsLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 2, &GuildPerkSpellsMeta::Instance, HOTFIX_SEL_GUILD_PERK_SPELLS };
+};
+
+struct GroupFinderActivityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[16] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "FullName" },
+        { false, FT_STRING, "ShortName" },
+        { false, FT_BYTE, "GroupFinderCategoryID" },
+        { true, FT_BYTE, "OrderIndex" },
+        { false, FT_SHORT, "GroupFinderActivityGrpID" },
+        { false, FT_INT, "Flags" },
+        { false, FT_SHORT, "MinGearLevelSuggestion" },
+        { true, FT_INT, "PlayerConditionID" },
+        { false, FT_SHORT, "MapID" },
+        { false, FT_BYTE, "DifficultyID" },
+        { false, FT_SHORT, "AreaID" },
+        { false, FT_BYTE, "MaxPlayers" },
+        { false, FT_BYTE, "DisplayType" },
+        { true, FT_INT, "OverrideContentTuningID" },
+        { true, FT_INT, "MapChallengeModeID"}
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 16, &GroupFinderActivityMeta::Instance, HOTFIX_SEL_GROUP_FINDER_ACTIVITY };
+};
+
+struct GroupFinderActivityGrpLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_BYTE, "OrderIndex" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &GroupFinderActivityGrpMeta::Instance, HOTFIX_SEL_GROUP_FINDER_ACTIVITY_GRP };
+};
+
+struct GroupFinderCategoryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Description"},
+        { true, FT_INT, "OrderIndex" },
+        { true, FT_INT, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &GroupFinderCategoryMeta::Instance, HOTFIX_SEL_GROUP_FINDER_CATEGORY };
 };
 
 struct HeirloomLoadInfo
