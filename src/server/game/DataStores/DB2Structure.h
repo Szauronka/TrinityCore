@@ -1877,8 +1877,8 @@ struct GuildPerkSpellsEntry
 struct GroupFinderActivityEntry
 {
     int32 ID;
-    LocalizedString* FullName;
-    LocalizedString* ShortName;
+    LocalizedString FullName;
+    LocalizedString ShortName;
     uint8 GroupFinderCategoryID;
     int8 OrderIndex;
     uint16 GroupFinderActivityGrpID;
@@ -1897,15 +1897,15 @@ struct GroupFinderActivityEntry
 struct GroupFinderActivityGrpEntry
 {
     int32 ID;
-    LocalizedString* Name;
+    LocalizedString Name;
     uint8 OrderIndex;
 };
 
 struct GroupFinderCategoryEntry
 {
     int32 ID;
-    LocalizedString* Name;
-    LocalizedString* Description;
+    LocalizedString Name;
+    LocalizedString Description;
     int32 OrderIndex;
     int32 Flags;
 };
@@ -3088,6 +3088,13 @@ struct QuestV2Entry
     uint32 ID;
     uint16 UniqueBitFlag;
     int32 UiQuestDetailsTheme;
+};
+
+struct QuestXGroupActivityEntry
+{
+    int32 ID;
+    uint32 QuestID;
+    uint32 GroupFinderActivityID;
 };
 
 struct QuestXPEntry

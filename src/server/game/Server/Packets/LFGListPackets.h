@@ -50,6 +50,8 @@ namespace WorldPackets
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
+            std::string Title;
+            std::string Details;
             bool AutoAccept = false;
             bool PrivateGroup = false;
         };

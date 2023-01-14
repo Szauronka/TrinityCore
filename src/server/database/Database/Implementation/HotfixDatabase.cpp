@@ -1294,6 +1294,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_QUEST_V2, "SELECT ID, UniqueBitFlag, UiQuestDetailsTheme FROM quest_v2 WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_V2, "SELECT MAX(ID) + 1 FROM quest_v2", CONNECTION_SYNCH);
 
+    // QuestXGroupActivity.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_X_GROUP_ACTIVITY, "SELECT ID, QuestID, GroupFinderActivityID FROM quest_x_group_activity"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_X_GROUP_ACTIVITY, "SELECT MAX(ID) + 1 FROM quest_x_group_activity", CONNECTION_SYNCH);
+
     // QuestXp.db2
     PrepareStatement(HOTFIX_SEL_QUEST_XP, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, Difficulty7, "
         "Difficulty8, Difficulty9, Difficulty10 FROM quest_xp WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
