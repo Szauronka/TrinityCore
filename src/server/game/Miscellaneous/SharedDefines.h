@@ -1109,7 +1109,8 @@ enum TeamId
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,
-    TEAM_NEUTRAL
+    TEAM_NEUTRAL,
+    TEAM_MAX
 };
 
 enum Team

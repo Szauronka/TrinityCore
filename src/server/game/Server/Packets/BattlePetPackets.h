@@ -264,6 +264,43 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
         };
+
+        class BattlePetCageDateError final : public ServerPacket
+        {
+        public:
+            BattlePetCageDateError(int32 secondsUntilCanCage) : ServerPacket(SMSG_BATTLE_PET_CAGE_DATE_ERROR, 4), SecondsUntilCanCage(secondsUntilCanCage) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SecondsUntilCanCage = 0;
+        };
+
+        class BattlePetTrapLevel final : public ServerPacket
+        {
+        public:
+            BattlePetTrapLevel(int16 trapLevel) : ServerPacket(SMSG_BATTLE_PET_TRAP_LEVEL, 2), TrapLevel(trapLevel) { }
+
+            WorldPacket const* Write() override;
+
+            int16 TrapLevel = 0;
+        };
+
+        struct PetBattleLocation
+        {
+            int32 LocationResult = 0;
+            TaggedPosition<Position::XYZO> BattleOrigin;
+            TaggedPosition<Position::XYZ> PlayerPositions[PARTICIPANTS_COUNT] = {};
+        };
+
+        class FinalizeLocation final : public ServerPacket
+        {
+        public:
+            FinalizeLocation() : ServerPacket(SMSG_PET_BATTLE_FINALIZE_LOCATION, 4 + 12 + 4 + 12 * 2) { }
+
+            WorldPacket const* Write() override;
+
+            PetBattleLocation Location;
+        };
     }
 }
 

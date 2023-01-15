@@ -540,6 +540,98 @@ namespace WorldPackets
 
             ObjectGuid CapturePointGUID;
         };
+
+        class CheckWargameEntry final : public ServerPacket
+        {
+        public:
+            CheckWargameEntry() : ServerPacket(SMSG_CHECK_WARGAME_ENTRY, 16 + 8 + 8 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid OpposingPartyBnetAccountID;
+            ObjectGuid OpposingPartyMember;
+            uint64 QueueID = 0;
+            uint32 TimeoutSeconds = 0;
+            uint32 RealmID = 0;
+            uint16 UnkShort = 0;
+            uint8 OpposingPartyUserServer = 0;
+            bool TournamentRules = false;
+        };
+
+        class StatusWaitForGroups final : public ServerPacket
+        {
+        public:
+            StatusWaitForGroups() : ServerPacket(SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS, 12) { }
+
+            WorldPacket const* Write() override;
+
+            BattlefieldStatusHeader Header;
+            uint32 Mapid = 0;
+            uint32 Timeout = 0;
+            uint8 TotalPlayers[TEAM_MAX] = { };
+            uint8 AwaitingPlayers[TEAM_MAX] = { };
+        };
+
+        class BattlegroundPoints final : public ServerPacket
+        {
+        public:
+            BattlegroundPoints() : ServerPacket(SMSG_BATTLEGROUND_POINTS, 3) { }
+
+            WorldPacket const* Write() override;
+
+            uint16 BgPoints = 0;
+            bool Team = false; // 0 - Alliance 1 - Horde
+        };
+
+        class NullSMsg final : public ServerPacket
+        {
+        public:
+            NullSMsg(OpcodeServer opcode) : ServerPacket(opcode) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class Init final : public ServerPacket
+        {
+        public:
+            Init(uint16 maxPoints) : ServerPacket(SMSG_BATTLEGROUND_INIT, 2 + 4), MaxPoints(maxPoints) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ServerTime = getMSTime();
+            uint16 MaxPoints = 0;
+        };
+
+        class MapObjectivesInit final : public ServerPacket
+        {
+        public:
+            MapObjectivesInit() : ServerPacket(SMSG_MAP_OBJECTIVES_INIT, 25) { }
+
+            WorldPacket const* Write() override;
+
+            struct BattlegroundCapturePointInfoData
+            {
+                ObjectGuid Guid;
+                TaggedPosition<Position::XY> Pos;
+                uint32 CaptureTime = 0;
+                uint32 CaptureTotalDuration = 0;
+                int8 NodeState = NODE_STATE_NONE;
+            };
+
+            std::vector<BattlegroundCapturePointInfoData> CapturePointInfo;
+        };
+
+        class MapObjEvents final : public ServerPacket
+        {
+        public:
+            MapObjEvents() : ServerPacket(SMSG_MAP_OBJ_EVENTS, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 UniqueID = 0;
+            uint32 DataSize = 0;
+            std::vector<uint8> Unk2;
+        };
     }
 }
 

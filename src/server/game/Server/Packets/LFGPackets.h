@@ -437,6 +437,68 @@ namespace WorldPackets
 
             uint32 DungeonEntry = 0;
         };
+
+        class ReadyCheckResult final : public ServerPacket
+        {
+        public:
+            ReadyCheckResult() : ServerPacket(SMSG_LFG_READY_CHECK_RESULT, 17) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGuid;
+            bool IsReady = false;
+        };
+
+        class ReadyCheckUpdate final : public ServerPacket
+        {
+        public:
+            ReadyCheckUpdate() : ServerPacket(SMSG_LFG_READY_CHECK_UPDATE, 4 + 8 + 3) { }
+
+            WorldPacket const* Write() override;
+
+            struct UpdateData
+            {
+                ObjectGuid PlayerGuid;
+                bool IsReady = false;
+                bool UnkBit = false;
+            };
+
+            std::vector<UpdateData> Data;
+            uint64 UnkLong = 0;
+            uint8 UnkByte = 0;
+            uint8 UnkByte2 = 0;
+            bool IsCompleted = false;
+        };
+
+        class LFGRoleCheckUpdate final : public ServerPacket
+        {
+        public:
+            LFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyIndex = 0;
+            uint8 RoleCheckStatus = 0;
+            std::vector<uint32> JoinSlots;
+            std::vector<uint64> BgQueueIDs;
+            int32 GroupFinderActivityID = 0;
+            std::vector<LFGRoleCheckUpdateMember> Members;
+            bool IsBeginning = false;
+            bool IsRequeue = false;
+        };
+
+
+        class SlotInvalid final : public ServerPacket
+        {
+        public:
+            SlotInvalid() : ServerPacket(SMSG_LFG_SLOT_INVALID, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            int32 SubReason1 = 0;
+            int32 SubReason2 = 0;
+        };
     }
 }
 

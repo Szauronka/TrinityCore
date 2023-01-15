@@ -884,4 +884,14 @@ WorldPacket const* QueryQuestRewardResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::IsQuestCompleteResponse::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket.WriteBit(Complete);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 }

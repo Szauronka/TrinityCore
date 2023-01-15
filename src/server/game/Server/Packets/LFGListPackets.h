@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "LFGPacketsCommon.h"
+#include <LFGPackets.h>
 
 namespace WorldPackets
 {
@@ -41,19 +42,19 @@ namespace WorldPackets
 
         struct ListRequest
         {
-            ListRequest() { }
-
-            Optional<uint32> QuestID;
             uint32 ActivityID = 0;
-            uint32 HonorLevel = 0;
-            float ItemLevel = 0.0f;
+            float RequiredItemLevel = 0.0f;
+            uint32 HonorLevel;
+            bool AutoAccept = false;
+            float TypeActivity = 0.0f;
+            bool HasQuest = false;
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
-            std::string Title;
-            std::string Details;
-            bool AutoAccept = false;
+            bool minChallange = false;
             bool PrivateGroup = false;
+            Optional<uint32> QuestID;
+            uint32 MinMyticPlusRating = 0; 
         };
 
         struct MemberInfo
@@ -122,6 +123,18 @@ namespace WorldPackets
             std::string Comment;
             uint8 ApplicationStatus = 0;
             bool Listed = false;
+        };
+
+        class LfgListApplicantlistUpdate final : public ServerPacket
+        {
+        public:
+            LfgListApplicantlistUpdate() : ServerPacket(SMSG_LFG_LIST_APPLICANT_LIST_UPDATE, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ApplicantInfo> Applicants;
+            LFG::RideTicket ApplicationTicket;
+            uint32 UnkInt = 0;
         };
 
         class LfgListApplyToGroup final : public ClientPacket
@@ -202,8 +215,9 @@ namespace WorldPackets
         public:
             LfgListJoin(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_JOIN, std::move(packet)) { }
 
-            void Read() override;
+            void Read() override { }
 
+            WorldPackets::LFG::LfgPlayerInfo lfgPlayerInfo;
             ListRequest Request;
         };
 
@@ -239,6 +253,8 @@ namespace WorldPackets
             RequestLfgListBlacklist(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_LFG_LIST_BLACKLIST, std::move(packet)) { }
 
             void Read() override { }
+
+            WorldPackets::LFG::LfgPlayerInfo lfgPlayerInfo;
         };
 
         class LfgListApplicationUpdate final : public ServerPacket
@@ -311,6 +327,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint32 BlacklistEntryCount = 0;
             std::vector<LFGListBlacklist> Blacklist;
         };
 
@@ -322,10 +339,13 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             LFG::RideTicket ApplicationTicket;
-            ListRequest Request;
             uint32 ExpirationTime = 0;
+            uint8 ResultID = 0;
+            uint32 Unknow1 = 0;
+            bool UnknownBool = false;
             uint8 Status = 0;
             bool Listed = false;
+            ListRequest Request;
         };
 
         struct LfgListSearchResult

@@ -853,6 +853,17 @@ namespace WorldPackets
             uint32 Flags = 0;
             QuestGiverOfferReward QuestData;
         };
+
+        class IsQuestCompleteResponse final : public ServerPacket
+        {
+        public:
+            IsQuestCompleteResponse() : ServerPacket(SMSG_IS_QUEST_COMPLETE_RESPONSE, 5) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            bool Complete = false;
+        };
     }
 }
 

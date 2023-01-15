@@ -403,3 +403,76 @@ WorldPacket const* WorldPackets::Battleground::CapturePointRemoved::Write()
     _worldPacket << CapturePointGUID;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::CheckWargameEntry::Write()
+{
+    _worldPacket << OpposingPartyMember;
+    _worldPacket << RealmID;
+    _worldPacket << UnkShort;
+    _worldPacket << OpposingPartyUserServer;
+    _worldPacket << OpposingPartyBnetAccountID;
+    _worldPacket << QueueID;
+    _worldPacket << TimeoutSeconds;
+    _worldPacket << TournamentRules;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::BattlegroundPoints::Write()
+{
+    _worldPacket << BgPoints;
+    _worldPacket.WriteBit(Team);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::StatusWaitForGroups::Write()
+{
+    _worldPacket << Header;
+
+    _worldPacket << Mapid;
+    _worldPacket << Timeout;
+
+    for (uint8 i = TEAM_ALLIANCE; i < TEAM_MAX; ++i)
+    {
+        _worldPacket << TotalPlayers[i];
+        _worldPacket << AwaitingPlayers[i];
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::Init::Write()
+{
+    _worldPacket << ServerTime;
+    _worldPacket << MaxPoints;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::MapObjectivesInit::Write()
+{
+    _worldPacket << static_cast<uint32>(CapturePointInfo.size());
+    for (auto& v : CapturePointInfo)
+    {
+        _worldPacket << v.CaptureTime;
+        _worldPacket << v.CaptureTotalDuration;
+        _worldPacket << v.Guid;
+        _worldPacket << v.NodeState;
+        _worldPacket << v.Pos;
+    }
+        
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::MapObjEvents::Write()
+{
+    _worldPacket << UniqueID;
+    _worldPacket << DataSize;
+    _worldPacket << static_cast<uint32>(Unk2.size());
+    for (auto const& itr : Unk2)
+        _worldPacket << itr;
+
+    return &_worldPacket;
+}

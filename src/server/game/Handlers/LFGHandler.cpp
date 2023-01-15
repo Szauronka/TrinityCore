@@ -150,7 +150,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
     // Get player locked Dungeons
     for (auto const& lock : sLFGMgr->GetLockedDungeons(_player->GetGUID()))
-        lfgPlayerInfo.BlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel, 0);
+        lfgPlayerInfo.BlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel, 1);
 
     for (uint32 slot : randomDungeons)
     {
@@ -263,7 +263,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
     if (WorldPackets::LFG::RideTicket const* ticket = sLFGMgr->GetTicket(_player->GetGUID()))
         lfgUpdateStatus.Ticket = *ticket;
 
-    lfgUpdateStatus.SubType = lfg::LFG_QUEUE_DUNGEON; // other types not implemented
+    lfgUpdateStatus.SubType = lfg::LFG_QUEUE_DUNGEON || lfg::LFG_QUEUE_LFR || lfg::LFG_QUEUE_SCENARIO; // other types not implemented
     lfgUpdateStatus.Reason = updateData.updateType;
     std::transform(updateData.dungeons.begin(), updateData.dungeons.end(), std::back_inserter(lfgUpdateStatus.Slots), [](uint32 dungeonId)
     {

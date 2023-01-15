@@ -35,15 +35,17 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest const& join)
 {
     data << join.ActivityID;
-
-    data << join.ItemLevel;
-    data << join.HonorLevel;
+    data << join.RequiredItemLevel;
+    data << join.AutoAccept;
+    data << join.TypeActivity;
+    data << join.MinMyticPlusRating;
 
     data.WriteBits(join.GroupName.length(), 8);
-    data.WriteBits(join.Comment.length(), 11);
-    data.WriteBits(join.VoiceChat.length(), 8);
+    data.WriteBits(join.Comment.length(), 12);
+    data.WriteBits(join.VoiceChat.length(), 6);
     data.WriteBit(join.AutoAccept);
     data.WriteBit(join.PrivateGroup);
+    data.WriteBit(join.minChallange);
     data.WriteBit(join.QuestID.has_value() && *join.QuestID != 0);
     data.FlushBits();
 
@@ -60,24 +62,26 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& join)
 {
     data >> join.ActivityID;
+    data >> join.RequiredItemLevel;
+    data >> join.AutoAccept;
+    data >> join.TypeActivity;
 
-    data >> join.ItemLevel;
-    data >> join.HonorLevel;
-
-    //data.ResetBitReader();
+    bool HasQuest = data.ReadBit();
     uint32 NameLen = data.ReadBits(8);
-    uint32 CommenteLen = data.ReadBits(11);
-    uint32 VoiceChateLen = data.ReadBits(8);
-    join.AutoAccept = data.ReadBit();
+    uint32 CommenteLen = data.ReadBits(12);
+    uint32 VoiceChateLen = data.ReadBits(6);
+    bool minChallenge = data.ReadBit();
     join.PrivateGroup = data.ReadBit();
-    bool isForQuest = data.ReadBit();
 
     join.GroupName = data.ReadString(NameLen);
     join.Comment = data.ReadString(CommenteLen);
     join.VoiceChat = data.ReadString(VoiceChateLen);
 
-    if (isForQuest)
+    if (HasQuest)
         data >> *join.QuestID;
+
+    if (minChallenge)
+        data >> join.MinMyticPlusRating;
 
     return data;
 }
@@ -100,9 +104,12 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
 {
     _worldPacket << ApplicationTicket;
     _worldPacket << ExpirationTime;
+    _worldPacket << ResultID;
+    _worldPacket << Unknow1;
+    _worldPacket.WriteBit(UnknownBool);
     _worldPacket << Status;
-    _worldPacket << Request;
     _worldPacket.WriteBit(Listed);
+    _worldPacket << Request;
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -113,11 +120,6 @@ void WorldPackets::LfgList::LfgListInviteResponse::Read()
     _worldPacket >> ApplicantTicket;
     //_worldPacket.ResetBitReader();
     Accept = _worldPacket.ReadBit();
-}
-
-void WorldPackets::LfgList::LfgListJoin::Read()
-{
-    _worldPacket >> Request;
 }
 
 void WorldPackets::LfgList::LfgListLeave::Read()
@@ -369,4 +371,39 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
     }
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LfgList::LfgListApplicantlistUpdate::Write()
+{
+	_worldPacket << ApplicationTicket;
+	_worldPacket << static_cast<uint32>(Applicants.size());
+	_worldPacket << UnkInt;
+	for (auto const& v : Applicants)
+	{
+		_worldPacket << v.ApplicantTicket;
+		_worldPacket << v.ApplicantPartyLeader;
+		_worldPacket << static_cast<uint32>(v.Member.size());
+		for (auto const& z : v.Member)
+		{
+			_worldPacket << z.PlayerGUID;
+			_worldPacket << z.VirtualRealmAddress;
+			_worldPacket << z.ItemLevel;
+			_worldPacket << z.Level;
+			_worldPacket << z.HonorLevel;
+			_worldPacket << z.PossibleRoleMask;
+			_worldPacket << z.SelectedRoleMask;
+			_worldPacket << static_cast<uint32>(z.AcStat.size());
+			for (auto const& x : z.AcStat)
+			{
+				_worldPacket << x.UnkInt4;
+				_worldPacket << x.UnkInt5;
+			}
+		}
+
+		_worldPacket.WriteBits(v.ApplicationStatus, 4);
+		_worldPacket.WriteBit(v.Listed);
+		_worldPacket.WriteString(v.Comment);
+	}
+
+	return &_worldPacket;
 }

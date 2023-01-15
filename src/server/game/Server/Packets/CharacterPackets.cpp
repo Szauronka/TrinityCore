@@ -660,5 +660,33 @@ WorldPacket const * SetPlayerDeclinedNamesResult::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::NeutralPlayerFactionSelectResult::Write()
+{
+    _worldPacket << NewRaceID;
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::XpGainEnabled::Write()
+{
+    _worldPacket.WriteBit(Enabled);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::XPGainAborted::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << XpToAdd;
+    _worldPacket << XpGainReason;
+    _worldPacket << XpAbortReason;
+
+    return &_worldPacket;
+}
+
 }
 }

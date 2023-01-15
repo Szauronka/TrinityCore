@@ -81,8 +81,14 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
                 result.Members.emplace_back(applicant->GetClass(), member.second.RoleMask);
 
         result.JoinRequest.ActivityID = activityID;
-        result.JoinRequest.ItemLevel = lfgEntry->ItemLevel;
+        result.JoinRequest.RequiredItemLevel = lfgEntry->ItemLevel;
         result.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
+        result.JoinRequest.AutoAccept = lfgEntry->AutoAccept;
+        result.JoinRequest.HasQuest = lfgEntry->HasQuest;
+        result.JoinRequest.PrivateGroup = lfgEntry->PrivateGroup;
+        result.JoinRequest.minChallange = lfgEntry->minChallange;
+        result.JoinRequest.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
+        result.JoinRequest.TypeActivity = lfgEntry->TypeActivity;
         result.JoinRequest.GroupName = lfgEntry->GroupName;
         result.JoinRequest.Comment = lfgEntry->Comment;
         result.JoinRequest.VoiceChat = lfgEntry->VoiceChat;
@@ -99,7 +105,7 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
 {
     auto list = new LFGListEntry;
     list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
-    list->ItemLevel = packet.Request.ItemLevel;
+    list->ItemLevel = packet.Request.RequiredItemLevel;
     list->AutoAccept = packet.Request.AutoAccept;
     list->GroupName = packet.Request.GroupName;
     list->Comment = packet.Request.Comment;
@@ -181,8 +187,8 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     if (packet.UpdateRequest.QuestID)
         entry->QuestID = *packet.UpdateRequest.QuestID;
 
-    if (packet.UpdateRequest.ItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))
-        entry->ItemLevel = packet.UpdateRequest.ItemLevel;
+    if (packet.UpdateRequest.RequiredItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))
+        entry->ItemLevel = packet.UpdateRequest.RequiredItemLevel;
     entry->PrivateGroup = packet.UpdateRequest.PrivateGroup;
 
     sLFGListMgr->AutoInviteApplicantsIfPossible(entry);

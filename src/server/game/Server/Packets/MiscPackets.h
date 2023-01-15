@@ -998,6 +998,46 @@ namespace WorldPackets
             ::Gender Gender = GENDER_NONE;
             uint32 CurrencyID = 0;
         };
+
+        class OpenContainer final : public ServerPacket
+        {
+        public:
+            OpenContainer() : ServerPacket(SMSG_OPEN_CONTAINER) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class SetMaxWeeklyQuantity final : public ServerPacket
+        {
+        public:
+            SetMaxWeeklyQuantity() : ServerPacket(SMSG_SET_MAX_WEEKLY_QUANTITY, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Type = 0;
+            int32 MaxWeeklyQuantity = 0;
+        };
+
+        struct TaskProgress
+        {
+            uint32 TaskID = 0;
+            time_t FailureTime = time(0);
+            uint32 Flags = 0;
+            uint32 Unk = 0;
+            std::vector<uint16> Counts;
+        };
+
+        class UpdateTaskProgress final : public ServerPacket
+        {
+        public:
+            UpdateTaskProgress() : ServerPacket(SMSG_UPDATE_TASK_PROGRESS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<TaskProgress> Progress;
+        };
     }
 }
 

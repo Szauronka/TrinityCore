@@ -150,7 +150,7 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     status.Listed = listed;
 
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
-    status.Request.ItemLevel = lfgEntry->ItemLevel;
+    status.Request.RequiredItemLevel = lfgEntry->ItemLevel;
     status.Request.HonorLevel = lfgEntry->HonorLevel;
     status.Request.GroupName = lfgEntry->GroupName;
     status.Request.Comment = lfgEntry->Comment;
@@ -550,7 +550,7 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
     responce.SearchResult.Age = lfgEntry->CreationTime;
     responce.SearchResult.ApplicationStatus = AsUnderlyingType(LFGListApplicationStatus::None);
     responce.SearchResult.JoinRequest.ActivityID = activityID;
-    responce.SearchResult.JoinRequest.ItemLevel = lfgEntry->ItemLevel;
+    responce.SearchResult.JoinRequest.RequiredItemLevel = lfgEntry->ItemLevel;
     responce.SearchResult.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
     responce.SearchResult.JoinRequest.GroupName = lfgEntry->GroupName;
     responce.SearchResult.JoinRequest.Comment = lfgEntry->Comment;

@@ -782,3 +782,33 @@ void WorldPackets::Misc::QueryCountdownTimer::Read()
 {
 	uint32(Type) = _worldPacket.read<uint32>();
 }
+
+WorldPacket const* WorldPackets::Misc::OpenContainer::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMaxWeeklyQuantity::Write()
+{
+    _worldPacket << Type;
+    _worldPacket << MaxWeeklyQuantity;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::UpdateTaskProgress::Write()
+{
+    _worldPacket << static_cast<uint32>(Progress.size());
+    for (auto const& x : Progress)
+    {
+        _worldPacket << x.Counts[20];
+        _worldPacket << x.FailureTime;
+        _worldPacket << x.Flags;
+        _worldPacket << x.TaskID;
+        _worldPacket << x.Unk;
+    }
+
+    return &_worldPacket;
+}

@@ -208,3 +208,24 @@ void WorldPackets::BattlePet::BattlePetUpdateNotify::Read()
 {
     _worldPacket >> PetGuid;
 }
+
+WorldPacket const* WorldPackets::BattlePet::BattlePetCageDateError::Write()
+{
+    _worldPacket << SecondsUntilCanCage;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePet::BattlePetTrapLevel::Write()
+{
+    _worldPacket << TrapLevel;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePet::FinalizeLocation::Write()
+{
+    _worldPacket << Location;
+
+    return &_worldPacket;
+}

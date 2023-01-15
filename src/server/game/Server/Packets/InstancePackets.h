@@ -245,6 +245,62 @@ namespace WorldPackets
             WorldPacket const* Write() override;
             uint32 DungeonEncounterID = 0;
         };
+
+        class EncounterStart final : public ServerPacket
+        {
+        public:
+            EncounterStart() : ServerPacket(SMSG_ENCOUNTER_START, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EncounterID = 0;
+            uint32 DifficultyID = 0;
+            uint32 GroupSize = 0;
+            uint32 UnkEncounterDataSize = 0;
+        };
+
+        class EncounterEnd final : public ServerPacket
+        {
+        public:
+            EncounterEnd() : ServerPacket(SMSG_ENCOUNTER_END, 13) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EncounterID = 0;
+            uint32 DifficultyID = 0;
+            uint32 GroupSize = 0;
+            bool Success = false;
+        };
+
+        class InstanceGroupSizeChanged final : public ServerPacket
+        {
+        public:
+            InstanceGroupSizeChanged(uint32 groupSize) : ServerPacket(SMSG_INSTANCE_GROUP_SIZE_CHANGED, 4), GroupSize(groupSize) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GroupSize = 0;
+        };
+
+        class InstanceEncounterUpdateAllowingRelease final : public ServerPacket
+        {
+        public:
+            InstanceEncounterUpdateAllowingRelease() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_UPDATE_ALLOW_RELEASE_IN_PROGRESS, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool ReleaseAllowed = false;
+        };
+
+        class InstanceEncounterUpdateSuppressingRelease final : public ServerPacket
+        {
+        public:
+            InstanceEncounterUpdateSuppressingRelease() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_UPDATE_SUPPRESS_RELEASE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool ReleaseDisabled = false;
+        };
     }
 }
 

@@ -140,4 +140,8 @@ struct LFGListEntry
     std::string VoiceChat;
     bool AutoAccept;
     bool PrivateGroup = false;
+    bool minChallange = false;
+    float TypeActivity = 0.0f;
+    bool HasQuest = false;
+    uint32 MinMyticPlusRating = 0;
 };

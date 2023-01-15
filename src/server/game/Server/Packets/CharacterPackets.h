@@ -779,6 +779,40 @@ namespace WorldPackets
             ObjectGuid Player;
             int32 ResultCode = 0;
         };
+
+        class NeutralPlayerFactionSelectResult final : public ServerPacket
+        {
+        public:
+            NeutralPlayerFactionSelectResult() : ServerPacket(SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 NewRaceID = 0;
+            bool Success = false;
+        };
+
+        class XpGainEnabled final : public ServerPacket
+        {
+        public:
+            XpGainEnabled(bool enabled) : ServerPacket(SMSG_XP_GAIN_ENABLED, 1) { Enabled = enabled; }
+
+            WorldPacket const* Write() override;
+
+            bool Enabled = false;
+        };
+
+        class XPGainAborted final : public ServerPacket
+        {
+        public:
+            XPGainAborted() : ServerPacket(SMSG_XP_GAIN_ABORTED, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            int32 XpToAdd = 0;
+            int32 XpGainReason = 0;
+            int32 XpAbortReason = 0;
+        };
     }
 }
 
