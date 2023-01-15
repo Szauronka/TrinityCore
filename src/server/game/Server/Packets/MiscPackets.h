@@ -548,7 +548,7 @@ namespace WorldPackets
         class EnableBarberShop final : public ServerPacket
         {
         public:
-            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 0) { }
+            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 1) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };

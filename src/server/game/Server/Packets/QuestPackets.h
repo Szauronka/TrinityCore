@@ -82,7 +82,7 @@ namespace WorldPackets
         class QuestGiverStatusMultiple final : public ServerPacket
         {
         public:
-            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 24) { }
+            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 185) { }
 
             WorldPacket const* Write() override;
 
@@ -348,7 +348,7 @@ namespace WorldPackets
         class QuestGiverQuestComplete final : public ServerPacket
         {
         public:
-            QuestGiverQuestComplete() : ServerPacket(SMSG_QUEST_GIVER_QUEST_COMPLETE, 40) { }
+            QuestGiverQuestComplete() : ServerPacket(SMSG_QUEST_GIVER_QUEST_COMPLETE, 50) { }
 
             WorldPacket const* Write() override;
 
@@ -518,7 +518,7 @@ namespace WorldPackets
         class QuestGiverQuestListMessage final : public ServerPacket
         {
         public:
-            QuestGiverQuestListMessage() : ServerPacket(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100) { }
+            QuestGiverQuestListMessage() : ServerPacket(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 250) { }
 
             WorldPacket const* Write() override;
 
