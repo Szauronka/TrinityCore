@@ -470,24 +470,6 @@ namespace WorldPackets
             bool IsCompleted = false;
         };
 
-        class LFGRoleCheckUpdate final : public ServerPacket
-        {
-        public:
-            LFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
-
-            WorldPacket const* Write() override;
-
-            uint8 PartyIndex = 0;
-            uint8 RoleCheckStatus = 0;
-            std::vector<uint32> JoinSlots;
-            std::vector<uint64> BgQueueIDs;
-            int32 GroupFinderActivityID = 0;
-            std::vector<LFGRoleCheckUpdateMember> Members;
-            bool IsBeginning = false;
-            bool IsRequeue = false;
-        };
-
-
         class SlotInvalid final : public ServerPacket
         {
         public:

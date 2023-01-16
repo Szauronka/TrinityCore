@@ -25,6 +25,8 @@
 #include "UnitDefines.h"
 #include <memory>
 
+static uint8 const PARTICIPANTS_COUNT = 2;
+
 namespace WorldPackets
 {
     namespace BattlePet

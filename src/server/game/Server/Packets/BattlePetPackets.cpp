@@ -225,7 +225,9 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetTrapLevel::Write()
 
 WorldPacket const* WorldPackets::BattlePet::FinalizeLocation::Write()
 {
-    _worldPacket << Location;
+    _worldPacket << Location.BattleOrigin;
+    _worldPacket << Location.LocationResult;
+    _worldPacket << Location.PlayerPositions[PARTICIPANTS_COUNT];
 
     return &_worldPacket;
 }

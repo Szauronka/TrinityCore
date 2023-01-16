@@ -238,31 +238,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMe
     return data;
 }
 
-WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
-{
-    _worldPacket << uint8(PartyIndex);
-    _worldPacket << uint8(RoleCheckStatus);
-    _worldPacket << uint32(JoinSlots.size());
-    _worldPacket << uint32(BgQueueIDs.size());
-    _worldPacket << int32(GroupFinderActivityID);
-    _worldPacket << uint32(Members.size());
-
-    for (uint32 slot : JoinSlots)
-        _worldPacket << uint32(slot);
-
-    for (uint64 bgQueueID : BgQueueIDs)
-        _worldPacket << uint64(bgQueueID);
-
-    _worldPacket.WriteBit(IsBeginning);
-    _worldPacket.WriteBit(IsRequeue);
-    _worldPacket.FlushBits();
-
-    for (LFGRoleCheckUpdateMember const& member : Members)
-        _worldPacket << member;
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
 {
     _worldPacket << Ticket;
