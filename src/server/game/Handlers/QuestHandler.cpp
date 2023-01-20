@@ -912,6 +912,7 @@ void WorldSession::HandleRequestAreaPoiUpdate(WorldPackets::Quest::RequestAreaPo
                  response.Pois.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(worldQuest->StartTime, 5271, worldQuest->Timer, worldQuest->VariableID, worldQuest->Value));
          }
      }*/
+
 }
 
 

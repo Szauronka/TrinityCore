@@ -894,4 +894,11 @@ WorldPacket const* WorldPackets::Quest::IsQuestCompleteResponse::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* ShowQuestCompletionText::Write()
+{
+    _worldPacket.WriteBit(ShowQuestComplete);
+
+    return &_worldPacket;
+}
+
 }

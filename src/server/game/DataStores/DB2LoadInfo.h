@@ -789,6 +789,59 @@ struct BroadcastTextDurationLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &BroadcastTextDurationMeta::Instance, HOTFIX_SEL_BROADCAST_TEXT_DURATION };
 };
 
+struct CampaignLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[15] =
+    {
+        { true, FT_INT, "ID" },
+        { false, FT_STRING, "Title" },
+        { false, FT_STRING_NOT_LOCALIZED, "InternalTitle" },
+        { false, FT_STRING, "Description" },
+        { true, FT_INT, "UiTextureKitID" },
+        { true, FT_INT, "RewardQuestID" },
+        { true, FT_INT, "Prerequisite" },
+        { true, FT_INT, "Field90135755007" },
+        { true, FT_INT, "Completed" },
+        { true, FT_INT, "OnlyStallIf" },
+        { true, FT_INT, "UiQuestDetailsThemeID" },
+        { false, FT_INT, "Flags" },
+        { true, FT_INT, "DisplayPriority" },
+        { true, FT_INT, "Field100245779012" },
+        { true, FT_INT, "Field100246144013" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &CampaignMeta::Instance, HOTFIX_SEL_CAMPAIGN };
+};
+
+struct CampaignXConditionLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { true, FT_INT, "ID" },
+        { false, FT_STRING, "FailureReason" },
+        { true, FT_INT, "PlayerConditionID" },
+        { true, FT_INT, "OrderIndex" },
+        { true, FT_INT, "Flags" },
+        { true, FT_INT, "CampaignID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &CampaignXConditionMeta::Instance, HOTFIX_SEL_CAMPAIGN_X_CONDITION };
+};
+
+struct CampaignXQuestLineLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { true, FT_INT, "ID" },
+        { false, FT_INT, "CampaignID" },
+        { false, FT_INT, "QuestLineID" },
+        { false, FT_INT, "OrderIndex" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &CampaignXQuestLineMeta::Instance, HOTFIX_SEL_CAMPAIGN_X_QUEST_LINE };
+};
+
+
 struct CfgRegionsLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
@@ -5990,6 +6043,27 @@ struct TransportRotationLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 7, &TransportRotationMeta::Instance, HOTFIX_SEL_TRANSPORT_ROTATION };
 };
 
+struct UiChromieTimeExpansionInfoLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[12] =
+    {
+        { true, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Description" },
+        { false, FT_STRING, "DescriptionAlliance" },
+        { false, FT_STRING, "DescriptionHorde" },
+        { true, FT_INT, "SpellID" },
+        { true, FT_INT, "UiTextureAtlasElementLarge" },
+        { true, FT_INT, "UiTextureAtlasElementSmall" },
+        { true, FT_INT, "AlreadyOn" },
+        { true, FT_INT, "ExpansionLevelMask" },
+        { true, FT_INT, "ContentTuningID" },
+        { true, FT_INT, "Completed" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &UIChromieTimeExpansionInfoMeta::Instance, HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO };
+};
+
 struct UiMapLoadInfo
 {
     static constexpr DB2FieldMeta Fields[13] =
@@ -6304,6 +6378,19 @@ struct WmoAreaTableLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 15, &WMOAreaTableMeta::Instance, HOTFIX_SEL_WMO_AREA_TABLE };
 };
 
+struct WorldBossLockoutLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { true, FT_INT, "TrackingQuestID" },
+
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &WorldBossLockoutMeta::Instance, HOTFIX_SEL_WORLD_BOSS_LOCKOUT };
+};
+
 struct WorldEffectLoadInfo
 {
     static constexpr DB2FieldMeta Fields[7] =
@@ -6354,6 +6441,20 @@ struct WorldStateExpressionLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 2, &WorldStateExpressionMeta::Instance, HOTFIX_SEL_WORLD_STATE_EXPRESSION };
+};
+
+struct ZoneStoryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_BYTE, "PlayerFactionGroupID" },
+        { false, FT_INT, "DisplayAchievementID" },
+        { false, FT_INT, "DisplayUIMapID" },
+        { false, FT_INT, "PlayerUIMapID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &ZoneStoryMeta::Instance, HOTFIX_SEL_ZONE_STORY };
 };
 
 #endif // DB2LoadInfo_h__

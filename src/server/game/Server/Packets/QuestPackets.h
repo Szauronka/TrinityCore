@@ -779,6 +779,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 Count = 0;
             std::vector<WorldPackets::Quest::WorldQuestUpdateInfo> Pois;
         };
 
@@ -864,6 +865,17 @@ namespace WorldPackets
             uint32 QuestID = 0;
             bool Complete = false;
         };
+
+        class ShowQuestCompletionText final : public ServerPacket
+        {
+        public:
+            ShowQuestCompletionText() : ServerPacket(SMSG_SHOW_QUEST_COMPLETION_TEXT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool ShowQuestComplete = false;
+        };
+
     }
 }
 

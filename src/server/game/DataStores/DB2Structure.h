@@ -540,6 +540,43 @@ struct BroadcastTextDurationEntry
     int32 Duration;
 };
 
+struct CampaignEntry
+{
+    int32 ID;
+    LocalizedString Title;
+    char const* InternalTitle;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Field90135755007;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    uint32 Flags;
+    int32 DisplayPriority;
+    int32 Field100245779012;
+    int32 Field100246144013;
+};
+
+struct CampaignXConditionEntry
+{
+    int32 ID;
+    LocalizedString FailureReason;
+    int32 PlayerConditionID;
+    int32 OrderIndex;
+    int32 Flags;
+    int32 CampaignID;
+};
+
+struct CampaignXQuestLineEntry
+{
+    int32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
+};
+
 struct Cfg_RegionsEntry
 {
     uint32 ID;
@@ -4194,6 +4231,23 @@ struct TransportRotationEntry
     uint32 GameObjectsID;
 };
 
+struct UIChromieTimeExpansionInfoEntry
+{
+    int32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString DescriptionAlliance;
+    LocalizedString DescriptionHorde;
+    int32 SpellID;
+    int32 UiTextureAtlasElementLarge;
+    int32 UiTextureAtlasElementSmall;
+    int32 AlreadyOn;
+    int32 ExpansionLevelMask;
+    int32 ContentTuningID;
+    int32 Completed;
+};
+
+
 struct UiMapEntry
 {
     LocalizedString Name;
@@ -4425,6 +4479,13 @@ struct WMOAreaTableEntry
     uint8 Flags;
 };
 
+struct WorldBossLockoutEntry
+{
+    int32 ID;
+    LocalizedString Name;
+    int32 TrackingQuestID;
+};
+
 struct WorldEffectEntry
 {
     uint32 ID;
@@ -4459,6 +4520,15 @@ struct WorldStateExpressionEntry
 {
     uint32 ID;
     char const* Expression;
+};
+
+struct ZoneStoryEntry
+{
+    int32 ID;
+    uint8 PlayerFactionGroupID;
+    uint32 DisplayAchievementID;
+    uint32 DisplayUIMapID;
+    int32 PlayerUIMapID;
 };
 
 #pragma pack(pop)
