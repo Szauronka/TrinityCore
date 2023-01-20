@@ -793,7 +793,7 @@ struct CampaignLoadInfo
 {
     static constexpr DB2FieldMeta Fields[15] =
     {
-        { true, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { false, FT_STRING, "Title" },
         { false, FT_STRING_NOT_LOCALIZED, "InternalTitle" },
         { false, FT_STRING, "Description" },
@@ -817,12 +817,12 @@ struct CampaignXConditionLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
     {
-        { true, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { false, FT_STRING, "FailureReason" },
         { true, FT_INT, "PlayerConditionID" },
         { true, FT_INT, "OrderIndex" },
         { true, FT_INT, "Flags" },
-        { true, FT_INT, "CampaignID" },
+        { false, FT_INT, "CampaignID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 6, &CampaignXConditionMeta::Instance, HOTFIX_SEL_CAMPAIGN_X_CONDITION };
@@ -832,7 +832,7 @@ struct CampaignXQuestLineLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =
     {
-        { true, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { false, FT_INT, "CampaignID" },
         { false, FT_INT, "QuestLineID" },
         { false, FT_INT, "OrderIndex" },
@@ -6047,7 +6047,7 @@ struct UiChromieTimeExpansionInfoLoadInfo
 {
     static constexpr DB2FieldMeta Fields[12] =
     {
-        { true, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "DescriptionAlliance" },
