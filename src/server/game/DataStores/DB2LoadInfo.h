@@ -4438,6 +4438,45 @@ struct QuestSortLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &QuestSortMeta::Instance, HOTFIX_SEL_QUEST_SORT };
 };
 
+struct QuestV2CliTaskLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[29] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_LONG, "FiltRaces" },
+        { false, FT_STRING, "QuestTitle" },
+        { false, FT_STRING, "BulletText" },
+        { false, FT_SHORT, "UniqueBitFlag" },
+        { false, FT_INT, "ConditionID" },
+        { false, FT_INT, "FiltActiveQuest" },
+        { true, FT_SHORT, "FiltClasses" },
+        { false, FT_INT, "FiltCompletedQuestLogic" },
+        { false, FT_INT, "FiltMaxFactionID" },
+        { false, FT_INT, "FiltMaxFactionValue" },
+        { false, FT_INT, "FiltMinFactionID" },
+        { false, FT_INT, "FiltMinFactionValue" },
+        { false, FT_INT, "FiltMinSkillID" },
+        { false, FT_INT, "FiltMinSkillValue" },
+        { false, FT_INT, "FiltNonActiveQuest" },
+        { false, FT_INT, "BreadCrumbID" },
+        { true, FT_INT, "StartItem" },
+        { true, FT_INT, "WorldStateExpressionID" },
+        { false, FT_INT, "QuestInfoID" },
+        { true, FT_INT, "ContentTuningID" },
+        { true, FT_INT, "CovenantID" },
+        { true, FT_INT, "Unk022" },
+        { true, FT_INT, "Flags1" },
+        { true, FT_INT, "Flags2" },
+        { true, FT_INT, "Flags3" },
+        { false, FT_INT, "FiltCompletedQuest1" },
+        { false, FT_INT, "FiltCompletedQuest2" },
+        { false, FT_INT, "FiltCompletedQuest3" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 29, &QuestV2CliTaskMeta::Instance, HOTFIX_SEL_QUEST_V2_CLI_TASK };
+};
+
+
 struct QuestV2LoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =

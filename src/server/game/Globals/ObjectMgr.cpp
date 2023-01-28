@@ -6325,6 +6325,73 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID) const
     return nullptr;
 }
 
+void ObjectMgr::LoadQuestTasks()
+{
+    for (auto const& it : _questTemplates)
+    {
+        Quest const* quest_template;// = it.second;
+        //CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(l_I);
+        //if (!criteria || criteria->Type != CRITERIA_TYPE_COMPLETE_QUEST)
+        //    continue;
+
+        QuestV2CliTaskEntry const* cliTask = sQuestV2CliTaskStore.LookupEntry(quest_template->GetQuestId());
+        if (!cliTask)
+            continue;
+
+        if (!quest_template || quest_template->GetQuestType() != QUEST_TYPE_TASK)
+            continue;
+
+        if (QuestPOIData const* questPOIs = GetQuestPOIData(quest_template->GetQuestId()))
+        {
+            if (questPOIs->Blobs.size() <= 0)
+                continue;
+
+            for (auto itr = questPOIs->Blobs.begin(); itr != questPOIs->Blobs.end(); ++itr)
+            {
+                BonusQuestRectEntry rec;
+                rec.MapID = itr->MapID;
+                rec.MinX = 5000000.f;
+                rec.MinY = 5000000.f;
+                rec.MaxX = -5000000.f;
+                rec.MaxY = -5000000.f;
+
+                for (auto const& poi : itr->Points)
+                {
+                    if (poi.X == 0 && poi.Y == 0)
+                        continue;
+
+                    rec.MaxX = std::max(rec.MaxX, poi.X);
+                    rec.MaxY = std::max(rec.MaxY, poi.Y);
+
+                    rec.MinX = std::min(rec.MinX, poi.X);
+                    rec.MinY = std::min(rec.MinY, poi.Y);
+                }
+
+                // If the area is a single point, we assume 80m
+                if (itr->Points.size() == 1)
+                {
+                    rec.MinX -= 80;
+                    rec.MaxX += 80;
+                    rec.MinY -= 80;
+                    rec.MaxY += 80;
+                }
+                else
+                {
+                    int32 areaWidth = std::abs(rec.MaxX - rec.MinX);
+                    rec.MinX -= 0.175f * float(areaWidth);
+                    rec.MaxX += 0.175f * float(areaWidth);
+
+                    int32 areaHeight = std::abs(rec.MaxY - rec.MinY);
+                    rec.MinY -= 0.175f * float(areaHeight);
+                    rec.MaxY += 0.175f * float(areaHeight);
+                }
+
+                BonusQuestsRects[quest_template->GetQuestId()].push_back(rec);
+            }
+        }
+    }
+}
+
 Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType const& lowguid) const
 {
 	return ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(lowguid));

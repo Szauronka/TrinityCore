@@ -264,6 +264,7 @@ DB2Storage<QuestLineXQuestEntry>                sQuestLineXQuestStore("QuestLine
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", &QuestMoneyRewardLoadInfo::Instance);
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", &QuestPackageItemLoadInfo::Instance);
 DB2Storage<QuestSortEntry>                      sQuestSortStore("QuestSort.db2", &QuestSortLoadInfo::Instance);
+DB2Storage<QuestV2CliTaskEntry>                 sQuestV2CliTaskStore("QuestV2CliTask.db2", &QuestV2CliTaskLoadInfo::Instance);
 DB2Storage<QuestV2Entry>                        sQuestV2Store("QuestV2.db2", &QuestV2LoadInfo::Instance);
 DB2Storage<QuestXGroupActivityEntry>            sQuestXGroupActivityStore("QuestXGroupActivity.db2", &QuestXGroupActivityLoadInfo::Instance);
 DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", &QuestXpLoadInfo::Instance);
@@ -887,6 +888,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sQuestMoneyRewardStore);
     LOAD_DB2(sQuestPackageItemStore);
     LOAD_DB2(sQuestSortStore);
+    LOAD_DB2(sQuestV2CliTaskStore);
     LOAD_DB2(sQuestV2Store);
     LOAD_DB2(sQuestXGroupActivityStore);
     LOAD_DB2(sQuestXPStore);

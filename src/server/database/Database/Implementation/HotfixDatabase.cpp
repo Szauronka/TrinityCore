@@ -1349,6 +1349,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_SORT, "SELECT MAX(ID) + 1 FROM quest_sort", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_QUEST_SORT, "SELECT ID, SortName_lang FROM quest_sort_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
+    // QuestV2CliTask.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT ID, FiltRaces, QuestTitle, BulletText, UniqueBitFlag, ConditionID, FiltActiveQuest, "
+        "FiltClasses, FiltCompletedQuestLogic, FiltMaxFactionID, FiltMaxFactionValue, FiltMinFactionID, FiltMinFactionValue, FiltMinSkillID, "
+        "FiltMinSkillValue, FiltNonActiveQuest, BreadCrumbID, StartItem, WorldStateExpressionID, QuestInfoID, ContentTuningID, CovenantID, Unk022, "
+        "Flags1, Flags2, Flags3, FiltCompletedQuest1, FiltCompletedQuest2, FiltCompletedQuest3 FROM quest_v2_cli_task WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT MAX(ID) + 1 FROM quest_v2_cli_task", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT ID, QuestTitle_lang, BulletText_lang FROM quest_v2_cli_task_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
     // QuestV2.db2
     PrepareStatement(HOTFIX_SEL_QUEST_V2, "SELECT ID, UniqueBitFlag, UiQuestDetailsTheme FROM quest_v2 WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_V2, "SELECT MAX(ID) + 1 FROM quest_v2", CONNECTION_SYNCH);

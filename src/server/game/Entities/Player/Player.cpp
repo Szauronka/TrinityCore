@@ -6236,12 +6236,12 @@ bool Player::HasWorldQuestEnabled(uint8 expansion) const
 
 void Player::UpdateWorldQuestPosition(float x, float y)
 {
-    if (!time(nullptr) < m_areaQuestTimer)
+    if (time(nullptr) < m_areaQuestTimer)
         return;
 
     m_areaQuestTimer = time(nullptr) + 2;
 
-    for (auto& bonus_quest : sObjectMgr->BonusQuestsRects)
+    for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
     {
         if (IsQuestRewarded(bonus_quest.first))
             continue;

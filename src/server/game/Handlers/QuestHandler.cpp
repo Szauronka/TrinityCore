@@ -33,6 +33,7 @@
 #include "PoolMgr.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "QueryPackets.h"
 #include "QuestPools.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
@@ -816,17 +817,16 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
 
 }
 
-void WorldSession::HandleRequestAreaPoiUpdate(WorldPackets::Quest::RequestAreaPoiUpdate& packet)
+void WorldSession::HandleRequestAreaPoiUpdate(WorldPackets::Quest::RequestAreaPoiUpdate& /*packet*/)
 {
     WorldPackets::Quest::AreaPoiUpdate response;
-    WorldPackets::Quest::WorldQuestUpdateInfo wqInfo;
+    WorldPackets::Quest::WorldQuestUpdateInfo wqUpdate;
 
-    int32 AreaId = _player->GetAreaId();
-    for (auto areaId : sAreaPOIStore)
-        areaId->AreaID == AreaId;
-    ActiveWorldQuest* activeWorldQuest = sWorldQuestMgr->GetActiveWorldQuest(wqInfo.QuestID);
-    WorldQuestTemplate const* worldQuest = sWorldQuestMgr->GetWorldQuestTemplate(wqInfo.QuestID);
-    response.AreaPois.emplace_back(activeWorldQuest->StartTime, AreaId, wqInfo.Timer, wqInfo.VariableID, wqInfo.Value);
+    ActiveWorldQuest* activeWQ = sWorldQuestMgr->GetActiveWorldQuest(wqUpdate.QuestID);
+    int32 AreaID = 0;
+
+    response.AreaPois.emplace_back(activeWQ->StartTime, AreaID, wqUpdate.Timer, wqUpdate.VariableID, wqUpdate.Value);
+    SendPacket(response.Write());
 }
 
 
@@ -979,10 +979,9 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
                                             if (_player->GetLevel() >= contentTuning->MinLevel)
                                             {
                                                 response.QuestLineXQuestID.push_back(questLineQuest->ID);
-                                                _player->AddQuest(quest, _player);
+                                                sWorldQuestMgr->AddWorldQuestTask(quest);
                                                 break;
                                             }
-
 }
 
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)

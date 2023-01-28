@@ -893,8 +893,8 @@ WorldPacket const* QueryQuestRewardResponse::Write()
     _worldPacket << TreasurePickerID;
     _worldPacket << ItemCount;
     _worldPacket << CurrencyCount;
-    _worldPacket << BonusCount;
     _worldPacket << MoneyReward;
+    _worldPacket << BonusCount;
     _worldPacket << Flags;
     _worldPacket << uint32(ItemRewards.size());
     _worldPacket << uint32(CurrencyRewards.size());

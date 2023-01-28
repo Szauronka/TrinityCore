@@ -1301,18 +1301,6 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
 
-        struct BonusQuestRectEntry
-        {
-            int32 MinX, MinY, MaxX, MaxY;
-            uint32 MapID;
-
-            bool IsIn(uint32 mapID, int x, int y)
-            {
-                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
-            }
-        };
-        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
-
         QuestRelations* GetGOQuestRelationMapHACK() { return &_goQuestRelations; }
         QuestRelationResult GetGOQuestRelations(uint32 entry) const { return GetQuestRelationsFrom(_goQuestRelations, entry, true); }
         QuestRelationResult GetGOQuestInvolvedRelations(uint32 entry) const { return GetQuestRelationsFrom(_goQuestInvolvedRelations, entry, false); }
@@ -1803,6 +1791,19 @@ class TC_GAME_API ObjectMgr
 
         WorldQuestContainer const& GetWorldQuestStore() const { return _worldQuestStore; }
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
+        void LoadQuestTasks();
+
+        struct BonusQuestRectEntry
+        {
+            int32 MinX, MinY, MaxX, MaxY;
+            uint32 MapID;
+
+            bool IsIn(uint32 mapID, int x, int y)
+            {
+                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         JumpChargeParams const* GetJumpChargeParams(int32 id) const;
 

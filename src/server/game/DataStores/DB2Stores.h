@@ -198,6 +198,8 @@ TC_GAME_API extern DB2Storage<QuestPOIBlobEntry>                    sQuestPOIBlo
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
 TC_GAME_API extern DB2Storage<QuestInfoEntry>                       sQuestInfoStore;
 TC_GAME_API extern DB2Storage<QuestLineXQuestEntry>                 sQuestLineXQuestStore;
+TC_GAME_API extern DB2Storage<QuestV2CliTaskEntry>                  sQuestV2CliTaskStore;
+TC_GAME_API extern DB2Storage<QuestV2Entry>                         sQuestV2Store;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXGroupActivityEntry>             sQuestXGroupActivityStore;

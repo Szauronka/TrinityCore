@@ -268,15 +268,15 @@ void WorldQuestMgr::LoadActiveWorldQuests()
 
 void WorldQuestMgr::Update()
 {
-    for (auto expansionWorldQuest : _activeWorldQuests)
+    for (auto& expansionWorldQuest : _activeWorldQuests)
     {
-        for (auto teamWorldQuest : expansionWorldQuest.second)
+        for (auto& teamWorldQuest : expansionWorldQuest.second)
         {
-            auto worldQuests = teamWorldQuest.second;
+            auto& worldQuests = teamWorldQuest.second;
 
             for (auto itr = worldQuests.begin(); itr != worldQuests.end();)
             {
-                if (itr->second->GetRemainingTime() == 0)
+                if (itr->second->GetRemainingTime() <= 0)
                 {
                     DisableQuest(itr->second);
                     itr = teamWorldQuest.second.erase(itr);
@@ -599,7 +599,7 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
             itemReward.Item.ItemID = worldQuestReward->RewardId;
             itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonuses();
             itemReward.Item.ItemBonus->Context = (ItemContext)worldQuestReward->RewardContext;
-            // itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, ItemContext(worldQuestReward->RewardContext));
+            itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, ItemContext(worldQuestReward->RewardContext));
             itemReward.Quantity = worldQuestReward->RewardCount;
             packet.ItemRewards.push_back(itemReward);
             break;
