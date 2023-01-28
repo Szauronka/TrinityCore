@@ -79,6 +79,21 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_AREA_GROUP_MEMBER, "SELECT ID, AreaID, AreaGroupID FROM area_group_member WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_AREA_GROUP_MEMBER, "SELECT MAX(ID) + 1 FROM area_group_member", CONNECTION_SYNCH);
 
+    // AreaPoi.db2
+    PrepareStatement(HOTFIX_SEL_AREA_POI, "SELECT Name, Description, ID, Pos1, Pos2, Pos3, PortLocID, PlayerConditionID, UiTextureAtlasMemberID, "
+        "Flags, WMOGroupID, PoiDataType, PoiData, Field91038783011, Field100045141012, ContinentID, AreaID, WorldStateID, UiWidgetSetID, "
+        "UiTextureKitID, Field91038783017, Importance, Icon FROM area_poi WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AREA_POI, "SELECT MAX(ID) + 1 FROM area_poi", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_AREA_POI, "SELECT ID, Name_lang, Description_lang FROM area_poi_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // AreaPoiState.db2
+    PrepareStatement(HOTFIX_SEL_AREA_POI_STATE, "SELECT ID, Description, WorldStateValue, IconEnumValue, UiTextureAtlasMemberID, AreaPoiID"
+        " FROM area_poi_state WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AREA_POI_STATE, "SELECT MAX(ID) + 1 FROM area_poi_state", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_AREA_POI_STATE, "SELECT ID, Description_lang FROM area_poi_state_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
     // AreaTable.db2
     PrepareStatement(HOTFIX_SEL_AREA_TABLE, "SELECT ID, ZoneName, AreaName, ContinentID, ParentAreaID, AreaBit, SoundProviderPref, "
         "SoundProviderPrefUnderwater, AmbienceID, UwAmbience, ZoneMusic, UwZoneMusic, IntroSound, UwIntroSound, FactionGroupMask, AmbientMultiplier, "
@@ -281,6 +296,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_BROADCAST_TEXT_DURATION, "SELECT MAX(ID) + 1 FROM broadcast_text_duration", CONNECTION_SYNCH);
 
+    // Bounty.db2
+    PrepareStatement(HOTFIX_SEL_BOUNTY, "SELECT ID, QuestID, FactionID, IconFileDataID, TurninPlayerConditionID, BountySetID FROM bounty"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BOUNTY, "SELECT MAX(ID) + 1 FROM bounty", CONNECTION_SYNCH);
+
+    // BountySet.db2
+    PrepareStatement(HOTFIX_SEL_BOUNTY_SET, "SELECT ID, VisiblePlayerConditionID, LockedQuestID FROM bounty_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BOUNTY_SET, "SELECT MAX(ID) + 1 FROM bounty_set", CONNECTION_SYNCH);
+
     // Campaign.db2
     PrepareStatement(HOTFIX_SEL_CAMPAIGN, "SELECT ID, Title, InternalTitle, Description, UiTextureKitID, RewardQuestID, Prerequisite, "
         "Field90135755007, Completed, OnlyStallIf, UiQuestDetailsThemeID, Flags, DisplayPriority, Field100245779012, Field100246144013 FROM campaign"
@@ -449,6 +473,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_CONTENT_TUNING_X_EXPECTED, "SELECT ID, ExpectedStatModID, MinMythicPlusSeasonID, MaxMythicPlusSeasonID, "
         "ContentTuningID FROM content_tuning_x_expected WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONTENT_TUNING_X_EXPECTED, "SELECT MAX(ID) + 1 FROM content_tuning_x_expected", CONNECTION_SYNCH);
+
+    // ContentTuningXLabel.db2
+    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING_X_LABEL, "SELECT ID, LabelID, ContentTuningID FROM content_tuning_x_label"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONTENT_TUNING_X_LABEL, "SELECT MAX(ID) + 1 FROM content_tuning_x_label", CONNECTION_SYNCH);
 
     // ConversationLine.db2
     PrepareStatement(HOTFIX_SEL_CONVERSATION_LINE, "SELECT ID, BroadcastTextID, SpellVisualKitID, AdditionalDuration, NextConversationLineID, "
@@ -785,6 +814,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GROUP_FINDER_CATEGORY, "SELECT MAX(ID) + 1 FROM group_finder_category", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GROUP_FINDER_CATEGORY, "SELECT ID, Name_lang, Description_lang FROM group_finder_category_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // GroupFinderActivityXPvpBracket.db2
+    PrepareStatement(HOTFIX_SEL_GROUP_FINDER_ACTIVITY_X_PVP_BRACKET, "SELECT ID, GroupFinderActivityID, PVPBracketTypeID"
+        " FROM group_finder_activity_x_pvp_bracket WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_GROUP_FINDER_ACTIVITY_X_PVP_BRACKET, "SELECT MAX(ID) + 1 FROM group_finder_activity_x_pvp_bracket", CONNECTION_SYNCH);
 
     // Heirloom.db2
     PrepareStatement(HOTFIX_SEL_HEIRLOOM, "SELECT SourceText, ID, ItemID, LegacyUpgradedItemID, StaticUpgradedItemID, SourceTypeEnum, Flags, "

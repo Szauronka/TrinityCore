@@ -782,6 +782,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_WORLD_QUEST, "SELECT id, rewardid, starttime FROM world_quest", CONNECTION_SYNCH);
     PrepareStatement(CHAR_DEL_WORLD_QUEST, "DELETE FROM world_quest WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_WORLD_QUEST, "REPLACE INTO world_quest (id, rewardid, starttime) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHARACTER_WORLDQUESTSTATUS, "REPLACE INTO character_queststatus_world (guid, quest, account, resetTime) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

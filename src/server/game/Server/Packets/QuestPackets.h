@@ -660,9 +660,28 @@ namespace WorldPackets
             Timestamp<> LastUpdate;
             uint32 QuestID = 0;
             uint32 Timer = 0;
-            //int32 WorldState = 0;
             int32 VariableID = 0;
             int32 Value = 0;
+        };
+
+        struct AreaPoiData
+        {
+            Timestamp<> StartTime;
+            int32 AreaPoiID = 0;
+            int32 DurationSec = 0;
+            uint32 WorldStateVariableID = 0;
+            uint32 WorldStateValue = 0;
+        };
+
+        class AreaPoiUpdate final : public ServerPacket
+        {
+        public:
+            AreaPoiUpdate() : ServerPacket(SMSG_AREA_POI_UPDATE_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Count = 0;
+            std::vector<AreaPoiData> AreaPois;
         };
 
         class WorldQuestUpdateResponse final : public ServerPacket
@@ -772,17 +791,6 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class AreaPoiUpdate final : public ServerPacket
-        {
-        public:
-            AreaPoiUpdate() : ServerPacket(SMSG_AREA_POI_UPDATE_RESPONSE, 4) { }
-
-            WorldPacket const* Write() override;
-
-            int32 Count = 0;
-            std::vector<WorldPackets::Quest::WorldQuestUpdateInfo> Pois;
-        };
-
         class QueryAdventureMapPOI final : public ClientPacket
         {
         public:
@@ -833,7 +841,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 QuestID = 0;
-            uint32 TreasurePickerID = 0;
+            int32 TreasurePickerID = 0;
         };
 
         class QueryQuestRewardResponse final : public ServerPacket
@@ -843,16 +851,39 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            struct CurrencyReward
+            {
+                uint32 CurrencyID = 0;
+                uint32 Amount = 0;
+            };
 
+            struct ItemReward
+            {
+                WorldPackets::Item::ItemInstance Item;
+                uint32 Quantity = 0;
+            };
+
+            struct BonusReward
+            {
+                uint32 BonusItemCount = 0;
+                WorldPackets::Item::ItemInstance Item;
+                uint32 BonusCurrencyCount = 0;
+                int64 BonusMoney = 0;
+                bool HasBonus = false;
+                std::vector<int32> BonusListIDs;
+                std::vector<CurrencyReward>CurrencyRewards;
+            };
 
             uint32 QuestID = 0;
             uint32 TreasurePickerID = 0;
             uint32 ItemCount = 0;
             uint32 CurrencyCount = 0;
             uint64 MoneyReward = 0;
-            uint64 BonusCount = 0;
-            uint32 Flags = 0;
-            QuestGiverOfferReward QuestData;
+            uint32 BonusCount = 0;
+            int32 Flags = 0;
+            std::vector<CurrencyReward> CurrencyRewards;
+            std::vector<ItemReward> ItemRewards;
+            std::vector<BonusReward> BonusRewards;
         };
 
         class IsQuestCompleteResponse final : public ServerPacket

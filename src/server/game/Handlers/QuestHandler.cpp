@@ -37,7 +37,8 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
-#include <WorldQuestMgr.h>
+#include "WorldStateMgr.h"
+#include "WorldQuestMgr.h"
 #include <GameEventMgr.h>
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
@@ -803,116 +804,24 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
 {
     if (!GetPlayer())
         return;
-    //WorldPackets::Quest::WorldQuestUpdateInfo* worldQuestInfo = 0;
+
     WorldPackets::Quest::WorldQuestUpdateResponse response;
     sWorldQuestMgr->BuildPacket(GetPlayer(), response);
-    /// @todo: 7.x Has to be implemented
-    //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(worldQuestInfo->LastUpdate, worldQuestInfo->QuestID, worldQuestInfo->Timer, worldQuestInfo->VariableID, worldQuestInfo->Value));
-
     SendPacket(response.Write());
+
 }
 
 void WorldSession::HandleRequestAreaPoiUpdate(WorldPackets::Quest::RequestAreaPoiUpdate& packet)
 {
     WorldPackets::Quest::AreaPoiUpdate response;
-    bool needSend = false;
-   
-    if (sGameEventMgr->IsActiveEvent(117))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[117];
-        response.Pois.emplace_back(ged->start, 5252, ged->start * 60, 13321, 1);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(118))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[118];
-        response.Pois.emplace_back(ged->start, 5261, ged->start * 60, 13321, 9);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(119))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[119];
-        response.Pois.emplace_back(ged->start, 5257, ged->start * 60, 13321, 5);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(120))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[120];
-        response.Pois.emplace_back(ged->start, 5260, ged->start * 60, 13321, 8);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(121))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[121];
-        response.Pois.emplace_back(ged->start, 5254, ged->start * 60, 13321, 2);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(122))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[122];
-        response.Pois.emplace_back(ged->start, 5259, ged->start * 60, 13321, 7);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(123))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[123];
-        response.Pois.emplace_back(ged->start, 5258, ged->start * 60, 13321, 6);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(124))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[124];
-        response.Pois.emplace_back(ged->start, 5256, ged->start * 60, 13321, 4);
-        needSend = true;
-    }
-    if (sGameEventMgr->IsActiveEvent(125))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[125];
-        response.Pois.emplace_back(ged->start, 5255, ged->start * 60, 13321, 3);
-        needSend = true;
-    }
-    // Spring Balloon Festival
-    if (sGameEventMgr->IsActiveEvent(87))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[87];
-        response.Pois.emplace_back(ged->start, 5191, 0, 13062, 1);
-        response.Pois.emplace_back(ged->start, 5192, 0, 13062, 1);
-        response.Pois.emplace_back(ged->start, 5193, 0, 13062, 1);
-        response.Pois.emplace_back(ged->start, 5195, 0, 13062, 1);
-        response.Pois.emplace_back(ged->start, 5196, 0, 13062, 1);
-        response.Pois.emplace_back(ged->start, 5197, 0, 13062, 1);
-        response.Pois.emplace_back(ged->start, 5198, 0, 13062, 1);
-        needSend = true;
-    }
-    // Glowcap Festival
-    if (sGameEventMgr->IsActiveEvent(301))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[301];
-        response.Pois.emplace_back(ged->start, 5055, 0, 13107, 1);
-        needSend = true;
-    }
-    // darkmoon
-    if (sGameEventMgr->IsActiveEvent(75))
-    {
-        GameEventData const* ged = &sGameEventMgr->GetEventMap()[75];
-        response.Pois.emplace_back(ged->start, 2704, 0, 6078, 1);
-        response.Pois.emplace_back(ged->start, 2705, 0, 6078, 1);
-        needSend = true;
-    }
+    WorldPackets::Quest::WorldQuestUpdateInfo wqInfo;
 
-    if (needSend)
-        SendPacket(response.Write());
-
-    /* if (uint8 eventID = sWorldStateMgr.GetWorldStateValue(13321))
-     {
-         WorldPackets::Quest::AreaPoiUpdate response;
-         switch (eventID)
-         {
-             case 1:
-                 response.Pois.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(worldQuest->StartTime, 5271, worldQuest->Timer, worldQuest->VariableID, worldQuest->Value));
-         }
-     }*/
-
+    int32 AreaId = _player->GetAreaId();
+    for (auto areaId : sAreaPOIStore)
+        areaId->AreaID == AreaId;
+    ActiveWorldQuest* activeWorldQuest = sWorldQuestMgr->GetActiveWorldQuest(wqInfo.QuestID);
+    WorldQuestTemplate const* worldQuest = sWorldQuestMgr->GetWorldQuestTemplate(wqInfo.QuestID);
+    response.AreaPois.emplace_back(activeWorldQuest->StartTime, AreaId, wqInfo.Timer, wqInfo.VariableID, wqInfo.Value);
 }
 
 
@@ -1030,9 +939,12 @@ void WorldSession::HandleQueryAdventureMapPOI(WorldPackets::Quest::QueryAdventur
         break;
     }
 
-    if (poiEntry->QuestID)
-        if (Quest const* quest = sObjectMgr->GetQuestTemplate(poiEntry->QuestID))
-            active = active && _player->CanTakeQuest(quest, false);
+    Quest const* quest = sObjectMgr->GetQuestTemplate(poiEntry->QuestID);
+    if (poiEntry->QuestID && (active = active && _player->CanTakeQuest(quest, false)))
+    {
+        _player->AddQuest(quest, _player);
+    }
+
 
     WorldPackets::Quest::QueryAdventureMapPOIResponse result;
     result.AdventureMapPOIID = packet.AdventureMapPOIID;
@@ -1062,10 +974,9 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
                                             if (_player->GetLevel() >= contentTuning->MinLevel)
                                             {
                                                 response.QuestLineXQuestID.push_back(questLineQuest->ID);
+                                                _player->AddQuest(quest, _player);
                                                 break;
                                             }
-
-    SendPacket(response.Write());
 
 }
 

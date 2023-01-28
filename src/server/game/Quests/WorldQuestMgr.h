@@ -37,7 +37,7 @@ struct WorldQuestReward;
 
 typedef std::unordered_map<uint8 /*expansion*/, std::unordered_map<uint8 /*teamId*/, std::unordered_map<uint32 /*questId*/, WorldQuestTemplate*>>> WorldQuestTemplateMap;
 typedef std::unordered_map<uint8 /*expansion*/, std::unordered_map<uint8 /*teamId*/, std::unordered_map<uint32 /*questId*/, ActiveWorldQuest*>>> ActiveWorldQuestMap;
-
+typedef std::unordered_map<uint32, std::set<Quest const*>> QuestAreaTaskMap;
 typedef std::unordered_map<uint32 /*RewardId*/, std::vector<WorldQuestReward>> WorldQuestRewardMap;
 typedef std::unordered_map<uint32 /*QuestInfo*/, std::vector<uint32 /*RewardId*/>> WorldQuestRewardByQuestInfoMap;
 
@@ -65,6 +65,8 @@ public:
     void Update();
 
     void CleanWorldQuestTemplates();
+
+    void AddWorldQuestTask(Quest const* quest);
 
     void ActivateQuest(WorldQuestTemplate* worldQuestTemplate);
     void DisableQuest(ActiveWorldQuest* activeWorldQuest);
@@ -97,6 +99,8 @@ public:
 private:
     WorldQuestTemplateMap _worldQuestTemplates;
     WorldQuestTemplateMap _emissaryWorldQuestTemplates;
+    QuestAreaTaskMap _worldQuestAreaTaskStore;
+    QuestAreaTaskMap _questAreaTaskStore;
 
     WorldQuestRewardMap _worldQuestRewards;
     WorldQuestRewardByQuestInfoMap _worldQuestRewardByQuestInfos;
@@ -112,6 +116,10 @@ struct WorldQuestTemplate
     WorldQuestTemplate(uint32 questId, uint32 duration, uint32 variableId, uint8 value) :
         QuestId(questId), Duration(duration), VariableId(variableId), Value(value) { }
 
+    std::vector<uint32> AreaIDs;
+    WorldQuestTemplate const* worldQuest = nullptr;
+    Quest const* quest = nullptr;
+    int32 AreaID = 0;
     uint32 QuestId = 0;
     uint32 Duration = 0;
     uint32 VariableId = 0;

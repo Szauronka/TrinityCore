@@ -122,6 +122,41 @@ struct AreaGroupMemberEntry
     uint32 AreaGroupID;
 };
 
+struct AreaPOIEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    int32 ID;
+    std::array<float, 3> Pos;
+    int32 PortLocID;
+    uint32 PlayerConditionID;
+    uint32 UiTextureAtlasMemberID;
+    uint32 Flags;
+    int32 WMOGroupID;
+    int32 PoiDataType;
+    int32 PoiData;
+    uint32 Field91038783011;
+    int32 Field100045141012;
+    uint16 ContinentID;
+    int16 AreaID;
+    uint16 WorldStateID;
+    uint16 UiWidgetSetID;
+    uint16 UiTextureKitID;
+    uint16 Field91038783017;
+    uint8 Importance;
+    uint8 Icon;
+};
+
+struct AreaPOIStateEntry
+{
+    int32 ID;
+    LocalizedString Description;
+    uint8 WorldStateValue;
+    uint8 IconEnumValue;
+    uint32 UiTextureAtlasMemberID;
+    int32 AreaPoiID;
+};
+
 struct AreaTableEntry
 {
     uint32 ID;
@@ -540,6 +575,23 @@ struct BroadcastTextDurationEntry
     int32 Duration;
 };
 
+struct BountyEntry
+{
+    int32 ID;
+    int32 QuestID;
+    uint16 FactionID;
+    uint32 IconFileDataID;
+    uint32 TurninPlayerConditionID;
+    int32 BountySetID;
+};
+
+struct BountySetEntry
+{
+    int32 ID;
+    uint32 VisiblePlayerConditionID;
+    int32 LockedQuestID;
+};
+
 struct CampaignEntry
 {
     int32 ID;
@@ -925,6 +977,13 @@ struct ContentTuningXExpectedEntry
     int32 MinMythicPlusSeasonID;
     int32 MaxMythicPlusSeasonID;
     uint32 ContentTuningID;
+};
+
+struct ContentTuningXLabelEntry
+{
+    int32 ID;
+    int32 LabelID;
+    int32 ContentTuningID;
 };
 
 struct ConversationLineEntry
@@ -1945,6 +2004,13 @@ struct GroupFinderCategoryEntry
     LocalizedString Description;
     int32 OrderIndex;
     int32 Flags;
+};
+
+struct GroupFinderActivityXPvpBracketEntry
+{
+    int32 ID;
+    int32 GroupFinderActivityID;
+    int32 PVPBracketTypeID;
 };
 
 struct HeirloomEntry
@@ -4246,7 +4312,6 @@ struct UIChromieTimeExpansionInfoEntry
     int32 ContentTuningID;
     int32 Completed;
 };
-
 
 struct UiMapEntry
 {

@@ -47,6 +47,8 @@ DB2Storage<AdventureMapPOIEntry>                sAdventureMapPOIStore("Adventure
 DB2Storage<AnimationDataEntry>                  sAnimationDataStore("AnimationData.db2", &AnimationDataLoadInfo::Instance);
 DB2Storage<AnimKitEntry>                        sAnimKitStore("AnimKit.db2", &AnimKitLoadInfo::Instance);
 DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroupMember.db2", &AreaGroupMemberLoadInfo::Instance);
+DB2Storage<AreaPOIEntry>                        sAreaPOIStore("AreaPOI.db2", &AreaPoiLoadInfo::Instance);
+DB2Storage<AreaPOIStateEntry>                   sAreaPOIStateStore("AreaPOIState.db2", &AreaPoiStateLoadInfo::Instance);
 DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2", &AreaTableLoadInfo::Instance);
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", &AreaTriggerLoadInfo::Instance);
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", &ArmorLocationLoadInfo::Instance);
@@ -84,7 +86,9 @@ DB2Storage<BattlePetSpeciesStateEntry>          sBattlePetSpeciesStateStore("Bat
 DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("BattlemasterList.db2", &BattlemasterListLoadInfo::Instance);
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
-DB2Storage< CampaignEntry>                      sCampaignStore("Campaign.db2", &CampaignLoadInfo::Instance);
+DB2Storage<BountyEntry>                         sBountyStore("Bounty.db2", &BountyLoadInfo::Instance);
+DB2Storage<BountySetEntry>                      sBountySetStore("BountySet.db2", &BountySetLoadInfo::Instance);
+DB2Storage<CampaignEntry>                       sCampaignStore("Campaign.db2", &CampaignLoadInfo::Instance);
 DB2Storage<CampaignXConditionEntry>             sCampaignXConditionStore("CampaignXCondition.db2", &CampaignXConditionLoadInfo::Instance);
 DB2Storage<CampaignXQuestLineEntry>             sCampaignXQuestLineStore("CampaignXQuestLine.db2", &CampaignXQuestLineLoadInfo::Instance);
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", &CfgRegionsLoadInfo::Instance);
@@ -109,6 +113,7 @@ DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("Cinematic
 DB2Storage<CinematicSequencesEntry>             sCinematicSequencesStore("CinematicSequences.db2", &CinematicSequencesLoadInfo::Instance);
 DB2Storage<ContentTuningEntry>                  sContentTuningStore("ContentTuning.db2", &ContentTuningLoadInfo::Instance);
 DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("ContentTuningXExpected.db2", &ContentTuningXExpectedLoadInfo::Instance);
+DB2Storage<ContentTuningXLabelEntry>            sContentTuningXLabelStore("ContentTuningXLabel.db2", &ContentTuningXLabelLoadInfo::Instance);
 DB2Storage<ConversationLineEntry>               sConversationLineStore("ConversationLine.db2", &ConversationLineLoadInfo::Instance);
 DB2Storage<CorruptionEffectsEntry>              sCorruptionEffectsStore("CorruptionEffects.db2", &CorruptionEffectsLoadInfo::Instance);
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStore("CreatureDisplayInfo.db2", &CreatureDisplayInfoLoadInfo::Instance);
@@ -165,6 +170,7 @@ DB2Storage<GuildPerkSpellsEntry>                sGuildPerkSpellsStore("GuildPerk
 DB2Storage<GroupFinderActivityEntry>            sGroupFinderActivityStore("GroupFinderActivity.db2", &GroupFinderActivityLoadInfo::Instance);
 DB2Storage<GroupFinderActivityGrpEntry>         sGroupFinderActivityGrpStore("GroupFinderActivityGrp.db2", &GroupFinderActivityGrpLoadInfo::Instance);
 DB2Storage<GroupFinderCategoryEntry>            sGroupFinderCategoryStore("GroupFinderCategory.db2", &GroupFinderCategoryLoadInfo::Instance);
+DB2Storage<GroupFinderActivityXPvpBracketEntry> sGroupFinderActivityXPvpBracketStore("GroupFinderActivityXPvpBracket.db2", &GroupFinderActivityXPvpBracketLoadInfo::Instance);
 DB2Storage<HeirloomEntry>                       sHeirloomStore("Heirloom.db2", &HeirloomLoadInfo::Instance);
 DB2Storage<HolidaysEntry>                       sHolidaysStore("Holidays.db2", &HolidaysLoadInfo::Instance);
 DB2Storage<ImportPriceArmorEntry>               sImportPriceArmorStore("ImportPriceArmor.db2", &ImportPriceArmorLoadInfo::Instance);
@@ -665,6 +671,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sAnimationDataStore);
     LOAD_DB2(sAnimKitStore);
     LOAD_DB2(sAreaGroupMemberStore);
+    LOAD_DB2(sAreaPOIStore);
+    LOAD_DB2(sAreaPOIStateStore);
     LOAD_DB2(sAreaTableStore);
     LOAD_DB2(sAreaTriggerStore);
     LOAD_DB2(sArmorLocationStore);
@@ -701,6 +709,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlemasterListStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
+    LOAD_DB2(sBountyStore);
+    LOAD_DB2(sBountySetStore);
     LOAD_DB2(sCampaignStore);
     LOAD_DB2(sCampaignXConditionStore);
     LOAD_DB2(sCampaignXQuestLineStore);
@@ -726,6 +736,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sCinematicSequencesStore);
     LOAD_DB2(sContentTuningStore);
     LOAD_DB2(sContentTuningXExpectedStore);
+    LOAD_DB2(sContentTuningXLabelStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCorruptionEffectsStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
@@ -782,6 +793,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGroupFinderActivityStore);
     LOAD_DB2(sGroupFinderActivityGrpStore);
     LOAD_DB2(sGroupFinderCategoryStore);
+    LOAD_DB2(sGroupFinderActivityXPvpBracketStore);
     LOAD_DB2(sHeirloomStore);
     LOAD_DB2(sHolidaysStore);
     LOAD_DB2(sImportPriceArmorStore);

@@ -182,6 +182,13 @@ enum PlayerSpellState : uint8
     PLAYERSPELL_TEMPORARY = 4
 };
 
+struct WorldQuestInfo
+{
+    uint32 QuestID = 0;
+    uint32 resetTime = 0;
+    bool needSave = false;
+};
+
 struct PlayerSpell
 {
     PlayerSpellState state;
@@ -911,6 +918,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
     PLAYER_LOGIN_QUERY_LOAD_TRAIT_ENTRIES,
     PLAYER_LOGIN_QUERY_LOAD_TRAIT_CONFIGS,
+    PLAYER_LOGIN_QUERY_LOADWORLDQUESTSTATUS,
+    PLAYER_LOGIN_QUERY_LOAD_ADVENTURE_QUEST,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1679,6 +1688,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint16 getAdventureQuestID();
 
+        void ResetWorldQuest();
+
+        void ClearWorldQuest();
+
+        bool WorldQuestCompleted(uint32 QuestID) const;
+
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }
         ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }
         void SetQuestSharingInfo(ObjectGuid guid, uint32 id) { m_playerSharingQuest = guid; m_sharedQuestId = id; }
@@ -2394,8 +2409,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendNotifyLootItemRemoved(ObjectGuid lootObj, ObjectGuid owner, uint8 lootListId) const;
         void SendNotifyLootMoneyRemoved(ObjectGuid lootObj) const;
 
-        uint32 m_areaQuestTimer;
-
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
         /*********************************************************/
@@ -2871,6 +2884,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_foodEmoteTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+        uint32 m_areaQuestTimer;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -2931,10 +2945,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
         void _LoadMonthlyQuestStatus(PreparedQueryResult result);
+        void _LoadAdventureQuestStatus(PreparedQueryResult result);
         void _LoadSeasonalQuestStatus(PreparedQueryResult result);
         void _LoadRandomBGStatus(PreparedQueryResult result);
         void _LoadGroup(PreparedQueryResult result);
         void _LoadSkills(PreparedQueryResult result);
+        void _LoadWorldQuestStatus(PreparedQueryResult result);
         void _LoadSpells(PreparedQueryResult result, PreparedQueryResult favoritesResult);
         void _LoadStoredAuraTeleportLocations(PreparedQueryResult result);
         bool _LoadHomeBind(PreparedQueryResult result);
@@ -2979,6 +2995,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
         void _SaveCurrency(CharacterDatabaseTransaction trans);
         void _SaveCUFProfiles(CharacterDatabaseTransaction trans);
+
+        void _SaveWorldQuestStatus(CharacterDatabaseTransaction& trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -3028,12 +3046,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
+        typedef std::unordered_map<uint32, WorldQuestInfo> WorldQuestStatusMap;
 
         std::vector<Item*> m_itemUpdateQueue;
         bool m_itemUpdateQueueBlocked;
 
         uint32 m_ExtraFlags;
 
+        WorldQuestStatusMap m_worldquests;
         QuestStatusMap m_QuestStatus;
         QuestObjectiveStatusMap m_questObjectiveStatus;
         QuestStatusSaveMap m_QuestStatusSave;

@@ -359,6 +359,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     _restMgr = std::make_unique<RestMgr>(this);
 
+    m_areaQuestTimer = 0;
+
     _usePvpItemLevels = false;
 }
 
@@ -6223,9 +6225,10 @@ bool Player::HasWorldQuestEnabled(uint8 expansion) const
         return GetQuestStatus(51918) == QUEST_STATUS_REWARDED ||    // Union of Kul'Tiras
         GetQuestStatus(51916) == QUEST_STATUS_REWARDED;             // Union of Zandalar
     if (expansion == EXPANSION_SHADOWLANDS)
-        return GetQuestStatus(59609) == QUEST_STATUS_REWARDED;      // No Rest For the Dead
+        return GetQuestStatus(62796) == QUEST_STATUS_REWARDED ||
+        GetQuestStatus(62796) == QUEST_STATUS_REWARDED;
     if (expansion == EXPANSION_DRAGONFLIGHT)
-        return GetQuestStatus(59609) == QUEST_STATUS_REWARDED; // complete 16363 achievment
+        return GetQuestStatus(62796) == QUEST_STATUS_REWARDED; // complete 16363 achievment
 
 
     return false;
@@ -6233,12 +6236,12 @@ bool Player::HasWorldQuestEnabled(uint8 expansion) const
 
 void Player::UpdateWorldQuestPosition(float x, float y)
 {
-    if (time(nullptr) < m_areaQuestTimer)
+    if (!time(nullptr) < m_areaQuestTimer)
         return;
 
     m_areaQuestTimer = time(nullptr) + 2;
 
-    for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
+    for (auto& bonus_quest : sObjectMgr->BonusQuestsRects)
     {
         if (IsQuestRewarded(bonus_quest.first))
             continue;
@@ -6289,7 +6292,6 @@ void Player::UpdateWorldQuestPosition(float x, float y)
         }
     }
 }
-
 
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const
 {
@@ -17735,6 +17737,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadPvpTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PVP_TALENTS));
     _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES));
+    _LoadAdventureQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ADVENTURE_QUEST));
+    _LoadWorldQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOADWORLDQUESTSTATUS));
     GetSession()->GetCollectionMgr()->LoadToys();
     GetSession()->GetCollectionMgr()->LoadHeirlooms();
     GetSession()->GetCollectionMgr()->LoadMounts();
@@ -19037,6 +19041,59 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
 
     m_MonthlyQuestChanged = false;
 }
+void Player::_LoadAdventureQuestStatus(PreparedQueryResult result)
+{
+    m_adventure_questID = 0;
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 quest_id = fields[0].GetUInt32();
+
+            Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (!quest)
+                continue;
+            m_adventure_questID = quest_id;
+
+        } while (result->NextRow());
+    }
+}
+
+void Player::_LoadWorldQuestStatus(PreparedQueryResult result)
+{
+    // TC_LOG_DEBUG(LOG_FILTER_WORLD_QUEST, "_LoadWorldQuestStatus");
+
+    m_worldquests.clear();
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 quest_id = fields[0].GetUInt32();
+            //  uint32 guid = fields[1].GetUInt32();
+            uint32 resetTime = fields[2].GetUInt32();
+
+            Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (!quest)
+                continue;
+
+            if (m_worldquests.find(quest_id) != m_worldquests.end())
+                continue;
+
+            WorldQuestInfo& wqi = m_worldquests[quest_id];
+            wqi.QuestID = quest_id;
+            wqi.resetTime = resetTime;
+            wqi.needSave = false;
+            SetQuestCompletedBit(sDB2Manager.GetQuestUniqueBitFlag(quest_id), true);
+
+            // TC_LOG_DEBUG(LOG_FILTER_WORLD_QUEST, "Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
+        } while (result->NextRow());
+    }
+}
+
 
 void Player::_LoadSpells(PreparedQueryResult result, PreparedQueryResult favoritesResult)
 {
@@ -19769,6 +19826,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
+    _SaveWorldQuestStatus(trans);
     if (_garrison)
         _garrison->SaveToDB(trans);
 
@@ -20185,6 +20243,34 @@ void Player::_SaveCUFProfiles(CharacterDatabaseTransaction trans)
             stmt->setUInt16(13, _CUFProfiles[i]->LeftOffset);
         }
 
+        trans->Append(stmt);
+    }
+}
+
+void Player::_SaveWorldQuestStatus(CharacterDatabaseTransaction& trans)
+{
+    if (m_worldquests.empty())
+        return;
+
+
+    // we don't need transactions here.
+    CharacterDatabasePreparedStatement* stmt = NULL;
+
+    for (WorldQuestStatusMap::iterator iter = m_worldquests.begin(); iter != m_worldquests.end(); ++iter)
+    {
+        uint32 quest_id = iter->first;
+        uint32 resetTime = iter->second.resetTime;
+        iter->second.needSave = false;
+        ObjectGuid::LowType guid;
+        Quest const* quest =sObjectMgr->GetQuestTemplate(quest_id);
+        if (quest && quest->GetQuestInfoID() == QUEST_INFO_ACCOUNT)
+            guid = 0;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_WORLDQUESTSTATUS);
+        stmt->setUInt64(0, guid);
+        stmt->setUInt32(1, quest_id);
+        stmt->setUInt32(2, GetSession()->GetAccountId());
+        stmt->setUInt32(3, resetTime);
         trans->Append(stmt);
     }
 }
@@ -29044,6 +29130,34 @@ uint16 Player::getAdventureQuestID()
         return m_adventure_questID;
 
     return 0;
+}
+
+void Player::ResetWorldQuest()
+{
+
+    for (WorldQuestStatusMap::const_iterator iter = m_worldquests.begin(); iter != m_worldquests.end();)
+    {
+        if (iter->second.resetTime <= (time(NULL) + MINUTE * 5)) // resetTime
+        {
+            m_worldquests.erase(iter++);
+            continue;
+        }
+        ++iter;
+    }
+}
+
+void Player::ClearWorldQuest()
+{
+    m_worldquests.clear();
+}
+
+bool Player::WorldQuestCompleted(uint32 QuestID) const
+{
+    WorldQuestStatusMap::const_iterator iter = m_worldquests.find(QuestID);
+    if (iter == m_worldquests.end())
+        return false;
+
+    return iter->second.resetTime > time(NULL);
 }
 
 uint64 TraitMgr::PlayerDataAccessor::GetMoney() const

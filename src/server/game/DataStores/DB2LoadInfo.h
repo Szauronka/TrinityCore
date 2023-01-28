@@ -160,6 +160,53 @@ struct AreaGroupMemberLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &AreaGroupMemberMeta::Instance, HOTFIX_SEL_AREA_GROUP_MEMBER };
 };
 
+struct AreaPoiLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[23] =
+    {
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
+        { false, FT_FLOAT, "Pos1" },
+        { false, FT_FLOAT, "Pos2" },
+        { false, FT_FLOAT, "Pos3" },
+        { true, FT_INT, "PortLocID" },
+        { false, FT_INT, "PlayerConditionID" },
+        { false, FT_INT, "UiTextureAtlasMemberID" },
+        { false, FT_INT, "Flags" },
+        { true, FT_INT, "WMOGroupID" },
+        { true, FT_INT, "PoiDataType" },
+        { true, FT_INT, "PoiData" },
+        { false, FT_INT, "Field91038783011" },
+        { true, FT_INT, "Field100045141012" },
+        { false, FT_SHORT, "ContinentID" },
+        { true, FT_SHORT, "AreaID" },
+        { false, FT_SHORT, "WorldStateID" },
+        { false, FT_SHORT, "UiWidgetSetID" },
+        { false, FT_SHORT, "UiTextureKitID" },
+        { false, FT_SHORT, "Field91038783017" },
+        { false, FT_BYTE, "Importance" },
+        { false, FT_BYTE, "Icon" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 23, &AreaPOIMeta::Instance, HOTFIX_SEL_AREA_POI };
+};
+
+struct AreaPoiStateLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Description" },
+        { false, FT_BYTE, "WorldStateValue" },
+        { false, FT_BYTE, "IconEnumValue" },
+        { false, FT_INT, "UiTextureAtlasMemberID" },
+        { false, FT_INT, "AreaPoiID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &AreaPOIStateMeta::Instance, HOTFIX_SEL_AREA_POI_STATE };
+};
+
 struct AreaTableLoadInfo
 {
     static constexpr DB2FieldMeta Fields[28] =
@@ -789,6 +836,33 @@ struct BroadcastTextDurationLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &BroadcastTextDurationMeta::Instance, HOTFIX_SEL_BROADCAST_TEXT_DURATION };
 };
 
+struct BountyLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "QuestID" },
+        { false, FT_SHORT, "FactionID" },
+        { false, FT_INT, "IconFileDataID" },
+        { false, FT_INT, "TurninPlayerConditionID" },
+        { false, FT_INT, "BountySetID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &BountyMeta::Instance, HOTFIX_SEL_BOUNTY };
+};
+
+struct BountySetLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_INT, "VisiblePlayerConditionID" },
+        { true, FT_INT, "LockedQuestID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &BountySetMeta::Instance, HOTFIX_SEL_BOUNTY_SET };
+};
+
 struct CampaignLoadInfo
 {
     static constexpr DB2FieldMeta Fields[15] =
@@ -1298,6 +1372,18 @@ struct ContentTuningXExpectedLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 5, &ContentTuningXExpectedMeta::Instance, HOTFIX_SEL_CONTENT_TUNING_X_EXPECTED };
+};
+
+struct ContentTuningXLabelLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "LabelID" },
+        { false, FT_INT, "ContentTuningID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &ContentTuningXLabelMeta::Instance, HOTFIX_SEL_CONTENT_TUNING_X_LABEL };
 };
 
 struct ConversationLineLoadInfo
@@ -2426,6 +2512,18 @@ struct GroupFinderCategoryLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 5, &GroupFinderCategoryMeta::Instance, HOTFIX_SEL_GROUP_FINDER_CATEGORY };
+};
+
+struct GroupFinderActivityXPvpBracketLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "GroupFinderActivityID" },
+        { true, FT_INT, "PVPBracketTypeID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &GroupFinderActivityXPvpBracketMeta::Instance, HOTFIX_SEL_GROUP_FINDER_ACTIVITY_X_PVP_BRACKET };
 };
 
 struct HeirloomLoadInfo

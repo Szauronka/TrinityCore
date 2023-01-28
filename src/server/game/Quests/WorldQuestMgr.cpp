@@ -68,6 +68,53 @@ void WorldQuestMgr::CleanWorldQuestTemplates()
     _activeWorldQuests.clear();
 }
 
+void WorldQuestMgr::AddWorldQuestTask(Quest const* quest)
+{
+    if (quest->GetAreaGroupID() > 0)
+    {
+        std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(quest->GetAreaGroupID());
+        for (uint32 areaId : areaGroupMembers)
+            _worldQuestAreaTaskStore[areaId].insert(quest);
+    }
+    else
+    {
+        WorldQuestTemplate const* worldQuest = GetWorldQuestTemplate(quest->GetQuestId());
+        if (worldQuest && !worldQuest->AreaIDs.empty())
+        {
+            for (std::vector<uint32>::const_iterator itr = worldQuest->AreaIDs.begin(); itr != worldQuest->AreaIDs.end(); ++itr)
+                _worldQuestAreaTaskStore[*itr].insert(quest);
+            return;
+        }
+
+        for (QuestObjective const& obj : quest->GetObjectives())
+        {
+            switch (obj.Type)
+            {
+            case QUEST_OBJECTIVE_MONSTER:
+                if (QueryResult result = WorldDatabase.PQuery("SELECT `areaId` FROM `creature` WHERE `id` = '%u' AND `zoneId` = '%u';", obj.ObjectID, quest->GetZoneOrSort()))
+                {
+                    do
+                    {
+                        _worldQuestAreaTaskStore[(*result)[0].GetUInt16()].insert(quest);
+                    } while (result->NextRow());
+                }
+                break;
+            case QUEST_OBJECTIVE_GAMEOBJECT:
+                if (QueryResult result = WorldDatabase.PQuery("SELECT `areaId` FROM `gameobject` WHERE `id` = '%u' AND `zoneId` = '%u';", obj.ObjectID, quest->GetZoneOrSort()))
+                {
+                    do
+                    {
+                        _worldQuestAreaTaskStore[(*result)[0].GetUInt16()].insert(quest);
+                    } while (result->NextRow());
+                }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
 WorldQuestMgr* WorldQuestMgr::instance()
 {
     static WorldQuestMgr instance;
@@ -314,6 +361,9 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* worldQuestTemplate)
     stmt->setUInt32(1, rewardId);
     stmt->setUInt32(2, startTime);
     CharacterDatabase.Execute(stmt);
+
+    AddWorldQuestTask(quest);
+
 }
 
 void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest)
@@ -534,6 +584,43 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
     ActiveWorldQuest const* activeWorldQuest = GetActiveWorldQuest(questId);
     if (!activeWorldQuest)
         return;
+
+    std::vector<WorldQuestReward const*> worldQuestRewards = GetRewardsForPlayerById(player, activeWorldQuest->RewardId);
+    if (!worldQuestRewards.size())
+        return;
+
+    for (WorldQuestReward const* worldQuestReward : worldQuestRewards)
+    {
+        switch (worldQuestReward->RewardType)
+        {
+        case WORLD_QUEST_REWARD_ITEM:
+        {
+            WorldPackets::Quest::QueryQuestRewardResponse::ItemReward itemReward;
+            itemReward.Item.ItemID = worldQuestReward->RewardId;
+            itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonuses();
+            itemReward.Item.ItemBonus->Context = (ItemContext)worldQuestReward->RewardContext;
+            // itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, ItemContext(worldQuestReward->RewardContext));
+            itemReward.Quantity = worldQuestReward->RewardCount;
+            packet.ItemRewards.push_back(itemReward);
+            break;
+        }
+        case WORLD_QUEST_REWARD_CURRENCY:
+        {
+            WorldPackets::Quest::QueryQuestRewardResponse::CurrencyReward currencyReward;
+            currencyReward.CurrencyID = worldQuestReward->RewardId;
+            currencyReward.Amount = worldQuestReward->RewardCount;
+            packet.CurrencyRewards.push_back(currencyReward);
+            break;
+        }
+        case WORLD_QUEST_REWARD_GOLD:
+        {
+            packet.MoneyReward = worldQuestReward->RewardCount;
+            break;
+        }
+        default:
+            break;
+        }
+    }
 
 }
 
