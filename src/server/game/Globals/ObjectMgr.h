@@ -819,6 +819,8 @@ struct QuestPOIBlobData
         AlwaysAllowMergingBlobs(alwaysAllowMergingBlobs) { }
 };
 
+typedef std::vector<QuestPOIBlobData> QuestPOIVector;
+
 struct QuestPOIData
 {
     int32 QuestID = 0;
@@ -1092,6 +1094,7 @@ class TC_GAME_API ObjectMgr
         static ObjectMgr* instance();
 
         typedef std::unordered_map<uint32, Quest> QuestContainer;
+        typedef std::unordered_map<uint32, Quest*> QuestMap;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
         typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
@@ -1300,6 +1303,19 @@ class TC_GAME_API ObjectMgr
         void LoadGameobjectQuestEnders();
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
+        void LoadQuestTasks();
+
+        struct BonusQuestRectEntry
+        {
+            int32 MinX, MinY, MaxX, MaxY;
+            uint32 MapID;
+
+            bool IsIn(uint32 mapID, int x, int y)
+            {
+                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         QuestRelations* GetGOQuestRelationMapHACK() { return &_goQuestRelations; }
         QuestRelationResult GetGOQuestRelations(uint32 entry) const { return GetQuestRelationsFrom(_goQuestRelations, entry, true); }
@@ -1791,19 +1807,6 @@ class TC_GAME_API ObjectMgr
 
         WorldQuestContainer const& GetWorldQuestStore() const { return _worldQuestStore; }
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
-        void LoadQuestTasks();
-
-        struct BonusQuestRectEntry
-        {
-            int32 MinX, MinY, MaxX, MaxY;
-            uint32 MapID;
-
-            bool IsIn(uint32 mapID, int x, int y)
-            {
-                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
-            }
-        };
-        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         JumpChargeParams const* GetJumpChargeParams(int32 id) const;
 
@@ -1824,6 +1827,7 @@ class TC_GAME_API ObjectMgr
         QuestContainer _questTemplates;
         std::vector<Quest const*> _questTemplatesAutoPush;
         QuestObjectivesByIdContainer _questObjectives;
+        QuestMap _questTaskTemplates;
 
         typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
         typedef std::unordered_map<uint32, std::unordered_set<uint32>> QuestAreaTriggerContainer;

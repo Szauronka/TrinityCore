@@ -72,6 +72,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
     uint32 VoiceChateLen = data.ReadBits(6);
     bool minChallenge = data.ReadBit();
     join.PrivateGroup = data.ReadBit();
+    join.Queued = data.ReadBit();
 
     join.GroupName = data.ReadString(NameLen);
     join.Comment = data.ReadString(CommenteLen);

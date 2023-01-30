@@ -6327,21 +6327,24 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID) const
 
 void ObjectMgr::LoadQuestTasks()
 {
-    for (auto const& it : _questTemplates)
+    for (std::pair<uint32, Quest> questContainer : _questTemplates)
     {
-        Quest const* quest_template;// = it.second;
-        //CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(l_I);
-        //if (!criteria || criteria->Type != CRITERIA_TYPE_COMPLETE_QUEST)
-        //    continue;
+        Quest quest = questContainer.second;
 
-        QuestV2CliTaskEntry const* cliTask = sQuestV2CliTaskStore.LookupEntry(quest_template->GetQuestId());
+        /* Need Test maybe it's not needed at all..
+        CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(quest.GetQuestId());
+        if (!criteria || criteria->Type != int16(CriteriaType::CompleteQuest))
+            continue;
+        */
+
+        QuestV2CliTaskEntry const* cliTask = sQuestV2CliTaskStore.LookupEntry(quest.GetQuestId());
         if (!cliTask)
             continue;
 
-        if (!quest_template || quest_template->GetQuestType() != QUEST_TYPE_TASK)
+        if (quest.GetQuestType() != QUEST_TYPE_TASK)
             continue;
 
-        if (QuestPOIData const* questPOIs = GetQuestPOIData(quest_template->GetQuestId()))
+        if (QuestPOIData const* questPOIs = GetQuestPOIData(quest.GetQuestId()))
         {
             if (questPOIs->Blobs.size() <= 0)
                 continue;
@@ -6350,10 +6353,10 @@ void ObjectMgr::LoadQuestTasks()
             {
                 BonusQuestRectEntry rec;
                 rec.MapID = itr->MapID;
-                rec.MinX = 5000000.f;
-                rec.MinY = 5000000.f;
-                rec.MaxX = -5000000.f;
-                rec.MaxY = -5000000.f;
+                rec.MinX = 5000.f;
+                rec.MinY = 5000.f;
+                rec.MaxX = -5000.f;
+                rec.MaxY = -5000.f;
 
                 for (auto const& poi : itr->Points)
                 {
@@ -6367,7 +6370,7 @@ void ObjectMgr::LoadQuestTasks()
                     rec.MinY = std::min(rec.MinY, poi.Y);
                 }
 
-                // If the area is a single point, we assume 80m
+                // If the area is a single point, we assume 80yard
                 if (itr->Points.size() == 1)
                 {
                     rec.MinX -= 80;
@@ -6386,7 +6389,7 @@ void ObjectMgr::LoadQuestTasks()
                     rec.MaxY += 0.175f * float(areaHeight);
                 }
 
-                BonusQuestsRects[quest_template->GetQuestId()].push_back(rec);
+                BonusQuestsRects[quest.GetQuestId()].push_back(rec);
             }
         }
     }

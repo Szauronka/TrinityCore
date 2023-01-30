@@ -64,6 +64,7 @@
 #include "Language.h"
 #include "LanguageMgr.h"
 #include "LFGMgr.h"
+#include "LFGListMgr.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
@@ -2407,6 +2408,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Item loot...");
     sLootItemStorage->LoadStorageFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading Quest task...");
+    sObjectMgr->LoadQuestTasks();
+
     TC_LOG_INFO("server.loading", "Initialize query data...");
     sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
 
@@ -2830,6 +2834,11 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update groups"));
         sGroupMgr->Update(diff);
+    }
+
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update LfgList"));
+        sLFGListMgr->Update(diff);
     }
 
     {

@@ -2997,6 +2997,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveCurrency(CharacterDatabaseTransaction trans);
         void _SaveCUFProfiles(CharacterDatabaseTransaction trans);
 
+        void _SaveAdventureQuest(CharacterDatabaseTransaction& trans);
+
         void _SaveWorldQuestStatus(CharacterDatabaseTransaction& trans);
 
         /*********************************************************/

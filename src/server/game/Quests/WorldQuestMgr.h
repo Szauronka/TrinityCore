@@ -67,6 +67,8 @@ public:
     void CleanWorldQuestTemplates();
 
     void AddWorldQuestTask(Quest const* quest);
+    void RemoveWorldQuestTask(Quest const* quest);
+    std::set<Quest const*> const* GetWorldQuestTask(uint32 areaId) const;
 
     void ActivateQuest(WorldQuestTemplate* worldQuestTemplate);
     void DisableQuest(ActiveWorldQuest* activeWorldQuest);

@@ -59,7 +59,7 @@ void LFGListEntry::BroadcastApplicantUpdate(LFGListApplicationEntry const* appli
     WorldPackets::LfgList::LfgListApplicationUpdate update;
     update.ApplicationTicket.RequesterGuid = ApplicationGroup->GetGUID();
     update.ApplicationTicket.Id = ApplicationGroup->GetGUID().GetCounter();
-    update.ApplicationTicket.Type = WorldPackets::LFG::RideType::Lfg;
+    update.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     update.ApplicationTicket.Time = CreationTime;
 
     update.UnkInt = 6;
@@ -71,7 +71,7 @@ void LFGListEntry::BroadcastApplicantUpdate(LFGListApplicationEntry const* appli
         WorldPackets::LfgList::ApplicantInfo info;
         info.ApplicantTicket.RequesterGuid = ObjectGuid::Create<HighGuid::Player>(v->PlayerGuid);
         info.ApplicantTicket.Id = v->ID;
-        info.ApplicantTicket.Type = WorldPackets::LFG::RideType::Lfg;
+        info.ApplicantTicket.Type = WorldPackets::LFG::RideType::LfgListApplicant;
         info.ApplicantTicket.Time = v->ApplicationTime;
 
         info.ApplicantPartyLeader = ObjectGuid::Create<HighGuid::Player>(v->PlayerGuid);

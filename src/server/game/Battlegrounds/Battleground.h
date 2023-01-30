@@ -49,6 +49,11 @@ namespace WorldPackets
         struct BattlegroundPlayerPosition;
     }
 
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+
 }
 
 enum BattlegroundBroadcastTexts
@@ -245,6 +250,71 @@ enum class BattlegroundPointCaptureStatus
     HordeControlled
 };
 
+enum class BattlegroundBracketType : uint8
+{
+    Arena2v2 = 0,
+    Arena3v3 = 1,
+    Arena5v5 = 2,
+    Battleground10v10 = 3,
+    ArenaSkirmish = 4,
+    RandomBattleground = 5,
+    ArenaBraw = 6,
+    BattlegroundBraw = 7,
+    EpicBattleground = 8,
+    Max = 9
+};
+
+static std::unordered_map<uint8, uint32> HonorRewardPerBracket =
+{
+    { (uint8)BattlegroundBracketType::RandomBattleground, 150 },
+    { (uint8)BattlegroundBracketType::ArenaSkirmish,       80 },
+    { (uint8)BattlegroundBracketType::Arena2v2,           100 },
+    { (uint8)BattlegroundBracketType::Arena3v3,           100 },
+    { (uint8)BattlegroundBracketType::Battleground10v10,  300 },
+    { (uint8)BattlegroundBracketType::EpicBattleground,   225 }
+};
+
+static std::unordered_map<uint8, uint32> ConquestRewardPerBracket =
+{
+    { (uint8)BattlegroundBracketType::RandomBattleground, 40 },
+    { (uint8)BattlegroundBracketType::ArenaSkirmish,      15 },
+    { (uint8)BattlegroundBracketType::Arena2v2,           35 },
+    { (uint8)BattlegroundBracketType::Arena3v3,           50 },
+    { (uint8)BattlegroundBracketType::Battleground10v10, 150 },
+    { (uint8)BattlegroundBracketType::EpicBattleground,   65 }
+};
+
+static std::unordered_map<uint8, uint32> AzeriteRewardPerBracket =
+{
+    { (uint8)BattlegroundBracketType::RandomBattleground, 151 },
+    { (uint8)BattlegroundBracketType::ArenaSkirmish,       16 },
+    { (uint8)BattlegroundBracketType::Arena2v2,           121 },
+    { (uint8)BattlegroundBracketType::Arena3v3,           151 },
+    { (uint8)BattlegroundBracketType::Battleground10v10,  526 },
+    { (uint8)BattlegroundBracketType::EpicBattleground,   301 }
+};
+
+enum class Rank : uint8
+{
+    Unranked = 0,
+    Combatant = 1,
+    Challenger = 2,
+    Rival = 3,
+    Duelist = 4,
+    Gladiator = 5,
+    Max = 6
+};
+
+static std::unordered_map<uint8, uint32> TopRank =
+{
+    { (uint8)Rank::Combatant,  1400 },
+    { (uint8)Rank::Challenger, 1600 },
+    { (uint8)Rank::Rival,      1800 },
+    { (uint8)Rank::Duelist,    2100 },
+    { (uint8)Rank::Gladiator,  2400 }
+};
+
+
 /*
 This class is used to:
 1. Add player to battleground
@@ -372,6 +442,7 @@ class TC_GAME_API Battleground : public ZoneScript
 
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) { }
         void SendPacketToTeam(uint32 teamId, WorldPacket const* packet, Player* except = nullptr) const;
         void SendPacketToAll(WorldPacket const* packet) const;
 

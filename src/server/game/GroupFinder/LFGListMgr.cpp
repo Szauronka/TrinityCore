@@ -141,7 +141,7 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     {
         status.ApplicationTicket.RequesterGuid = v->GetGUID();
         status.ApplicationTicket.Id = v->GetGUID().GetCounter();
-        status.ApplicationTicket.Type = WorldPackets::LFG::RideType::None;
+        status.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
         status.ApplicationTicket.Time = lfgEntry->CreationTime;
     }
 
@@ -500,7 +500,7 @@ void LFGListMgr::SendLfgListJoinResult(LFGListEntry const* entry, LFGListStatus 
     WorldPackets::LfgList::LfgListJoinResult result;
     result.ApplicationTicket.RequesterGuid = group->GetGUID();
     result.ApplicationTicket.Id = group->GetGUID().GetCounter();
-    result.ApplicationTicket.Type = WorldPackets::LFG::RideType::None;
+    result.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     result.ApplicationTicket.Time = entry->CreationTime;
     result.Status = AsUnderlyingType(status);
     result.Result = 0;
@@ -521,7 +521,7 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
 
     responce.ApplicantTicket.RequesterGuid = ObjectGuid::Create<HighGuid::Player>(application->PlayerGuid);
     responce.ApplicantTicket.Id = application->ID;
-    responce.ApplicantTicket.Type = WorldPackets::LFG::RideType::None;
+    responce.ApplicantTicket.Type = WorldPackets::LFG::RideType::LfgListApplicant;
     responce.ApplicantTicket.Time = application->ApplicationTime;
 
     responce.InviteExpireTimer = application->Timeout;
@@ -533,12 +533,12 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
 
     responce.ApplicationTicket.RequesterGuid = group->GetGUID();
     responce.ApplicationTicket.Id = group->GetGUID().GetCounter();
-    responce.ApplicationTicket.Type = WorldPackets::LFG::RideType::None;
+    responce.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     responce.ApplicationTicket.Time = lfgEntry->CreationTime;
 
     responce.SearchResult.ApplicationTicket.RequesterGuid = group->GetGUID();
     responce.SearchResult.ApplicationTicket.Id = group->GetGUID().GetCounter();
-    responce.SearchResult.ApplicationTicket.Type = WorldPackets::LFG::RideType::None;
+    responce.SearchResult.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     responce.SearchResult.ApplicationTicket.Time = lfgEntry->CreationTime;
     responce.SearchResult.UnkGuid1 = group->GetLeaderGUID();
     responce.SearchResult.UnkGuid2 = group->GetLeaderGUID();

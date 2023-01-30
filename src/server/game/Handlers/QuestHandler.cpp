@@ -772,12 +772,6 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
 void WorldSession::HandleRequestAreaPoiUpdate(WorldPackets::Quest::RequestAreaPoiUpdate& /*packet*/)
 {
     WorldPackets::Quest::AreaPoiUpdate response;
-    WorldPackets::Quest::WorldQuestUpdateInfo wqUpdate;
-
-    ActiveWorldQuest* activeWQ = sWorldQuestMgr->GetActiveWorldQuest(wqUpdate.QuestID);
-    int32 AreaID = 0;
-
-    response.AreaPois.emplace_back(activeWQ->StartTime, AreaID, wqUpdate.Timer, wqUpdate.VariableID, wqUpdate.Value);
     SendPacket(response.Write());
 }
 
@@ -931,18 +925,16 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
                                             if (_player->GetLevel() >= contentTuning->MinLevel)
                                             {
                                                 response.QuestLineXQuestID.push_back(questLineQuest->ID);
-                                                sWorldQuestMgr->AddWorldQuestTask(quest);
                                                 break;
                                             }
 }
 
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)
 {
-    auto quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
-
     WorldPackets::Quest::QueryQuestRewardResponse response;
     response.QuestID = packet.QuestID;
     response.TreasurePickerID = packet.TreasurePickerID;
+    
     sWorldQuestMgr->BuildRewardPacket(GetPlayer(), response.QuestID, response);
     SendPacket(response.Write());
 }

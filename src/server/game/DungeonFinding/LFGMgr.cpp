@@ -1762,6 +1762,22 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                     return LFG_LOCKSTATUS_MISSING_ITEM;
             }
 
+            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+            {
+                if (ar->levelMin != 0 && ar->levelMin > player->GetLevel())
+                    lockStatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+                if (ar->levelMax != 0 && ar->levelMax < player->GetLevel())
+                    lockStatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+            }
+
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, 0))
+            {
+                if (levels->MinLevel != 0 && levels->MinLevel > player->GetLevel())
+                    lockStatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+                if (levels->MaxLevel != 0 && levels->MaxLevel < player->GetLevel())
+                    lockStatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+            }
+
             /* @todo VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
             lockData = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
             lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;

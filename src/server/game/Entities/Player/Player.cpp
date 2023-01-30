@@ -17797,8 +17797,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadPvpTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PVP_TALENTS));
     _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES));
-    _LoadAdventureQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ADVENTURE_QUEST));
-    _LoadWorldQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOADWORLDQUESTSTATUS));
     GetSession()->GetCollectionMgr()->LoadToys();
     GetSession()->GetCollectionMgr()->LoadHeirlooms();
     GetSession()->GetCollectionMgr()->LoadMounts();
@@ -17821,6 +17819,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     _LoadQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
     _LoadQuestStatusObjectives(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES));
     _LoadQuestStatusRewarded(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW));
+    _LoadAdventureQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ADVENTURE_QUEST));
+    _LoadWorldQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOADWORLDQUESTSTATUS));
     _LoadDailyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS));
     _LoadWeeklyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS));
     _LoadSeasonalQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS));
@@ -19865,6 +19865,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     _SaveInventory(trans);
     _SaveVoidStorage(trans);
     _SaveQuestStatus(trans);
+    _SaveWorldQuestStatus(trans);
     _SaveDailyQuestStatus(trans);
     _SaveWeeklyQuestStatus(trans);
     _SaveSeasonalQuestStatus(trans);
@@ -19886,7 +19887,6 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
-    _SaveWorldQuestStatus(trans);
     if (_garrison)
         _garrison->SaveToDB(trans);
 

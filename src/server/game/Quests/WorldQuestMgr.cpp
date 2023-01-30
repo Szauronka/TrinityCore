@@ -115,6 +115,20 @@ void WorldQuestMgr::AddWorldQuestTask(Quest const* quest)
     }
 }
 
+void WorldQuestMgr::RemoveWorldQuestTask(Quest const* quest)
+{
+    if (!quest)
+        return;
+
+    for (auto& taskSet : _worldQuestAreaTaskStore)
+        taskSet.second.erase(quest);
+}
+
+std::set<Quest const*> const* WorldQuestMgr::GetWorldQuestTask(uint32 areaId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_worldQuestAreaTaskStore, areaId);
+}
+
 WorldQuestMgr* WorldQuestMgr::instance()
 {
     static WorldQuestMgr instance;
@@ -620,6 +634,13 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
         default:
             break;
         }
+    }
+
+    for (auto rewP : sRewardPackStore)
+    {
+        WorldPackets::Quest::QueryQuestRewardResponse response;
+        response.TreasurePickerID = rewP->TreasurePickerID;
+        response.MoneyReward = rewP->Money;
     }
 
 }

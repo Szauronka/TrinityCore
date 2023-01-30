@@ -53,6 +53,7 @@ namespace WorldPackets
             std::string VoiceChat;
             bool minChallange = false;
             bool PrivateGroup = false;
+            bool Queued = false;
             Optional<uint32> QuestID;
             uint32 MinMyticPlusRating = 0; 
         };
