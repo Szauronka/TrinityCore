@@ -690,7 +690,6 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Count = 0;
             std::vector<AreaPoiData> AreaPois;
         };
 
@@ -857,7 +856,7 @@ namespace WorldPackets
         class QueryQuestRewardResponse final : public ServerPacket
         {
         public:
-            QueryQuestRewardResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE, 100) { }
+            QueryQuestRewardResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE) { }
 
             WorldPacket const* Write() override;
 
@@ -865,35 +864,26 @@ namespace WorldPackets
             {
                 uint32 CurrencyID = 0;
                 uint32 Amount = 0;
+                uint32 CurrencyCount = 0;
             };
 
             struct ItemReward
             {
                 WorldPackets::Item::ItemInstance Item;
-                uint32 Quantity = 0;
-            };
-
-            struct BonusReward
-            {
-                uint32 BonusItemCount = 0;
-                WorldPackets::Item::ItemInstance Item;
-                uint32 BonusCurrencyCount = 0;
-                int64 BonusMoney = 0;
-                bool HasBonus = false;
-                std::vector<int32> BonusListIDs;
-                std::vector<CurrencyReward>CurrencyRewards;
+                bool HasItemBonus = false;
+                uint32 ContentTuningID = 0;
+                uint32 Contex = 0;
             };
 
             uint32 QuestID = 0;
             uint32 TreasurePickerID = 0;
-            uint32 ItemCount = 0;
+            uint32 Quantity = 0;
             uint32 CurrencyCount = 0;
             uint64 MoneyReward = 0;
-            uint32 BonusCount = 0;
-            int32 Flags = 0;
+            uint64 BonusCount = 0;
+            uint32 Flags = 0;
             std::vector<CurrencyReward> CurrencyRewards;
             std::vector<ItemReward> ItemRewards;
-            std::vector<BonusReward> BonusRewards;
         };
 
         class IsQuestCompleteResponse final : public ServerPacket

@@ -398,6 +398,7 @@ void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vecto
 
 typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
+typedef std::unordered_map<uint32, std::vector<AreaPOIEntry const*>> AreaPOIContainer;
 typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> ArtifactPowerLinksContainer;
 typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
@@ -459,6 +460,7 @@ namespace
     std::array<std::map<HotfixBlobKey, std::vector<DB2Manager::HotfixOptionalData>>, TOTAL_LOCALES> _hotfixOptionalData;
 
     AreaGroupMemberContainer _areaGroupMembers;
+    AreaPOIContainer _areaPoi;
     ArtifactPowersContainer _artifactPowers;
     ArtifactPowerLinksContainer _artifactPowerLinks;
     ArtifactPowerRanksContainer _artifactPowerRanks;
@@ -1925,6 +1927,13 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
     } while (objectAreaId);
 
     return false;
+}
+
+std::vector<AreaPOIEntry const*>DB2Manager::GetAreaPoiID(uint32 areaId) const
+{
+    auto itr = _areaPoi.find(areaId);
+    if (itr != _areaPoi.end())
+        return itr->second;
 }
 
 std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const

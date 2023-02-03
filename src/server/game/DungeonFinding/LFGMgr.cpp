@@ -2122,6 +2122,16 @@ bool LFGMgr::IsSeasonActive(uint32 dungeonId)
             return IsHolidayActive(HOLIDAY_BREWFEST);
         case 288: // The Crown Chemical Co.
             return IsHolidayActive(HOLIDAY_LOVE_IS_IN_THE_AIR);
+        case 744:   // Timewalker BC
+        case 1533:  // Timewalker Raid : Black Temple
+            return IsHolidayActive(HOLIDAY_TIMEWALKING_DUNGEON_EVENT_BC_DEFAULT);
+        case 995:   // Timewalker WotlK
+        case 1677:  // Timewalker Raid : Ulduar
+            return IsHolidayActive(HOLIDAY_TIMEWALKING_DUNGEON_EVENT_LK_DEFAULT);
+        case 1146:  // Timewalker Cataclysm
+            return IsHolidayActive(HOLIDAY_TIMEWALKING_DUNGEON_EVENT_CATA_DEFAULT);
+        case 1453:  // Timewalker MoP
+            return IsHolidayActive(HOLIDAY_TIMEWALKING_DUNGEON_EVENT_MOP_DEFAULT);
     }
     return false;
 }

@@ -71,7 +71,8 @@ public:
     std::set<Quest const*> const* GetWorldQuestTask(uint32 areaId) const;
 
     void ActivateQuest(WorldQuestTemplate* worldQuestTemplate);
-    void DisableQuest(ActiveWorldQuest* activeWorldQuest);
+    void DisableQuest(ActiveWorldQuest* activeWorldQuest, bool deleteFromMap/* = true*/);
+    void GetAreaPoiID(ActiveWorldQuestMap activeWorldQuests, AreaPOIEntry areaPoi);
 
     bool IsQuestActive(uint32 questId);
 

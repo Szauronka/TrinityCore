@@ -2521,6 +2521,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
 
+    TC_LOG_INFO("server.loading", "Loading world quests template...");
+    sWorldQuestMgr->LoadWorldQuestTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading world quests rewards...");
+    sWorldQuestMgr->LoadWorldQuestRewardTemplates();
+
     TC_LOG_INFO("server.loading", "Loading active world quests...");
     sWorldQuestMgr->LoadActiveWorldQuests();
 

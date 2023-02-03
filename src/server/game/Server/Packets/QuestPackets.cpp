@@ -837,7 +837,6 @@ void ChoiceResponse::Read()
 
 WorldPacket const* WorldPackets::Quest::AreaPoiUpdate::Write()
 {
-    _worldPacket << Count;
     _worldPacket << static_cast<uint64>(AreaPois.size());
     for (auto const& Count : AreaPois)
     {
@@ -891,38 +890,29 @@ WorldPacket const* QueryQuestRewardResponse::Write()
 {
     _worldPacket << QuestID;
     _worldPacket << TreasurePickerID;
-    _worldPacket << ItemCount;
+    _worldPacket << Quantity;
     _worldPacket << CurrencyCount;
     _worldPacket << MoneyReward;
     _worldPacket << BonusCount;
-    _worldPacket << Flags;
     _worldPacket << uint32(ItemRewards.size());
     _worldPacket << uint32(CurrencyRewards.size());
-    _worldPacket << uint32(BonusRewards.size());
-    
+    _worldPacket << Flags;
 
     for (auto const& currency : CurrencyRewards)
     {
         _worldPacket << currency.CurrencyID;
         _worldPacket << currency.Amount;
+        _worldPacket << currency.CurrencyCount;
     }
 
     for (auto const& item : ItemRewards)
     {
         _worldPacket << item.Item;
-        _worldPacket << item.Quantity;
+        _worldPacket.WriteBit(item.HasItemBonus);
+        _worldPacket << item.ContentTuningID;
+        _worldPacket << item.Contex;
     }
 
-    for (auto const& bonus : BonusRewards)
-    {
-        _worldPacket << bonus.BonusItemCount;
-        _worldPacket << bonus.Item;
-        _worldPacket << bonus.BonusCurrencyCount;
-        _worldPacket << bonus.BonusMoney;
-        _worldPacket << bonus.HasBonus;
-        _worldPacket << bonus.BonusListIDs.size();
-        _worldPacket << bonus.CurrencyRewards.size();
-    }
 
     return &_worldPacket;
 }

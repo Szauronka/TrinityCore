@@ -31,6 +31,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
+#include "ObjectMgr.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
 #include "QueryPackets.h"
@@ -935,7 +936,7 @@ void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasureP
     response.QuestID = packet.QuestID;
     response.TreasurePickerID = packet.TreasurePickerID;
     
-    sWorldQuestMgr->BuildRewardPacket(GetPlayer(), response.QuestID, response);
+    sWorldQuestMgr->BuildRewardPacket(GetPlayer(), packet.QuestID, response);
     SendPacket(response.Write());
 }
 
