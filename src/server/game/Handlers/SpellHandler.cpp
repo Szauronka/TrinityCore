@@ -691,6 +691,7 @@ void WorldSession::HandleUpdateSpellVisualOpcode(WorldPackets::Spells::UpdateSpe
         aura->SetSpellXSpellVisualId(packet.SpellXSpellVisualId);
         aura->SetNeedClientUpdateForTargets();
     }
+}
 
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
 {
