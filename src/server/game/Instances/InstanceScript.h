@@ -40,7 +40,7 @@
 
 class AreaBoundary;
 class Creature;
-class Challenge;
+class ChallengeModeMgr;
 class GameObject;
 class InstanceMap;
 class ModuleReference;

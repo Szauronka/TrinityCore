@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "InstanceScript.h"
+#include "ObjectGuid.h"
+#include "Map.h"
+
 #ifndef _CHALLENGEMODEMGR_H
 #define _CHALLENGEMODEMGR_H
 struct ChallengeMember

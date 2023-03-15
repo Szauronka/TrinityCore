@@ -23,6 +23,7 @@
 #include "Item.h"
 #include "LootPackets.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MythicPlusPacketsCommon.h"
 #include <sstream>
 

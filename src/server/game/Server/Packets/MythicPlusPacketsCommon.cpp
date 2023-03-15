@@ -251,10 +251,24 @@ WorldPacket const* WorldPackets::MythicPlus::RequestLeadersResult::Write()
     _worldPacket << static_cast<uint32>(RealmLeaders.size());
 
     for (auto const& guildLeaders : GuildLeaders)
-        _worldPacket << guildLeaders;
+    {
+        _worldPacket << guildLeaders.InstanceRealmAddress;
+        _worldPacket << guildLeaders.AttemptID;
+        _worldPacket << guildLeaders.CompletionTime;
+        _worldPacket << guildLeaders.CompletionDate;
+        _worldPacket << guildLeaders.MedalEarned;
+    }
+        
+    
 
     for (auto const& realmLeaders : RealmLeaders)
-        _worldPacket << realmLeaders;
+    {
+        _worldPacket << realmLeaders.InstanceRealmAddress;
+        _worldPacket << realmLeaders.AttemptID;
+        _worldPacket << realmLeaders.CompletionTime;
+        _worldPacket << realmLeaders.CompletionDate;
+        _worldPacket << realmLeaders.MedalEarned;
+    }
 
     return &_worldPacket;
 }
