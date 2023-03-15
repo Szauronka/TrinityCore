@@ -541,6 +541,13 @@ struct PointOfInterestLocale
 
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 
+struct ScenarioSpellData
+{
+    uint32 StepId;
+    uint32 Spells;
+};
+typedef std::vector<std::vector<ScenarioSpellData>> ScenarioDataSpellsStep;
+
 struct PlayerChoiceResponseLocale
 {
     std::vector<std::string> Answer;
@@ -1326,6 +1333,13 @@ class TC_GAME_API ObjectMgr
         QuestRelationResult GetCreatureQuestInvolvedRelations(uint32 entry) const { return GetQuestRelationsFrom(_creatureQuestInvolvedRelations, entry, false); }
         Trinity::IteratorPair<QuestRelationsReverse::const_iterator> GetCreatureQuestInvolvedRelationReverseBounds(uint32 questId) const { return _creatureQuestInvolvedRelationsReverse.equal_range(questId); }
 
+        std::vector<ScenarioSpellData> const* GetScenarioSpells(int32 ScenarioId) const
+        {
+            if (_scenarioDataSpellStep.size() <= ScenarioId)
+                return nullptr;
+            return &_scenarioDataSpellStep[ScenarioId];
+        }
+
         ExclusiveQuestGroupsBounds GetExclusiveQuestGroupBounds(int32 exclusiveGroupId) const
         {
             return _exclusiveQuestGroups.equal_range(exclusiveGroupId);
@@ -1989,6 +2003,7 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+        ScenarioDataSpellsStep _scenarioDataSpellStep;
         WorldQuestContainer _worldQuestStore;
 
         std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;

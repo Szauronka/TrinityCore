@@ -2562,6 +2562,21 @@ struct JournalEncounterEntry
     int8 DifficultyMask;
 };
 
+struct JournalEncounterItemEntry
+{
+    uint32 ID;
+    uint16 JournalEncounterID;
+    uint32 ItemID;
+    int8 FactionMask;
+    uint8 Flags;
+    int8 DifficultyMask;
+
+    bool IsValidDifficultyMask(int8 mask) const
+    {
+        return !DifficultyMask || DifficultyMask & mask;
+    }
+};
+
 struct JournalEncounterSectionEntry
 {
     uint32 ID;

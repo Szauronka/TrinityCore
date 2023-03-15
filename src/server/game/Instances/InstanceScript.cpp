@@ -572,6 +572,27 @@ void InstanceScript::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime /
         TC_LOG_DEBUG("scripts", "InstanceScript: DoUseDoorOrButton failed");
 }
 
+void InstanceScript::ResetChallengeMode()
+{
+    if (_challenge)
+        _challenge->ResetGo();
+
+    instance->m_respawnChallenge = time(nullptr); // For respawn all mobs
+    RepopPlayersAtGraveyard();
+    instance->SetSpawnMode(DIFFICULTY_MYTHIC);
+}
+
+void InstanceScript::RepopPlayersAtGraveyard()
+{
+    if (!this || !instance)
+        return;
+
+    instance->ApplyOnEveryPlayer([&](Player* player)
+        {
+            player->RepopAtGraveyard();
+        });
+}
+
 void InstanceScript::DoCloseDoorOrButton(ObjectGuid guid)
 {
     if (!guid)
@@ -644,6 +665,16 @@ void InstanceScript::DoUpdateCriteria(CriteriaType type, uint32 miscValue1 /*= 0
     {
         player->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
     });
+}
+
+void InstanceScript::SetChallenge(ChallengeModeMgr* challenge)
+{
+    _challenge = challenge;
+
+    _inCombatResCount = 1;
+    _maxInCombatResCount = 5;
+    _combatResChargeTime = 10 * MINUTE * IN_MILLISECONDS;
+    _nextCombatResChargeTime = 10 * MINUTE * IN_MILLISECONDS;
 }
 
 void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)

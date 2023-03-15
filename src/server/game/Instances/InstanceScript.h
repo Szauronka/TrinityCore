@@ -20,6 +20,7 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
+#include "ChallengeModeMgr.h"
 #include "Duration.h"
 #include "Optional.h"
 #include <array>
@@ -39,6 +40,7 @@
 
 class AreaBoundary;
 class Creature;
+class Challenge;
 class GameObject;
 class InstanceMap;
 class ModuleReference;
@@ -51,6 +53,38 @@ enum class CriteriaType : uint8;
 enum class CriteriaStartEvent : uint8;
 enum Difficulty : uint8;
 enum EncounterCreditType : uint8;
+enum Affixes : uint32;
+
+enum Affixes : uint32
+{
+    Overflowing = 1,
+    Skittish = 2,
+    Volcanic = 3,
+    Necrotic = 4,
+    Teeming = 5,
+    Raging = 6,
+    Bolstering = 7,
+    Sanguine = 8,
+    Tyrannical = 9,
+    Fortified = 10,
+    Bursting = 11,
+    Grievous = 12,
+    FelExplosives = 13,
+    Quaking = 14,
+    Relentless = 15,
+    Infested = 16,
+    Reaping = 117,
+    Beguiling = 119,
+    Awakened = 120,
+    Prideful = 121,
+    Inspiring = 122,
+    Spiteful = 123,
+    Storming = 124,
+    Tormented = 128,
+    Infernal = 129,
+    Encrypted = 130,
+    MaxAffixes
+};
 
 enum EncounterFrameType
 {
@@ -243,6 +277,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // * use HandleGameObject(GUID, boolen, nullptr); in any other script
         void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
 
+        // Mythic
+        void ResetChallengeMode();
+        void RepopPlayersAtGraveyard();
+
         // Change active state of doors or buttons
         void DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
         void DoCloseDoorOrButton(ObjectGuid guid);
@@ -258,6 +296,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Update Achievement Criteria for all players in instance
         void DoUpdateCriteria(CriteriaType type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
+
+        void SetChallenge(ChallengeModeMgr* challenge);
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
@@ -329,6 +369,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
         uint32 GetCombatResurrectionChargeInterval() const;
 
+        std::vector<ObjectGuid> _challengeDoorGuids;
+        std::vector<ObjectGuid> _challengeChestGuids;
+        ObjectGuid _challengeOrbGuid;
+        ObjectGuid _challengeChest;
+
         void RegisterPersistentScriptValue(PersistentInstanceScriptValueBase* value) { _persistentScriptValues.push_back(value); }
         std::string const& GetHeader() const { return headers; }
         std::vector<PersistentInstanceScriptValueBase*>& GetPersistentScriptValues() { return _persistentScriptValues; }
@@ -373,6 +418,24 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds);
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
+        ChallengeModeMgr* _challenge;
+        uint32 _inCombatResCount;
+        uint32 _maxInCombatResCount;
+        uint32 _combatResChargeTime;
+        uint32 _nextCombatResChargeTime;
+        bool _challengeModeStarted;
+        uint8 _challengeModeId;
+        uint8 _challengeModeLevel;
+        std::array<uint32, 5> _affixes;
+        std::bitset<size_t(Affixes::MaxAffixes)> _affixesTest;
+        uint32 _challengeModeStartTime;
+        uint32 _challengeModeDeathCount;
+        Optional<uint32> _challengeModeScenario;
+        Optional<Position> _challengeModeDoorPosition;
+        Optional<Position> _challengeModeFontOfPowerPosition;
+        Optional<Position> _challengeModeFontOfPowerPosition2;
+        Optional<Position> _challengeModeStartPosition;
+        std::array<uint32, 2> _islandCount;
         std::string headers;
         std::vector<BossInfo> bosses;
         std::vector<PersistentInstanceScriptValueBase*> _persistentScriptValues;

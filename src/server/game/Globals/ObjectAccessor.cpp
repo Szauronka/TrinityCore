@@ -224,6 +224,14 @@ Pet* ObjectAccessor::GetPet(WorldObject const& u, ObjectGuid const& guid)
     return u.GetMap()->GetPet(guid);
 }
 
+Player* ObjectAccessor::GetObjectInWorld(ObjectGuid guid, Player* /*typeSpecifier*/)
+{
+    Player* player = HashMapHolder<Player>::Find(guid);
+    if (player && player->IsInWorld())
+        return player;
+    return nullptr;
+}
+
 Player* ObjectAccessor::GetPlayer(Map const* m, ObjectGuid const& guid)
 {
     if (Player* player = HashMapHolder<Player>::Find(guid))
@@ -249,6 +257,11 @@ Creature* ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const& u, Object
     return nullptr;
 }
 
+Player* ObjectAccessor::FindPlayer(Map* map, ObjectGuid guid)
+{
+    return GetObjectInMap(guid, map, static_cast<Player*>(nullptr));
+}
+
 Player* ObjectAccessor::FindPlayer(ObjectGuid const& guid)
 {
     Player* player = HashMapHolder<Player>::Find(guid);
@@ -268,6 +281,12 @@ Player* ObjectAccessor::FindPlayerByLowGUID(ObjectGuid::LowType lowguid)
 {
     ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(lowguid);
     return ObjectAccessor::FindPlayer(guid);
+}
+
+GameObject* ObjectAccessor::FindGameObject(ObjectGuid const& guid)
+{
+    GameObject* gameObject = HashMapHolder<GameObject>::Find(guid);
+    return gameObject && gameObject->IsInWorld() ? gameObject : nullptr;
 }
 
 Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid const& guid)

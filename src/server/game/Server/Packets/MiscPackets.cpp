@@ -817,3 +817,20 @@ WorldPacket const* WorldPackets::Misc::UpdateTaskProgress::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::StopElapsedTimer::Write()
+{
+	_worldPacket << TimerID;
+	_worldPacket.WriteBit(KeepTimer);
+	_worldPacket.FlushBits();
+
+	return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
+{
+	_worldPacket << Timer.TimerID;
+	_worldPacket << uint32(Timer.CurrentDuration);
+
+	return &_worldPacket;
+}

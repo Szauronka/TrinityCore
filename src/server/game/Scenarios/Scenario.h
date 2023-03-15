@@ -25,6 +25,8 @@ struct ScenarioData;
 struct ScenarioEntry;
 struct ScenarioStepEntry;
 
+typedef std::vector<ScenarioStepEntry const*> ScenarioSteps;
+
 namespace WorldPackets
 {
     namespace Achievement
@@ -64,6 +66,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         virtual void Update(uint32 /*diff*/) { }
 
         bool IsComplete();
+        bool IsCompleted(bool bonus) const;
+        uint8 GetStepCount(bool withBonus) const;
         bool IsCompletedStep(ScenarioStepEntry const* step);
         void SetStepState(ScenarioStepEntry const* step, ScenarioStepState state) { _stepStates[step] = state; }
         ScenarioEntry const* GetEntry() const;
@@ -75,8 +79,16 @@ class TC_GAME_API Scenario : public CriteriaHandler
         void SendScenarioState(Player* player);
         void SendBootPlayer(Player* player);
 
+        uint32 GetScenarioId() const;
+
+        uint32 GetCurrentStep() const;
+
+        void SendStepUpdate(Player* player, bool full);
+
     protected:
         GuidUnorderedSet _players;
+        uint8 currentStep;
+        std::vector<uint32> ActiveSteps;
 
         void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
         void SendCriteriaProgressRemoved(uint32 /*criteriaId*/) override { }
@@ -99,6 +111,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         ScenarioData const* _data;
 
     private:
+        uint32 scenarioId;
+        ScenarioSteps steps;
         ScenarioStepEntry const* _currentstep;
         std::map<ScenarioStepEntry const*, ScenarioStepState> _stepStates;
 };

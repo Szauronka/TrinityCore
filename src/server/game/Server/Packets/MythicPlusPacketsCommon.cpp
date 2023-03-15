@@ -126,5 +126,158 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreData const& dungeonScoreDat
 
     return data;
 }
+void MythicPlusRequestMapStats::Read()
+{
+}
+
+void MythicPlusCurrentAffixes::Read()
+{
+}
+
+void MythicPlusSeasonData::Read()
+{
+}
+
+WorldPacket const* MythicPlusRequestMapStatsResult::Write()
+{
+    _worldPacket << uint32(mythicPlusRuns.size());
+    _worldPacket << uint32(RewardCount);
+    _worldPacket << int32(Season);
+    _worldPacket << int32(Subseason);
+
+    for (MythicPlusRun mythicPlusRun : mythicPlusRuns)
+        _worldPacket << mythicPlusRun;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MythicPlusCurrentAffixesResult::Write()
+{
+    _worldPacket << uint32(Count);
+
+    for (uint32 i = 0; i < Count; ++i)
+    {
+        _worldPacket << uint32(Affixes[i]);
+        _worldPacket << uint32(RequiredSeason[i]);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::MythicPlus::StartChallengeMode::Read()
+{
+    _worldPacket >> IsKeyCharged;
+    _worldPacket >> UnkInt;
+    _worldPacket >> GameObjectGUID;
+}
+
+WorldPacket const* MythicPlusSeasonDataResult::Write()
+{
+    _worldPacket << uint32(IsMythicPlusActive);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::MythicPlus::UpdateDeathCount::Write()
+{
+	_worldPacket << (uint32)DeathCount;
+
+	return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::MythicPlus::Complete::Write()
+{
+    _worldPacket << CompletionMilliseconds;
+    _worldPacket << MapID;
+    _worldPacket << ChallengeID;
+    _worldPacket << StartedChallengeLevel;
+
+    _worldPacket.WriteBit(IsCompletedInTimer);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::MythicPlus::Start::Write()
+{
+    _worldPacket << (uint32)MapID;
+    _worldPacket << (uint32)ChallengeID;
+    _worldPacket << (uint32)ChallengeLevel;
+
+    _worldPacket << (uint32)Affixes1;
+    _worldPacket << (uint32)Affixes2;
+    _worldPacket << (uint32)Affixes3;
+    _worldPacket << (uint32)Affixes4;
+
+    _worldPacket << (uint32)DeathCount;
+    _worldPacket << (uint32)ClientEncounterStartPlayerInfo;
+
+    _worldPacket << (uint8)Energized;
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::MythicPlus::ChallengeModeMapStatsUpdate::Write()
+{
+    _worldPacket << MapId;
+    _worldPacket << BestCompletionMilliseconds;
+    _worldPacket << LastCompletionMilliseconds;
+    _worldPacket << CompletedChallengeLevel;
+    _worldPacket << ChallengeID;
+    _worldPacket << BestMedalDate;
+    _worldPacket << BestSpecID[0];
+    _worldPacket << Affixes[4];
+
+    return &_worldPacket;
+}
+
+void WorldPackets::MythicPlus::RequestLeaders::Read()
+{
+    _worldPacket >> MapId;
+    LastGuildUpdate = _worldPacket.read<uint32>();
+    LastRealmUpdate = _worldPacket.read<uint32>();
+    _worldPacket >> ChallengeID;
+}
+
+WorldPacket const* WorldPackets::MythicPlus::RequestLeadersResult::Write()
+{
+    _worldPacket << MapID;
+    _worldPacket << ChallengeID;
+    _worldPacket.AppendPackedTime(LastGuildUpdate);
+    _worldPacket.AppendPackedTime(LastRealmUpdate);
+
+    _worldPacket << static_cast<uint32>(GuildLeaders.size());
+    _worldPacket << static_cast<uint32>(RealmLeaders.size());
+
+    for (auto const& guildLeaders : GuildLeaders)
+        _worldPacket << guildLeaders;
+
+    for (auto const& realmLeaders : RealmLeaders)
+        _worldPacket << realmLeaders;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::MythicPlus::ModeAttempt const& modeAttempt)
+{
+    data << modeAttempt.InstanceRealmAddress;
+    data << modeAttempt.AttemptID;
+    data << modeAttempt.CompletionTime;
+    data.AppendPackedTime(modeAttempt.CompletionDate);
+    data << modeAttempt.MedalEarned;
+    data << static_cast<uint32>(modeAttempt.Members.size());
+    for (auto const& map : modeAttempt.Members)
+    {
+        data << map.VirtualRealmAddress;
+        data << map.NativeRealmAddress;
+        data << map.Guid;
+        data << map.SpecializationID;
+    }
+
+    return data;
+}
+
+
 }
 }

@@ -75,6 +75,29 @@ enum ShutdownExitCode : uint32
     RESTART_EXIT_CODE  = 2
 };
 
+enum WorldStates
+{
+    WS_CURRENCY_RESET_TIME = 20001,                     // Next currency reset time
+    WS_WEEKLY_QUEST_RESET_TIME = 20002,                     // Next weekly reset time
+    WS_BG_DAILY_RESET_TIME = 20003,                     // Next daily BG reset time
+    WS_CLEANING_FLAGS = 20004,                     // Cleaning Flags
+    WS_GUILD_DAILY_RESET_TIME = 20006,                     // Next guild cap reset time
+    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly reset time
+
+    WS_CHALLENGE_KEY_RESET_TIME = 20015,                      // Reset time for Challenge key
+    WS_CHALLENGE_AFFIXE1_RESET_TIME = 20016,                  // Challenge Affixe 1
+    WS_CHALLENGE_AFFIXE2_RESET_TIME = 20017,                  // Challenge Affixe 2
+    WS_CHALLENGE_AFFIXE3_RESET_TIME = 20018,                  // Challenge Affixe 3
+    WS_WORLDQUEST_HOURLY_RESET_TIME = 20019,                      // World quest every 6 hours reset time
+    WS_WORLDQUEST_DAILY_RESET_TIME = 20020,                      // World quest every day reset time
+    WS_CHALLENGE_LAST_RESET_TIME = 20021,                      // Last reset time for Challenge key
+    WS_BAN_WAVE_TIME = 20022,                      // Next banwave time
+    WS_CURRENT_ARTIFACT_KNOWLEDGE = 20023,                      // Current Artifact Knowledge
+    WS_INVASION_POINT_RESET_TIME = 20024,                      // World quest every 2 hours reset time
+    // Cata specific custom worldstates
+    WS_GUILD_WEEKLY_RESET_TIME = 20050,                     // Next guild week reset time
+};
+
 /// Timers for different object refresh rates
 enum WorldTimers
 {
@@ -228,6 +251,7 @@ enum WorldFloatConfigs
 
 enum WorldIntConfigs
 {
+    CONFIG_CHALLENGE_LEVEL_LIMIT,
     CONFIG_COMPRESSION = 0,
     CONFIG_INTERVAL_SAVE,
     CONFIG_INTERVAL_GRIDCLEAN,

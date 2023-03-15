@@ -401,6 +401,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool HasFlag(CreatureStaticFlags7 flag) const { return _staticFlags.HasFlag(flag); }
         bool HasFlag(CreatureStaticFlags8 flag) const { return _staticFlags.HasFlag(flag); }
 
+        bool disableAffix;
+        bool IsAffixDisabled() const { return disableAffix; }
+
         uint32 GetGossipMenuId() const;
         void SetGossipMenuId(Optional<uint32> gossipMenuId);
 

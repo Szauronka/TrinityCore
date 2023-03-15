@@ -363,6 +363,14 @@ class TC_GAME_API Group
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
 
+        bool InChallenge();
+        ObjectGuid m_challengeOwner;
+        ObjectGuid m_challengeItem;
+        MapChallengeModeEntry const* m_challengeEntry;
+        uint32 m_challengeLevel;
+        uint32 m_challengeInstanceID;
+        std::array<uint32, 5> m_affixes{};
+
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);
         void _homebindIfInstance(Player* player);

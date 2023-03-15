@@ -543,6 +543,11 @@ ObjectGuid ObjectGuid::FromString(std::string const& guidString)
     return Info.Parse(guidString);
 }
 
+uint32 ObjectGuid::GetGUIDLow() const
+{
+    return uint32();
+}
+
 std::size_t ObjectGuid::GetHash() const
 {
     std::size_t hashVal = 0;

@@ -1037,6 +1037,36 @@ namespace WorldPackets
 
             std::vector<TaskProgress> Progress;
         };
+
+        class StopElapsedTimer final : public ServerPacket
+        {
+        public:
+            StopElapsedTimer() : ServerPacket(SMSG_STOP_ELAPSED_TIMER, 5) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimerID = 0;
+            bool KeepTimer = false;
+        };
+
+        struct ElaspedTimer
+        {
+            ElaspedTimer() { }
+            ElaspedTimer(uint32 timerID, time_t currentDuration) : TimerID(timerID), CurrentDuration(currentDuration) { }
+
+            uint32 TimerID = 0;
+            time_t CurrentDuration = time_t(0);
+        };
+
+        class StartElapsedTimer final : public ServerPacket
+        {
+        public:
+            StartElapsedTimer() : ServerPacket(SMSG_START_ELAPSED_TIMER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ElaspedTimer Timer;
+        };
     }
 }
 

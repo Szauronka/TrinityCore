@@ -79,13 +79,33 @@ namespace ObjectAccessor
 
     // these functions return objects if found in whole world
     // ACCESS LIKE THAT IS NOT THREAD SAFE
+    TC_GAME_API Player* FindPlayer(Map* map, ObjectGuid guid);
     TC_GAME_API Player* FindPlayer(ObjectGuid const&);
+
+    TC_GAME_API Player* GetObjectInWorld(ObjectGuid guid, Player* /*typeSpecifier*/);
+
+    // returns object if is in map
+    template<class T> static T* GetObjectInMap(ObjectGuid guid, Map* map, T* /*typeSpecifier*/)
+    {
+        // ASSERT(map);
+        if (!map)
+            return nullptr;
+
+        if (T* obj = GetObjectInWorld(guid, static_cast<T*>(nullptr)))
+            // if (obj->GetMap() == map && !obj->IsPreDelete())
+            return obj;
+
+        return nullptr;
+    }
+
     TC_GAME_API Player* FindPlayerByName(std::string_view name);
     TC_GAME_API Player* FindPlayerByLowGUID(ObjectGuid::LowType lowguid);
 
     // this returns Player even if he is not in world, for example teleporting
     TC_GAME_API Player* FindConnectedPlayer(ObjectGuid const&);
     TC_GAME_API Player* FindConnectedPlayerByName(std::string_view name);
+
+    TC_GAME_API GameObject* FindGameObject(ObjectGuid const& guid);
 
     // when using this, you must use the hashmapholder's lock
     TC_GAME_API HashMapHolder<Player>::MapType const& GetPlayers();

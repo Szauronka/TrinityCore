@@ -64,6 +64,16 @@ struct GtBattlePetXPEntry
     float Xp = 0.0f;
 };
 
+struct GtChallengeModeDamageEntry
+{
+    float Scalar = 0.0f;
+};
+
+struct GtChallengeModeHealthEntry
+{
+    float Scalar = 0.0f;
+};
+
 struct GtCombatRatingsEntry
 {
     float Amplify = 0.0f;
@@ -192,6 +202,8 @@ TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLev
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable;
+TC_GAME_API extern GameTable<GtChallengeModeDamageEntry>            sChallengeModeDamage;
+TC_GAME_API extern GameTable<GtChallengeModeHealthEntry>            sChallengeModeHealth;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;

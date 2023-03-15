@@ -3224,6 +3224,11 @@ bool Map::IsMythic() const
     return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
 }
 
+bool Map::IsTimeWalking() const
+{
+    return i_spawnMode == DIFFICULTY_TIMEWALKING || i_spawnMode == DIFFICULTY_TIMEWALKING_RAID;
+}
+
 bool Map::IsBattleground() const
 {
     return i_mapEntry && i_mapEntry->IsBattleground();
@@ -3254,6 +3259,24 @@ bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)
     if (!i_mapEntry)
         return false;
     return i_mapEntry->GetEntrancePos(mapid, x, y);
+}
+
+void Map::ApplyOnEveryPlayer(std::function<void(Player*)> function)
+{
+    auto const& players = GetPlayers();
+    if (players.isEmpty())
+        return;
+
+    for (auto const& itr : players)
+        if (auto player = itr.GetSource())
+            if (/*player->CanContact() &&*/ player->GetMap() == this)
+                function(player);
+}
+
+void Map::SetSpawnMode(Difficulty difficulty)
+{
+    i_spawnMode = difficulty;
+    i_spawnMode = difficulty;
 }
 
 uint32 InstanceMap::GetMaxPlayers() const

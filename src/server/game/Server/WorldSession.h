@@ -556,6 +556,16 @@ namespace WorldPackets
         class MoveInitActiveMoverComplete;
     }
 
+    namespace MythicPlus
+    {
+        class ResetChallengeMode;
+        class RequestLeaders;
+        class StartChallengeMode;
+        class MythicPlusCurrentAffixes;
+        class MythicPlusSeasonData;
+        class MythicPlusRequestMapStats;
+    }
+
     namespace NPC
     {
         class Hello;
@@ -1135,6 +1145,14 @@ class TC_GAME_API WorldSession
         void SendBlackMarketBidOnItemResult(int32 result, int32 marketId, WorldPackets::Item::ItemInstance& item);
         void SendBlackMarketWonNotification(BlackMarketEntry const* entry, Item const* item);
         void SendBlackMarketOutbidNotification(BlackMarketTemplate const* templ);
+
+        //Challenge
+        void HandleStartChallengeMode(WorldPackets::MythicPlus::StartChallengeMode& packet);
+        void HandleRequestLeaders(WorldPackets::MythicPlus::RequestLeaders& packet);
+        void HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChallengeMode& packet);
+        void HandleMythicPlusSeasonData(WorldPackets::MythicPlus::MythicPlusSeasonData& mythicPlusSeasonData);
+        void HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::MythicPlusCurrentAffixes& mythicPlusCurrentAffixes);
+        void HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::MythicPlusRequestMapStats& mythicPlusRequestMapStats);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid owner, ObjectGuid caster, ObjectGuid itemGuid, uint32 itemId, uint32 enchantId, uint32 enchantSlot);

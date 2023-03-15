@@ -20,6 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
+#include "Packet.h"
 
 namespace WorldPackets
 {
@@ -101,6 +102,198 @@ namespace WorldPackets
 
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSummary const& dungeonScoreSummary);
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreData const& dungeonScoreData);
+
+
+        class MythicPlusRequestMapStats final : public ClientPacket
+        {
+        public:
+            MythicPlusRequestMapStats(WorldPacket&& packet) : ClientPacket(CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS, std::move(packet)) { }//15
+
+            void Read() override;
+        };
+
+        class MythicPlusCurrentAffixes final : public ClientPacket
+        {
+        public:
+            MythicPlusCurrentAffixes(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_MYTHIC_PLUS_AFFIXES, std::move(packet)) { }
+
+            void Read() override;
+        };
+
+        class MythicPlusSeasonData final : public ClientPacket
+        {
+        public:
+            MythicPlusSeasonData(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_MYTHIC_PLUS_SEASON_DATA, std::move(packet)) { }
+
+            void Read() override;
+        };
+
+        class MythicPlusSeasonDataResult final : public ServerPacket
+        {
+        public:
+            MythicPlusSeasonDataResult() : ServerPacket(SMSG_MYTHIC_PLUS_SEASON_DATA) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsMythicPlusActive = true;
+        };
+
+        class MythicPlusRequestMapStatsResult final : public ServerPacket
+        {
+        public:
+            MythicPlusRequestMapStatsResult() : ServerPacket(SMSG_MYTHIC_PLUS_ALL_MAP_STATS) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 RunCount = 0;
+            uint32 RewardCount = 0;
+            uint32 Season = 7;
+            uint32 Subseason = 71;
+
+            std::vector<MythicPlusRun> mythicPlusRuns;
+            //std::vector<MythicPlusReward> mythicPlusRewards;
+        };
+
+        class MythicPlusCurrentAffixesResult final : public ServerPacket
+        {
+        public:
+            MythicPlusCurrentAffixesResult() : ServerPacket(SMSG_MYTHIC_PLUS_CURRENT_AFFIXES) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Count = 5;
+            std::array<uint32, 5> Affixes;//Length: 44
+            std::array<uint32, 5> RequiredSeason;
+        };
+
+        class ResetChallengeMode final : public ClientPacket
+        {
+        public:
+            ResetChallengeMode(WorldPacket&& packet) : ClientPacket(CMSG_RESET_CHALLENGE_MODE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class StartChallengeMode final : public ClientPacket
+        {
+        public:
+            StartChallengeMode(WorldPacket&& packet) : ClientPacket(CMSG_START_CHALLENGE_MODE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GameObjectGUID;
+            uint32 UnkInt = 0;
+            bool IsKeyCharged = false;
+        };
+
+        class UpdateDeathCount final : public ServerPacket
+        {
+        public:
+            UpdateDeathCount() : ServerPacket(SMSG_CHALLENGE_MODE_UPDATE_DEATH_COUNT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 DeathCount = 0;
+        };
+
+        class Complete final : public ServerPacket
+        {
+        public:
+            Complete() : ServerPacket(SMSG_CHALLENGE_MODE_COMPLETE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+            int32 CompletionMilliseconds = 0;
+            int32 StartedChallengeLevel = 0;
+            uint32 ChallengeID = 0;
+            bool IsCompletedInTimer = false;
+        };
+
+        class Start final : public ServerPacket
+        {
+        public:
+            Start() : ServerPacket(SMSG_CHALLENGE_MODE_START, 33) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+            uint32 ChallengeID = 0;
+            uint32 ChallengeLevel = 0;
+            uint32 DeathCount = 0;
+
+            uint32 Affixes1 = 0;
+            uint32 Affixes2 = 0;
+            uint32 Affixes3 = 0;
+            uint32 Affixes4 = 0;
+
+            uint32 ClientEncounterStartPlayerInfo = 0;
+
+            uint8 Energized = 128;
+        };
+
+        class ChallengeModeMapStatsUpdate final : public ServerPacket
+        {
+        public:
+            ChallengeModeMapStatsUpdate() : ServerPacket(SMSG_MYTHIC_PLUS_ALL_MAP_STATS) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapId = 0;
+            uint32 BestCompletionMilliseconds = 0;
+            uint32 LastCompletionMilliseconds = 0;
+            uint32 CompletedChallengeLevel = 0;
+            uint32 ChallengeID = 0;
+            time_t BestMedalDate = time(nullptr);
+            std::vector<uint16> BestSpecID;
+            std::array<uint32, 5> Affixes;
+        };
+
+        class RequestLeaders final : public ClientPacket
+        {
+        public:
+            RequestLeaders(WorldPacket&& packet) : ClientPacket(CMSG_CHALLENGE_MODE_REQUEST_LEADERS, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MapId = 0;
+            uint32 ChallengeID = 0;
+            time_t LastGuildUpdate = time(nullptr);
+            time_t LastRealmUpdate = time(nullptr);
+        };
+
+        struct ModeAttempt
+        {
+            struct Member
+            {
+                ObjectGuid Guid;
+                uint32 VirtualRealmAddress = 0;
+                uint32 NativeRealmAddress = 0;
+                uint32 SpecializationID = 0;
+            };
+
+            uint32 InstanceRealmAddress = 0;
+            uint32 AttemptID = 0;
+            uint32 CompletionTime = 0;
+            time_t CompletionDate = time(nullptr);
+            uint32 MedalEarned = 0;
+            std::vector<Member> Members;
+        };
+
+        class RequestLeadersResult final : public ServerPacket
+        {
+        public:
+            RequestLeadersResult() : ServerPacket(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT, 20 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+            uint32 ChallengeID = 0;
+            time_t LastGuildUpdate = time(nullptr);
+            time_t LastRealmUpdate = time(nullptr);
+            std::vector<ModeAttempt> GuildLeaders;
+            std::vector<ModeAttempt> RealmLeaders;
+        };
     }
 }
 

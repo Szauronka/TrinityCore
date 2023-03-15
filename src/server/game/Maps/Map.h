@@ -316,6 +316,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsHeroic() const;
         bool Is25ManRaid() const;
         bool IsMythic() const;
+        bool IsTimeWalking() const;
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;
@@ -790,6 +791,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     private:
         MultiPersonalPhaseTracker _multiPersonalPhaseTracker;
 
+        // Mythic
+            public:
+                time_t m_respawnChallenge;
+                std::map<uint32, uint64> m_worldStates;
+
         /*********************************************************/
         /***                   WorldStates                     ***/
         /*********************************************************/
@@ -800,6 +806,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
     private:
         WorldStateValueContainer _worldStateValues;
+    public:
+        void SetSpawnMode(Difficulty difficulty);
+        void ApplyOnEveryPlayer(std::function<void(Player*)> function);
+        uint32 GetPlayerCount() const { return m_mapRefManager.getSize(); }
 };
 
 enum class InstanceResetMethod : uint8

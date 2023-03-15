@@ -123,6 +123,24 @@ bool Scenario::IsComplete()
     return true;
 }
 
+bool Scenario::IsCompleted(bool bonus) const
+{
+    return currentStep == GetStepCount(bonus);
+}
+
+uint8 Scenario::GetStepCount(bool withBonus) const
+{
+    if (withBonus)
+        return steps.size();
+
+    uint8 count = 0;
+    for (auto const& v : steps)
+        if (!v->IsBonusObjective())
+            ++count;
+
+    return count;
+}
+
 ScenarioEntry const* Scenario::GetEntry() const
 {
     return _data->Entry;
@@ -336,4 +354,14 @@ void Scenario::SendBootPlayer(Player* player)
     WorldPackets::Scenario::ScenarioVacate scenarioBoot;
     scenarioBoot.ScenarioID = _data->Entry->ID;
     player->SendDirectMessage(scenarioBoot.Write());
+}
+
+uint32 Scenario::GetScenarioId() const
+{
+    return scenarioId;
+}
+
+uint32 Scenario::GetCurrentStep() const
+{
+    return currentStep;
 }

@@ -421,8 +421,13 @@ typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModified
 typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
+typedef std::unordered_map<uint32 /*encounterId*/, std::vector<JournalEncounterItemEntry const*>> ItemsByJournalEncounterContainer;
 typedef std::unordered_map<uint32, std::vector <GroupFinderActivityEntry const*>>GroupFinderActivityContainer;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
+typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
+typedef std::unordered_map<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryContainer;
+typedef std::vector<uint32 /*MapID*/> MapChallengeModeListContainer;
+typedef std::vector<double> MapChallengeWeightListContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
 typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
@@ -438,8 +443,10 @@ typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellP
 typedef std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> SpellProcsPerMinuteModContainer;
 typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
 typedef std::unordered_set<uint32> ToyItemIdsContainer;
+typedef std::unordered_map<uint32 /*mapId*/, JournalInstanceEntry const*> JournalInstanceByMapContainer;
 typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
+typedef std::unordered_map<uint32 /*instanceId*/, std::vector<JournalEncounterEntry const*>> JournalEncountersByJournalInstanceContainer;
 typedef std::pair<uint32 /*tableHash*/, int32 /*recordId*/> HotfixBlobKey;
 typedef std::map<HotfixBlobKey, std::vector<uint8>> HotfixBlobMap;
 using AllowedHotfixOptionalData = std::pair<uint32 /*optional data key*/, bool(*)(std::vector<uint8> const& data) /*validator*/>;
@@ -504,9 +511,13 @@ namespace
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
+    ItemsByJournalEncounterContainer _itemsByJournalEncounter;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
     GroupFinderActivityContainer _groupFinderActivityByID;
     std::vector<GroupFinderActivityEntry const*> _groupFinderActivity;
+    MapChallengeModeEntryContainer _mapChallengeModeEntrybyMap;
+    MapChallengeModeListContainer _challengeModeMaps;
+    MapChallengeWeightListContainer _challengeWeightMaps;
     MapDifficultyContainer _mapDifficulties;
     std::unordered_map<uint32, DB2Manager::MapDifficultyConditionsContainer> _mapDifficultyConditions;
     std::unordered_map<uint32, MountEntry const*> _mountsBySpellId;
@@ -545,6 +556,8 @@ namespace
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByWmoGroup[MAX_UI_MAP_SYSTEM];
     std::unordered_set<int32> _uiMapPhases;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
+    JournalEncountersByJournalInstanceContainer _journalEncountersByJournalInstance;
+    JournalInstanceByMapContainer _journalInstanceByMap;
 }
 
 template<typename T>
@@ -2734,6 +2747,33 @@ std::vector<ItemSpecOverrideEntry const*> const* DB2Manager::GetItemSpecOverride
     return Trinity::Containers::MapGetValuePtr(_itemSpecOverrides, itemId);
 }
 
+JournalInstanceEntry const* DB2Manager::GetJournalInstanceByMapId(uint32 mapId)
+{
+    auto itr = _journalInstanceByMap.find(mapId);
+    if (itr != _journalInstanceByMap.end())
+        return itr->second;
+
+    return nullptr;
+}
+
+std::vector<JournalEncounterItemEntry const*> const* DB2Manager::GetJournalItemsByEncounter(uint32 encounterId)
+{
+    auto itr = _itemsByJournalEncounter.find(encounterId);
+    if (itr != _itemsByJournalEncounter.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+std::vector<JournalEncounterEntry const*> const* DB2Manager::GetJournalEncounterByJournalInstanceId(uint32 instanceId)
+{
+    auto itr = _journalEncountersByJournalInstance.find(instanceId);
+    if (itr != _journalEncountersByJournalInstance.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 JournalTierEntry const* DB2Manager::GetJournalTier(uint32 index) const
 {
     if (index < _journalTiersByIndex.size())
@@ -3565,4 +3605,19 @@ std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsOrderForQue
         return &itr->second;
 
     return nullptr;
+}
+
+std::vector<uint32> DB2Manager::GetChallngeMaps()
+{
+    return _challengeModeMaps;
+}
+
+std::vector<double> DB2Manager::GetChallngesWeight()
+{
+    return _challengeWeightMaps;
+}
+
+MapChallengeModeEntry const* DB2Manager::GetChallengeModeByMapID(uint32 mapID)
+{
+    return Trinity::Containers::MapGetValuePtr(_mapChallengeModeEntrybyMap, mapID);
 }

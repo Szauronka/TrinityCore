@@ -167,6 +167,7 @@ TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecSto
 TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
 TC_GAME_API extern DB2Storage<ItemXItemEffectEntry>                 sItemXItemEffectStore;
 TC_GAME_API extern DB2Storage<JournalEncounterEntry>                sJournalEncounterStore;
+TC_GAME_API extern DB2Storage<JournalEncounterItemEntry>            sJournalEncounterItemStore;
 TC_GAME_API extern DB2Storage<JournalEncounterSectionEntry>         sJournalEncounterSectionStore;
 TC_GAME_API extern DB2Storage<JournalInstanceEntry>                 sJournalInstanceStore;
 TC_GAME_API extern DB2Storage<KeystoneAffixEntry>                   sKeystoneAffixStore;
@@ -460,6 +461,9 @@ public:
     ItemModifiedAppearanceEntry const* GetDefaultItemModifiedAppearance(uint32 itemId) const;
     std::vector<ItemSetSpellEntry const*> const* GetItemSetSpells(uint32 itemSetId) const;
     std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
+    JournalInstanceEntry const* GetJournalInstanceByMapId(uint32 mapId);
+    std::vector<JournalEncounterItemEntry const*> const* GetJournalItemsByEncounter(uint32 encounterId);
+    std::vector<JournalEncounterEntry const*> const* GetJournalEncounterByJournalInstanceId(uint32 instanceId);
     JournalTierEntry const* GetJournalTier(uint32 index) const;
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
@@ -516,6 +520,11 @@ public:
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
 
     std::vector<QuestLineXQuestEntry const*> const* GetQuestsOrderForQuestLine(uint32 questLineId) const;
+
+    std::vector<uint32> GetChallngeMaps();
+    std::vector<double> GetChallngesWeight();
+
+	MapChallengeModeEntry const* GetChallengeModeByMapID(uint32 mapID);
 
 private:
     friend class DB2HotfixGeneratorBase;

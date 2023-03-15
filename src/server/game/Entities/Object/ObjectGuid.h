@@ -346,6 +346,7 @@ class TC_GAME_API ObjectGuid
         std::string ToString() const;
         std::string ToHexString() const;
         static ObjectGuid FromString(std::string const& guidString);
+        uint32 GetGUIDLow() const;
         std::size_t GetHash() const;
 
         template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Null, ObjectGuid> Create() { return ObjectGuidFactory::CreateNull(); }

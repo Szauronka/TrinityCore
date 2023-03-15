@@ -23,6 +23,7 @@
 #include "CUFProfile.h"
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
+#include "DB2Structure.h"
 #include "EquipmentSet.h"
 #include "GroupReference.h"
 #include "Hash.h"
@@ -1154,6 +1155,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Optional<uint32> instanceId = {});
         bool TeleportToBGEntryPoint();
 
+        bool SafeTeleport(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, uint32 spellID = 0);
+        bool SafeTeleport(WorldLocation const& loc, uint32 options = 0);
+        bool SafeTeleport(uint32 mapid, Position const* pos, uint32 options = 0, uint32 spellID = 0);
+
         bool HasSummonPending() const;
         void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
@@ -1187,6 +1192,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerSocial* GetSocial() const { return m_social; }
         void RemoveSocial();
+
+        bool CanContact();
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetRace(), GetClass(), GetLevel()); }
@@ -1692,6 +1699,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool WorldQuestCompleted(uint32 QuestID) const;
 
+		bool InitChallengeKey(Item* item);
+		void UpdateChallengeKey(Item* item);
+		void CreateChallengeKey(Item* item);
+		void ResetChallengeKey();
+        void ChallengeKeyCharded(Item* item, uint32 challengeLevel);
+
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }
         ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }
         void SetQuestSharingInfo(ObjectGuid guid, uint32 id) { m_playerSharingQuest = guid; m_sharedQuestId = id; }
@@ -1865,6 +1878,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
+        static uint32 GetRoleBySpecializationId(uint32 specializationId);
+        TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetPrimarySpecialization(); }
 
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();
@@ -3236,6 +3251,29 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;
+        public:
+            struct ChallengeKeyInfo
+            {
+                ChallengeKeyInfo() : InstanceID(0), timeReset(0), ID(0), Level(2), Affix(0), Affix1(0), Affix2(0), Affix3(0), KeyIsCharded(1), needSave(false), needUpdate(false) { }
+
+                bool IsActive() { return ID != 0; }
+
+                MapChallengeModeEntry const* challengeEntry = nullptr;
+                uint32 InstanceID = 0;
+                uint32 timeReset = 0;
+                uint16 ID = 0;
+                uint8 Level = 0;
+                uint8 Affix = 0;
+                uint8 Affix1 = 0;
+                uint8 Affix2 = 0;
+                uint8 Affix3 = 0;
+                uint8 Affix4 = 0;
+                uint8 Affix5 = 0;
+                uint8 KeyIsCharded = 0;
+                bool needSave;
+                bool needUpdate;
+            };
+            ChallengeKeyInfo m_challengeKeyInfo;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);

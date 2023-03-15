@@ -3380,6 +3380,21 @@ struct JournalEncounterLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 13, &JournalEncounterMeta::Instance, HOTFIX_SEL_JOURNAL_ENCOUNTER };
 };
 
+struct JournalEncounterItemLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "JournalEncounterID" },
+        { false, FT_INT, "ItemID" },
+        { true, FT_BYTE, "FactionMask" },
+        { false, FT_BYTE, "Flags" },
+        { true, FT_BYTE, "DifficultyMask" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &JournalEncounterItemMeta::Instance, HOTFIX_SEL_JOURNAL_ENCOUNTER_ITEM };
+};
+
 struct JournalEncounterSectionLoadInfo
 {
     static constexpr DB2FieldMeta Fields[16] =
