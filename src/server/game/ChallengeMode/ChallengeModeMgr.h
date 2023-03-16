@@ -23,7 +23,7 @@
 #define _CHALLENGEMODEMGR_H
 struct ChallengeMember
 {
-    ObjectGuid guid;
+    ObjectGuid& guid;
     uint16 specId;
     uint32 Date;                    /// time when recorde done
     uint32 ChallengeLevel;          /// 2-15 but blizzard store it as uint32? rly?
@@ -52,7 +52,7 @@ struct ChallengeData
 
 struct OploteLoot
 {
-    ObjectGuid guid;
+    ObjectGuid& guid;
     uint32 Date;
     uint32 ChallengeLevel;
     std::set<uint32> chestListID;

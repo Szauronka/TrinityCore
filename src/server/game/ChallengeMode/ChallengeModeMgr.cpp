@@ -498,8 +498,8 @@ void ChallengeModeMgr::HitTimer()
 
                 while (countItems > 0)
                 {
-                    auto _tempList = _challengers;
-                    Trinity::Containers::RandomResize(_tempList, countItems);
+                    auto& _tempList = _challengers;
+                    //Trinity::Containers::RandomResize(_tempList, countItems);
 
                     for (auto const& guid : _tempList)
                     {
