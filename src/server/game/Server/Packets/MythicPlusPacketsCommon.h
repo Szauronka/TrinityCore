@@ -21,6 +21,7 @@
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 #include "Packet.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
@@ -203,11 +204,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 MapID = 0;
-            int32 CompletionMilliseconds = 0;
-            int32 StartedChallengeLevel = 0;
-            uint32 ChallengeID = 0;
-            bool IsCompletedInTimer = false;
+            uint32 Duration = 0;
+            uint32 MapId = 0;
+            uint32 ChallengeId = 0;
+            uint32 ChallengeLevel = 0;
+            uint8 IsCompletedInTimer = 128;
         };
 
         class Start final : public ServerPacket
@@ -293,6 +294,18 @@ namespace WorldPackets
             time_t LastRealmUpdate = time(nullptr);
             std::vector<ModeAttempt> GuildLeaders;
             std::vector<ModeAttempt> RealmLeaders;
+        };
+
+        class NewPlayerRecord final : public ServerPacket
+        {
+        public:
+            NewPlayerRecord() : ServerPacket(SMSG_MYTHIC_PLUS_NEW_WEEK_RECORD, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = 0;
+            int32 CompletionMilliseconds = 0;
+            uint32 ChallengeLevel = 0;
         };
     }
 }

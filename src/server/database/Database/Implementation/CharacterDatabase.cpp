@@ -508,6 +508,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_INVALID_PET_SPELL, "DELETE FROM pet_spell WHERE spell = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHAR_ONLINE, "UPDATE characters SET online = 1 WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN, "UPDATE characters SET name = ?, at_login = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_WORLDSTATE, "UPDATE worldstates SET value = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_WORLDSTATE, "INSERT INTO worldstates (entry, value) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_WORLD_STATE, "REPLACE INTO world_state_value (Id, Value) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_WORLD_VARIABLE, "REPLACE INTO world_variable (Id, Value) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHARACTER_SKILL, "DELETE FROM character_skills WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
@@ -791,6 +793,13 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHALLENGE_OPLOTE_LOOT, "DELETE FROM challenge_oplote_loot WHERE date <= UNIX_TIMESTAMP()", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHALLENGE_OPLOTE_LOOT_BY_GUID, "DELETE FROM challenge_oplote_loot WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHALLENGE_MEMBER, "DELETE FROM challenge_member WHERE member = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHALLENGE_KEY, "SELECT ID, Level, Affix, Affix1, Affix2, KeyIsCharded, timeReset, InstanceID FROM challenge_key WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHALLENGE_KEY, "UPDATE challenge_key SET ID = ?, Level = ?, Affix = ?, Affix1 = ?, Affix2 = ?, KeyIsCharded = ?, timeReset = ?, InstanceID = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHALLENGE_KEY, "REPLACE INTO challenge_key (ID, Level, Affix, Affix1, Affix2, KeyIsCharded, timeReset, InstanceID, guid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHALLENGE_KEY, "DELETE FROM challenge_key WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_COMPLETED_CHALLENGE, "SELECT KeyId, MapId, BestCompletion, LastCompletion, Medal, MedalDate  FROM character_completed_challenges WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_COMPLETED_CHALLENGE, "INSERT INTO character_completed_challenges (guid, KeyId, MapId, BestCompletion, LastCompletion, Medal, MedalDate) VALUE (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_COMPLETED_CHALLENGE, "UPDATE character_completed_challenges SET BestCompletion = ?, LastCompletion = ?, Medal = ?, MedalDate = ? WHERE guid = ? AND KeyId = ?", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

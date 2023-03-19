@@ -17,9 +17,11 @@
 
 #include "InstanceScript.h"
 #include "AreaBoundary.h"
+#include "AchievementMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "ChallengeModeMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameEventSender.h"
@@ -31,10 +33,12 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptReloadMgr.h"
 #include "SmartEnum.h"
@@ -47,6 +51,7 @@
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
 #include "ScriptMgr.h"
 #endif
+#include <ScenarioMgr.h>
 
 BossBoundaryData::~BossBoundaryData()
 {
@@ -572,6 +577,11 @@ void InstanceScript::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime /
         TC_LOG_DEBUG("scripts", "InstanceScript: DoUseDoorOrButton failed");
 }
 
+ChallengeModeMgr* InstanceScript::GetChallenge() const
+{
+    return _challenge;
+}
+
 void InstanceScript::ResetChallengeMode()
 {
     if (_challenge)
@@ -580,6 +590,586 @@ void InstanceScript::ResetChallengeMode()
     instance->m_respawnChallenge = time(nullptr); // For respawn all mobs
     RepopPlayersAtGraveyard();
     instance->SetSpawnMode(DIFFICULTY_MYTHIC);
+}
+
+void InstanceScript::AddChallengeModeChests(ObjectGuid chestGuid, uint8 chestLevel)
+{
+    _challengeChestGuids[chestLevel] = chestGuid;
+}
+
+ObjectGuid InstanceScript::GetChellngeModeChests(uint8 chestLevel)
+{
+    return _challengeChestGuids[chestLevel];
+}
+
+void InstanceScript::AddChallengeModeDoor(ObjectGuid doorGuid)
+{
+    _challengeDoorGuids.push_back(doorGuid);
+}
+
+void InstanceScript::AddChallengeModeOrb(ObjectGuid orbGuid)
+{
+    _challengeOrbGuid = orbGuid;
+}
+
+class ChallengeModeWorker
+{
+public:
+    ChallengeModeWorker(InstanceScript* instance) : _instance(instance) { }
+
+    void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+    {
+        for (auto const& p : creatureMap)
+        {
+            if (p.second->IsInWorld() && !p.second->IsPet())
+            {
+                if (!p.second->IsAlive())
+                    p.second->Respawn();
+
+                _instance->CastChallengeCreatureSpell(p.second);
+            }
+        }
+    }
+
+    template<class T>
+    void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+
+private:
+    InstanceScript* _instance;
+};
+
+void InstanceScript::GetScenarioByID(Player* p_Player, uint32 p_ScenarioId)
+{
+    InstanceMap* map = instance->ToInstanceMap();
+
+    if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenarioByID(map, p_ScenarioId))
+    {
+        TC_LOG_ERROR("scripts", "GetScenarioByID CreateInstanceScenario %s", "");
+        map->SetInstanceScenario(instanceScenario);
+    }
+    else
+        TC_LOG_DEBUG("scripts", "InstanceScript: GetScenarioByID failed");
+}
+
+void InstanceScript::DoOnPlayers(std::function<void(Player*)>&& function)
+{
+    Map::PlayerList const& plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* player = i->GetSource())
+                function(player);
+}
+
+void InstanceScript::AfterChallengeModeStarted()
+{
+    if (_challengeModeScenario.has_value())
+    {
+        uint32 scenarioId = *_challengeModeScenario;
+        DoOnPlayers([this, scenarioId](Player* player)
+            {
+                GetScenarioByID(player, scenarioId);
+            });
+    }
+}
+
+void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4)
+{
+    _challengeModeId = modeid;
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntryByModeId(GetChallengeModeId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    if (IsChallengeModeStarted())
+        return;
+
+    if (GetCompletedEncounterMask() != 0)
+        return;
+
+    if (instance->GetDifficultyID() != DIFFICULTY_MYTHIC)
+        return;
+
+    _affixes[0] = affix1;
+    _affixes[1] = affix2;
+    _affixes[2] = affix3;
+    _affixes[3] = affix4;
+    for (auto const& affix : _affixes)
+        _affixesTest.set(affix);
+    _challengeModeStarted = true;
+    _challengeModeLevel = level;
+
+
+    instance->SendToPlayers(WorldPackets::Misc::ChangePlayerDifficultyResult(5).Write());
+
+    // Add the health/dmg modifier aura to all creatures
+    ChallengeModeWorker worker(this);
+    TypeContainerVisitor<ChallengeModeWorker, MapStoredObjectTypesContainer> visitor(worker);
+    visitor.Visit(instance->GetObjectsStore());
+
+    // Add Karazhan Start Position
+    if (modeid == 234)
+        SetChallengeStartPos({ -11063.781f, -2018.33f, 115.1926f, 0.43196f });
+    else if (modeid == 227)
+        SetChallengeStartPos({ -11056.8759f, -1977.4697f, 101.1527f, 0.805f });
+
+    // Tp back all players to begin
+    Position entranceLocation;
+    if (_challengeModeStartPosition.has_value())
+        entranceLocation.Relocate(_challengeModeStartPosition->GetPosition());
+    else if (WorldSafeLocsEntry const* entranceSafeLocEntry = sObjectMgr->GetWorldSafeLoc(GetEntranceLocation()))
+        entranceLocation.Relocate(entranceSafeLocEntry->Loc);
+
+    // else if (AreaTriggerTeleportStruct const* areaTrigger = sObjectMgr->GetMapEntranceTrigger(instance->GetId()))
+     //    entranceLocation.Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, areaTrigger->target_Orientation);
+    // DoNearTeleportPlayers(entranceLocation);
+
+    if (_challengeModeDoorPosition.has_value())
+        instance->SummonGameObject(GOB_CHALLENGER_DOOR, *_challengeModeDoorPosition, QuaternionData(), WEEK);
+
+    ShowChallengeDoor();
+    AfterChallengeModeStarted();
+
+    WorldPackets::Misc::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
+    changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
+    changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
+    instance->SendToPlayers(changePlayerDifficultyResult.Write());
+
+    instance->SendToPlayers(WorldPackets::MythicPlus::ResetChallengeMode(instance->GetId()).Write());
+
+    WorldPackets::Misc::StartTimer startTimer;
+    startTimer.Type = WorldPackets::Misc::StartTimer::ChallengeMode;
+    startTimer.TotalTime = (Seconds(10));
+    startTimer.TimeLeft = (Seconds(10));
+    instance->SendToPlayers(startTimer.Write());
+
+    SendChallengeModeStart();
+
+    DoOnPlayers([this, level](Player* player)
+        {
+            CastChallengePlayerSpell(player);
+    // HOOK to PLAYERSCRIPT
+    sScriptMgr->OnPlayerStartChallengeMode(player, level, _affixes[0], _affixes[1], _affixes[2]);
+        });
+
+    AddTimedDelayedOperation(10000, [this]()
+        {
+            _challengeModeStartTime = getMSTime();
+
+    SendChallengeModeElapsedTimer();
+
+    if (GameObject* door = GetGameObject(GOB_CHALLENGER_DOOR))
+        DoUseDoorOrButton(door->GetGUID(), WEEK);
+
+    HideChallengeDoor();
+        });
+}
+
+void InstanceScript::SpawnFontOfPower()
+{
+    if (_challengeModeFontOfPowerPosition.has_value() && instance->IsMythic())
+        instance->SummonGameObject(GO_FONT_OF_POWER, *_challengeModeFontOfPowerPosition, QuaternionData(), WEEK);
+    if (_challengeModeFontOfPowerPosition2.has_value() && instance->IsMythic())
+        instance->SummonGameObject(GO_FONT_OF_POWER, *_challengeModeFontOfPowerPosition2, QuaternionData(), WEEK);
+}
+
+void InstanceScript::CastChallengeCreatureSpellOnDeath(Creature* creature)
+{
+    if (!creature || creature->IsAffixDisabled() || creature->IsTrigger() || creature->IsControlledByPlayer() || !creature->IsHostileToPlayers() || creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
+        return;
+
+    if (creature->IsOnVehicle(creature))
+        return;
+
+    Unit* owner = creature->GetOwner();
+    if (owner && owner->IsPlayer())
+        return;
+
+    // 7 Bolstering 
+    if (!creature->IsDungeonBoss() && HasAffix(Affixes::Bolstering))
+        creature->CastSpell(creature, ChallengerBolstering, true);
+    // 8 Sanguine 
+    if (!creature->IsDungeonBoss() && HasAffix(Affixes::Sanguine))
+        creature->CastSpell(creature, ChallengerSanguine, true);
+    // 11 Bursting 243237  
+    if (!creature->IsDungeonBoss() && HasAffix(Affixes::Bursting))
+        creature->CastSpell(creature, ChallengerBursting, true);
+}
+
+void InstanceScript::CastChallengePlayerSpell(Player* player)
+{
+    CastSpellExtraArgs values;
+
+    // Affixes
+    values.AddSpellMod(SPELLVALUE_BASE_POINT1, HasAffix(Affixes::Overflowing) ? 1 : 0);// 1 Overflowing 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT2, (HasAffix(Affixes::Skittish)) /*&& player->IsInTankSpec()) ? 1 : 0*/); // 2 Skittish 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT3, HasAffix(Affixes::Grievous) ? 1 : 0);  // 12 Grievous 
+
+    //TODO player->CastSpell(SPELL_CHALLENGER_BURDEN, values, player, TRIGGERED_FULL_MASK);
+}
+
+void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
+{
+    if (!creature || creature->IsTrigger() || creature->IsControlledByPlayer() || creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
+        return;
+
+    Unit* owner = creature->GetOwner();
+    if (owner && owner->IsPlayer())
+        return;
+
+    float modHealth = sChallengeModeMgr->GetHealthMultiplier(_challengeModeLevel);
+    float modDamage = sChallengeModeMgr->GetDamageMultiplier(_challengeModeLevel);
+
+    bool isDungeonBoss = false;
+    if (creature->IsDungeonBoss())
+        isDungeonBoss = true;
+
+    if (isDungeonBoss)
+    {
+        // 9 Tyrannical 
+        if (HasAffix(Affixes::Tyrannical))
+        {
+            modHealth *= 1.4f;
+            modDamage *= 1.15f;
+        }
+    }//10 Fortified 
+    else if (HasAffix(Affixes::Fortified))
+    {
+        modHealth *= 1.2f;
+        modDamage *= 1.3f;
+    }
+
+    CastSpellExtraArgs values;
+    values.AddSpellMod(SPELLVALUE_BASE_POINT0, modHealth);
+    values.AddSpellMod(SPELLVALUE_BASE_POINT1, modDamage);
+
+    // Affixes
+    values.AddSpellMod(SPELLVALUE_BASE_POINT2, (HasAffix(Affixes::Raging) && !isDungeonBoss) ? 1 : 0); // 6 Raging 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT3, HasAffix(Affixes::Bolstering) ? 1 : 0); // 7 Bolstering 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT4, (HasAffix(Affixes::Tyrannical) && isDungeonBoss) ? 1 : 0); // 9 Tyrannical 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT5, 1); //
+    values.AddSpellMod(SPELLVALUE_BASE_POINT6, 1); //
+    values.AddSpellMod(SPELLVALUE_BASE_POINT7, HasAffix(Affixes::Volcanic) ? 1 : 0); // 3 Volcanic 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT8, HasAffix(Affixes::Necrotic) ? 1 : 0); // 4 Necrotic 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT9, (HasAffix(Affixes::Fortified) && !isDungeonBoss) ? 1 : 0); // 10 Fortified 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT10, HasAffix(Affixes::Sanguine) ? 1 : 0); // 8 Sanguine 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT11, HasAffix(Affixes::Quaking) ? 1 : 0); // 14 Quaking 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT12, HasAffix(Affixes::FelExplosives) ? 1 : 0); // 13 Explosive 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT13, HasAffix(Affixes::Bursting) ? 1 : 0); // 11 Bursting 
+    //5 15
+    //values.AddSpellMod(SPELLVALUE_BASE_POINT14, 0); //
+    //values.AddSpellMod(SPELLVALUE_BASE_POINT15, 0); //
+
+  //  creature->CastCustomSpell(SPELL_CHALLENGER_MIGHT, values, creature, TRIGGERED_FULL_MASK);
+
+    //5 Teeming 
+    if (HasAffix(Affixes::Teeming) && !creature->IsDungeonBoss() && !creature->IsSummon() && !creature->IsAffixDisabled() && roll_chance_f(30.0f) && creature->GetSpawnId()) // Only for real creature summon copy
+    {
+        Position pos;
+        pos = creature->GetNearPosition(6.0f, creature->GetOrientation());
+        creature->SummonCreature(creature->GetEntry(), pos, TEMPSUMMON_DEAD_DESPAWN, 60s);
+    }
+    if (!creature->IsDungeonBoss() && HasAffix(Affixes::Relentless))//Relentless 
+    {
+        creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+        creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+        creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
+        creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+    }
+}
+
+void InstanceScript::SendChallengeModeNewPlayerRecord(Player* player)
+{
+    WorldPackets::MythicPlus::NewPlayerRecord newRecord;
+    newRecord.MapID = _mapID;
+    newRecord.CompletionMilliseconds = _challengeTimer;
+    newRecord.ChallengeLevel = _rewardLevel;
+
+    if (player)
+        player->SendDirectMessage(newRecord.Write());
+}
+
+void InstanceScript::SendChallengeModeMapStatsUpdate(Player* player, uint32 challengeId, uint32 recordTime) const
+{
+    ChallengeByMap* bestMap = sChallengeModeMgr->BestForMember(player->GetGUID());
+    if (!bestMap)
+        return;
+
+    auto itr = bestMap->find(instance->GetId());
+    if (itr == bestMap->end())
+        return;
+
+    ChallengeData* best = itr->second;
+    if (!best)
+        return;
+
+    WorldPackets::MythicPlus::NewPlayerRecord update;
+    update.MapID = instance->GetId();
+    update.CompletionMilliseconds = best->RecordTime;
+    update.ChallengeLevel = challengeId;
+
+    ChallengeMemberList members = best->member;
+
+    if (player)
+        player->SendDirectMessage(update.Write());
+}
+
+void InstanceScript::SendChallengeModeElapsedTimer(Player* player/* = nullptr*/) const
+{
+    WorldPackets::Misc::StartTimer startElapsedTimer;
+    startElapsedTimer.TotalTime = (Seconds(1));
+    startElapsedTimer.TimeLeft = (Seconds(GetChallengeModeCurrentDuration()));
+
+    if (player)
+        player->SendDirectMessage(startElapsedTimer.Write());
+    else
+        instance->SendToPlayers(startElapsedTimer.Write());
+}
+
+void InstanceScript::SendChallengeModeDeathCount(Player* player/* = nullptr*/) const
+{
+    WorldPackets::MythicPlus::UpdateDeathCount updateDeathCount;
+    updateDeathCount.DeathCount = _challengeModeDeathCount;
+
+    if (player)
+        player->SendDirectMessage(updateDeathCount.Write());
+    else
+        instance->SendToPlayers(updateDeathCount.Write());
+}
+
+void InstanceScript::SendChallengeModeStart(Player* player/* = nullptr*/) const
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntryByModeId(GetChallengeModeId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    WorldPackets::MythicPlus::Start start;
+    start.MapID = instance->GetId();
+    start.ChallengeID = mapChallengeModeEntry->ID;
+    start.ChallengeLevel = _challengeModeLevel;
+    instance->SendToPlayers(start.Write());
+
+    if (player)
+        player->SendDirectMessage(start.Write());
+    else
+        instance->SendToPlayers(start.Write());
+}
+
+uint32 InstanceScript::GetChallengeModeCurrentDuration() const
+{
+    return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
+}
+
+std::array<uint32, 5> InstanceScript::GetAffixes() const
+{
+    return _affixes;
+}
+
+bool InstanceScript::HasAffix(Affixes affix)
+{
+    return _affixesTest.test(size_t(affix));
+}
+
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievement);
+    if (!achievementEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
+        return;
+    }
+
+    DoOnPlayers([achievementEntry](Player* player)
+        {
+            player->CompletedAchievement(achievementEntry);
+        });
+}
+
+void InstanceScript::CompleteChallengeMode()
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntryByModeId(GetChallengeModeId());
+    if (!mapChallengeModeEntry)
+        return;
+    uint32 totalDuration = GetChallengeModeCurrentDuration();
+    // Todo : Send stats
+    uint8 mythicIncrement = 0;
+    for (uint8 i = 0; i < 3; ++i)
+        if (uint32(mapChallengeModeEntry->CriteriaCount[i]) > totalDuration)
+            ++mythicIncrement;
+    DoOnPlayers([this, mythicIncrement](Player* player)
+        {
+            player->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), std::max(_challengeModeLevel + mythicIncrement, 2));
+        });
+
+    WorldPackets::MythicPlus::Complete complete;
+    complete.Duration = totalDuration;
+    complete.MapId = instance->GetId();
+    complete.ChallengeId = mapChallengeModeEntry->ID;
+    complete.ChallengeLevel = _challengeModeLevel + mythicIncrement;
+    instance->SendToPlayers(complete.Write());
+    // Achievements only if timer respected
+    if (mythicIncrement)
+    {
+        if (_challengeModeLevel >= 2)
+            DoCompleteAchievement(11183);
+        if (_challengeModeLevel >= 5)
+            DoCompleteAchievement(11184);
+        if (_challengeModeLevel >= 10)
+            DoCompleteAchievement(11185);
+        if (_challengeModeLevel >= 15)
+        {
+            DoCompleteAchievement(11162);
+            DoCompleteAchievement(11224);
+        }
+    }
+    SpawnChallengeModeRewardChest();
+
+    if (GameObject* chest = instance->GetGameObject(_challengeChest))
+        chest->SetRespawnTime(7 * DAY);
+
+    //ChallengeNewPlayerRecord
+    uint32 totalDurations = totalDuration * 1000;
+    auto challengeData = new ChallengeData;
+
+    challengeData->ID = instance->GetInstanceId(); //sObjectMgr->GetGenerator<HighGuid::Scenario>().Generate();
+    challengeData->MapID = instance->GetId();
+    challengeData->RecordTime = totalDurations;
+    challengeData->Date = time(nullptr);
+    challengeData->ChallengeLevel = _challengeModeLevel;
+    challengeData->TimerLevel = std::max(_challengeModeLevel + mythicIncrement, 2);
+    challengeData->ChallengeID = mapChallengeModeEntry ? mapChallengeModeEntry->ID : 0;
+    challengeData->Affixes = _affixes;
+    challengeData->GuildID = 0;
+    //chest id
+    if (_challengeChest.IsEmpty())
+        challengeData->ChestID = sChallengeModeMgr->GetChest(challengeData->ChallengeID);
+    else
+        challengeData->ChestID = _challengeChest.GetEntry();
+
+    std::map<ObjectGuid::LowType /*guild*/, uint32> guildCounter;
+    DoOnPlayers([&](Player* player)
+        {
+            sChallengeModeMgr->Reward(player, _challengeModeLevel);
+
+    ChallengeMember member;
+    member.guid = player->GetGUID();
+    member.specId = player->GetSpecializationId();// > GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+    member.Date = time(nullptr);
+    member.ChallengeLevel = _challengeModeLevel;
+    //chest id
+    if (_challengeChest.IsEmpty())
+        member.ChestID = sChallengeModeMgr->GetChest(challengeData->ChallengeID);
+    else
+        member.ChestID = _challengeChest.GetEntry();
+
+    if (player->GetGuildId())
+        guildCounter[player->GetGuildId()]++;
+
+    challengeData->member.insert(member);
+    if (sChallengeModeMgr->CheckBestMemberMapId(member.guid, challengeData))
+    {
+        WorldPackets::MythicPlus::NewPlayerRecord newplayerrecord;
+        newplayerrecord.CompletionMilliseconds = totalDurations;
+        newplayerrecord.MapID = instance->GetId();
+        newplayerrecord.ChallengeLevel = _challengeModeLevel;
+        player->GetSession()->SendPacket(newplayerrecord.Write());
+    }
+
+    SendChallengeModeMapStatsUpdate(player, challengeData->ChallengeID, challengeData->RecordTime);
+    //  player->GetSession()->SendChallengeModeMapStatsUpdate(mapChallengeModeEntry->ID);
+
+    player->UpdateCriteria(CriteriaType::CompleteChallengeMode, instance->GetId(), _challengeModeLevel);
+
+    player->RemoveAura(ChallengersBurden);
+        });
+
+    for (auto const& v : guildCounter)
+        if (v.second >= 3)
+            challengeData->GuildID = v.first;
+
+    sChallengeModeMgr->SetChallengeMapData(challengeData->ID, challengeData);
+    sChallengeModeMgr->CheckBestMapId(challengeData);
+    sChallengeModeMgr->CheckBestGuildMapId(challengeData);
+    sChallengeModeMgr->SaveChallengeToDB(challengeData);
+
+    DoOnPlayers([this, totalDurations, mapChallengeModeEntry](Player* player)
+        {
+            sChallengeModeMgr->Reward(player, _challengeModeLevel);
+    if (player->HasChallengeCompleted(mapChallengeModeEntry->ID))
+    {
+        CompletedChallenge* l_Challenge = player->GetCompletedChallenge(mapChallengeModeEntry->ID);
+        if (l_Challenge)
+        {
+            bool l_NewBestTime = totalDurations < l_Challenge->BestCompletion;
+            bool l_NewBestMedal = _challengeModeLevel > l_Challenge->Medal;
+
+            CharacterDatabasePreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_COMPLETED_CHALLENGE);
+            "UPDATE character_completed_challenges SET BestCompletion = ? , LastCompletion = ? , Medal = ? , MedalDate = ? WHERE guid = ? AND KeyId = ? ",
+                l_Statement->setUInt32(0, l_NewBestTime ? totalDurations : l_Challenge->BestCompletion);
+            l_Statement->setUInt32(1, totalDurations);
+            l_Statement->setUInt32(2, l_NewBestMedal ? _challengeModeLevel : l_Challenge->Medal);
+            l_Statement->setUInt32(3, l_NewBestMedal ? uint32(time(nullptr)) : l_Challenge->MedalDate);
+            l_Statement->setUInt32(4, player->GetGUID().GetCounter());
+            l_Statement->setUInt32(5, mapChallengeModeEntry->ID);
+            CharacterDatabase.Execute(l_Statement);
+
+            if (l_NewBestMedal)
+            {
+                l_Challenge->Medal = _challengeModeLevel;
+                l_Challenge->MedalDate = uint32(time(nullptr));
+            }
+
+            if (l_NewBestTime)
+                l_Challenge->BestCompletion = totalDurations;
+
+            l_Challenge->LastCompletion = totalDurations;
+
+            /// Send new record only for new best time
+            if (!l_NewBestTime)
+                return;
+        }
+    }
+    else
+    {
+        CharacterDatabasePreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_COMPLETED_CHALLENGE);
+        "INSERT INTO character_completed_challenges (guid, KeyId, MapId, BestCompletion, LastCompletion, Medal, MedalDate) VALUE (?, ?, ?, ?, ?, ?, ?)",
+            l_Statement->setUInt32(0, player->GetGUID().GetCounter());
+        l_Statement->setUInt32(1, mapChallengeModeEntry->ID);
+        l_Statement->setUInt32(2, instance->GetId());
+        l_Statement->setUInt32(3, totalDurations);
+        l_Statement->setUInt32(4, totalDurations);
+        l_Statement->setUInt32(5, _challengeModeLevel);
+        l_Statement->setUInt32(6, uint32(time(nullptr)));
+        CharacterDatabase.Execute(l_Statement);
+        CompletedChallenge l_Challenge;
+        l_Challenge.MapID = instance->GetId();
+        l_Challenge.Medal = _challengeModeLevel;
+        l_Challenge.MedalDate = uint32(time(nullptr));
+        l_Challenge.BestCompletion = totalDurations;
+        l_Challenge.LastCompletion = totalDurations;
+        player->AddCompletedChallenge(mapChallengeModeEntry->ID, l_Challenge);
+        //   player->GetSession()->SendChallengeModeMapStatsUpdate(mapChallengeModeEntry->ID);
+    }
+
+    //new player record
+    if (CompletedChallenge* t_Challenge = player->GetCompletedChallenge(mapChallengeModeEntry->ID))
+    {
+        WorldPackets::MythicPlus::NewPlayerRecord newplayerrecord;
+        newplayerrecord.CompletionMilliseconds = t_Challenge->BestCompletion;
+        newplayerrecord.MapID = t_Challenge->MapID;
+        newplayerrecord.ChallengeLevel = t_Challenge->Medal;
+        player->GetSession()->SendPacket(newplayerrecord.Write());
+    }
+        });
 }
 
 void InstanceScript::RepopPlayersAtGraveyard()

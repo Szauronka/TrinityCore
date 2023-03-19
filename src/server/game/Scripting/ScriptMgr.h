@@ -730,6 +730,9 @@ class TC_GAME_API PlayerScript : public ScriptObject
         // Called when a player's reputation changes (before it is actually changed)
         virtual void OnReputationChange(Player* player, uint32 factionId, int32& standing, bool incremental);
 
+        //Called when a player Start ChallengeMode
+        virtual void OnStartChallengeMode(Player* /*player*/, uint8 /*level*/, uint8 /*affix1*/, uint8 /*affix2*/, uint8 /*affix3*/) { }
+
         // Called when a duel is requested
         virtual void OnDuelRequest(Player* target, Player* challenger);
 
@@ -1270,6 +1273,8 @@ class TC_GAME_API ScriptMgr
 
         void OnConversationCreate(Conversation* conversation, Unit* creator);
         void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
+
+        void OnPlayerStartChallengeMode(Player* player, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3);
 
     public: /* SceneScript */
 

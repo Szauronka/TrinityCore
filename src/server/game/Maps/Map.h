@@ -524,6 +524,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         virtual std::string GetDebugInfo() const;
 
+        GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime);
+
     private:
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }

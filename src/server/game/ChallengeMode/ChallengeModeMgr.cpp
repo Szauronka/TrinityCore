@@ -18,11 +18,13 @@
 #include "ChallengeModeMgr.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "GameEventMgr.h"
 #include "GameTables.h"
 #include "GameObject.h"
 #include "Item.h"
 #include "LootPackets.h"
 #include "InstanceScript.h"
+#include "StringConvert.h"
 #include "Map.h"
 #include "MythicPlusPacketsCommon.h"
 #include <sstream>
@@ -263,6 +265,46 @@ uint32 ChallengeModeMgr::GetBigCAForOplote(uint32 challengeLevel, uint32& count)
 bool ChallengeMember::operator==(const ChallengeMember& i) const
 {
     return guid.GetCounter() == i.guid.GetCounter();
+}
+
+MapChallengeModeEntry const* ChallengeModeMgr::GetMapChallengeModeEntryByModeId(uint32 modeId)
+{
+    for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
+        if (MapChallengeModeEntry const* challengeModeEntry = sMapChallengeModeStore.LookupEntry(i))
+            if (challengeModeEntry->ID == modeId)
+                return challengeModeEntry;
+
+    return nullptr;
+}
+
+uint8 ChallengeModeMgr::GetActiveAffixe()
+{
+    if (sGameEventMgr->IsActiveEvent(126))
+        return 0;
+    if (sGameEventMgr->IsActiveEvent(127))
+        return 1;
+    if (sGameEventMgr->IsActiveEvent(128))
+        return 2;
+    if (sGameEventMgr->IsActiveEvent(129))
+        return 3;
+    if (sGameEventMgr->IsActiveEvent(130))
+        return 4;
+    if (sGameEventMgr->IsActiveEvent(131))
+        return 5;
+    if (sGameEventMgr->IsActiveEvent(132))
+        return 6;
+    if (sGameEventMgr->IsActiveEvent(133))
+        return 7;
+    if (sGameEventMgr->IsActiveEvent(134))
+        return 8;
+    if (sGameEventMgr->IsActiveEvent(135))
+        return 9;
+    if (sGameEventMgr->IsActiveEvent(136))
+        return 10;
+    if (sGameEventMgr->IsActiveEvent(137))
+        return 11;
+
+    return 0;
 }
 
 
@@ -681,3 +723,286 @@ void ChallengeModeMgr::Reward(Player* player, uint8 challengeLevel)
 
     player->SendDisplayToast(itemId, DisplayToastType::NewItem, false, 1, DisplayToastMethod::Default, 0, pItem);
 }
+
+void ChallengeModeMgr::LoadFromDB()
+{
+    if (QueryResult result = CharacterDatabase.Query("SELECT `ID`, `GuildID`, `MapID`, `RecordTime`, `Date`, `ChallengeLevel`, `TimerLevel`, `Affixes`, `ChestID`, `ChallengeID` FROM `challenge`"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            auto challengeData = new ChallengeData;
+            challengeData->ID = fields[0].GetUInt64();
+            challengeData->GuildID = fields[1].GetUInt64();
+            challengeData->MapID = fields[2].GetUInt16();
+            challengeData->ChallengeID = fields[3].GetUInt16();
+            challengeData->RecordTime = fields[4].GetUInt32();
+            if (challengeData->RecordTime < 10000)
+                challengeData->RecordTime *= IN_MILLISECONDS;
+            challengeData->Date = fields[5].GetUInt32();
+            challengeData->ChallengeLevel = fields[6].GetUInt8();
+            challengeData->TimerLevel = fields[7].GetUInt8();
+            challengeData->ChestID = fields[9].GetUInt32();
+
+            if (!challengeData->ChallengeID)
+                if (MapChallengeModeEntry const* challengeEntry = sDB2Manager.GetChallengeModeByMapID(challengeData->MapID))
+                    challengeData->ChallengeID = challengeEntry->ID;
+
+            challengeData->Affixes.fill(0);
+
+            uint8 i = 0;
+            for (std::string_view token : Trinity::Tokenize(fields[8].GetString().c_str(), ' ', false))
+                if (Optional<int32> affix = Trinity::StringTo<int32>(token))
+                    challengeData->Affixes[i] = *affix;
+
+            _challengeMap[challengeData->ID] = challengeData;
+            CheckBestMapId(challengeData);
+            CheckBestGuildMapId(challengeData);
+
+        } while (result->NextRow());
+    }
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT `id`, `member`, `specID`, `ChallengeLevel`, `Date`, `ChestID` FROM `challenge_member`"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            ChallengeMember member;
+            member.guid = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
+            member.specId = fields[2].GetUInt16();
+            member.ChallengeLevel = fields[3].GetUInt32();
+            member.Date = fields[4].GetUInt32();
+            member.ChestID = fields[5].GetUInt32();
+
+            auto itr = _challengeMap.find(fields[0].GetUInt64());
+            if (itr == _challengeMap.end())
+                continue;
+
+            itr->second->member.insert(member);
+            CheckBestMemberMapId(member.guid, itr->second);
+        } while (result->NextRow());
+    }
+
+    for (auto v : _challengeMap)
+        if (v.second->member.empty())
+            CharacterDatabase.PQuery("DELETE FROM `challenge` WHERE `ID` = '%u';", v.first);
+
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT `guid`, `chestListID`, `date`, `ChallengeLevel` FROM `challenge_oplote_loot`"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+            OploteLoot& lootOplote = _oploteWeekLoot[guid];
+            lootOplote.Date = fields[2].GetUInt32();
+            lootOplote.ChallengeLevel = fields[3].GetUInt32();
+            lootOplote.needSave = false;
+            lootOplote.guid = guid;
+
+            for (std::string_view chestLists : Trinity::Tokenize(fields[1].GetString().c_str(), ' ', false))
+                if (Optional<int32> chestList = Trinity::StringTo<int32>(chestLists))
+                    lootOplote.chestListID.insert(*chestList);
+
+        } while (result->NextRow());
+    }
+
+    if (sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME) == 0 || sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME) == 0 || sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME) == 0 || sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME) == 0)
+        GenerateCurrentWeekAffixes();
+
+    if ((sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1) < 15) &&
+        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2) < 15) &&
+        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3) < 15) &&
+        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) < 15))
+        GenerateManualAffixes();
+}
+
+
+void ChallengeModeMgr::SaveOploteLootToDB()
+{
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    for (auto const& v : _oploteWeekLoot)
+    {
+        if (v.second.needSave)
+        {
+            auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHALLENGE_OPLOTE_LOOT);
+            stmt->setUInt32(0, v.second.guid.GetCounter());
+            std::ostringstream chestLists;
+            for (uint32 chestList : v.second.chestListID)
+                if (chestList)
+                    chestLists << chestList << ' ';
+            stmt->setString(1, chestLists.str());
+            stmt->setUInt32(2, v.second.Date);
+            stmt->setUInt32(3, v.second.ChallengeLevel);
+            trans->Append(stmt);
+        }
+    }
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void ChallengeModeMgr::GenerateManualAffixes()
+{
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1));
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2));
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3));
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4));
+}
+
+
+void ChallengeModeMgr::GenerateCurrentWeekAffixes()
+{
+    uint32 affixes[12][4] =
+    {
+        { Raging, Volcanic, Tyrannical, Reaping},
+        { Teeming, FelExplosives, Fortified, Reaping},
+        { Bolstering, Grievous, Tyrannical, Reaping},
+        { Sanguine, Volcanic, Fortified, Reaping},
+        { Bursting, Skittish, Tyrannical, Beguiling},
+        { Teeming, Quaking, Fortified, Beguiling},
+        { Raging, Necrotic, Tyrannical, Beguiling},
+        { Bolstering, Skittish, Fortified, Beguiling},
+        { Teeming, Necrotic, Tyrannical, Awakened},
+        { Sanguine, Grievous, Fortified, Awakened},
+        { Bolstering, FelExplosives, Tyrannical, Awakened},
+        { Bursting, Quaking, Fortified, Awakened},
+    };
+
+    auto weekContainer = affixes[GetActiveAffixe()];
+
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME, weekContainer[0]);
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME, weekContainer[1]);
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME, weekContainer[2]);
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME, weekContainer[3]);
+}
+
+void ChallengeModeMgr::GenerateOploteLoot(bool manual)
+{
+    TC_LOG_ERROR("misc", "GenerateOploteLoot manual %u _challengeWeekList %u", manual, _challengeWeekList.size());
+
+    CharacterDatabase.Query("DELETE FROM challenge_oplote_loot WHERE date <= UNIX_TIMESTAMP()");
+    _oploteWeekLoot.clear();
+
+    for (auto const& c : _challengeWeekList)
+    {
+        for (auto const& v : c.second)
+        {
+            if (manual && (v->Date > sWorld->getWorldState(WS_CHALLENGE_LAST_RESET_TIME) || v->Date < (sWorld->getWorldState(WS_CHALLENGE_LAST_RESET_TIME) - (7 * DAY))))
+                continue;
+
+            if (!manual && (v->Date > sWorld->getWorldState(WS_CHALLENGE_KEY_RESET_TIME) || v->Date < sWorld->getWorldState(WS_CHALLENGE_LAST_RESET_TIME)))
+                continue;
+
+            if (!v->ChestID)
+                continue;
+
+            auto itr = _oploteWeekLoot.find(c.first);
+            if (itr != _oploteWeekLoot.end())
+            {
+                if (itr->second.ChallengeLevel < v->ChallengeLevel)
+                    itr->second.ChallengeLevel = v->ChallengeLevel;
+
+                itr->second.chestListID.insert(v->ChestID);
+            }
+            else
+            {
+                OploteLoot& lootOplote = _oploteWeekLoot[c.first];
+                //  lootOplote.Date = sWorld->getNextChallengeKeyReset();
+                lootOplote.ChallengeLevel = v->ChallengeLevel;
+                lootOplote.needSave = true;
+                lootOplote.guid = c.first;
+                lootOplote.chestListID.insert(v->ChestID);
+            }
+        }
+    }
+    _challengeWeekList.clear();
+    SaveOploteLootToDB();
+}
+
+uint32 ChallengeModeMgr::GetChest(uint32 challangeId)
+{
+    switch (challangeId)
+    {
+    case 375:
+        return 354972; //Mists of Tirna Scithe                   
+        break;
+    case 376:
+        return 354990; // The Necrotic Wake	
+        break;
+    case 377:
+        return 354985; //  De Other Side
+        break;
+    case 378:
+        return 354986; // Halls of Atonement
+        break;
+    case 379:
+        return 354987; // Plaguefall
+        break;
+    case 380:
+        return 354988; // Sanguine Depths
+        break;
+    case 381:
+        return 354989; // Spires of Ascension
+        break;
+    case 382:
+        return 354991; // Theater of Pain
+        break;
+    case 391:
+        return 354991; // Tazavesh: Streets of Wonder  //chest id??? idk so use theater of pain chest
+        break;
+    case 392:
+        return 354991; // Tazavesh: So'leah's Gambit //chest id???
+        break;
+    default:
+        return 354972;
+        break;
+    }
+    return 0;
+}
+
+uint32 ChallengeModeMgr::GetRandomChallengeAffixId(uint32 affix, uint32 level/* = 2*/)
+{
+    std::vector<uint32> affixs;
+    switch (affix)
+    {
+    case 1:
+        if (level >= 4)
+        {
+            affixs.push_back(5);
+            affixs.push_back(6);
+            affixs.push_back(7);
+            affixs.push_back(8);
+            affixs.push_back(11);
+        }
+        break;
+    case 2:
+        if (level >= 7)
+        {
+            affixs.push_back(13);
+            affixs.push_back(14);
+            affixs.push_back(12);
+            affixs.push_back(2);
+            affixs.push_back(4);
+            affixs.push_back(3);
+        }
+        break;
+    case 3:
+        if (level >= 10)
+        {
+            affixs.push_back(9);
+            affixs.push_back(10);
+            affixs.push_back(15);
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (affixs.empty())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(affixs);
+}
+
+

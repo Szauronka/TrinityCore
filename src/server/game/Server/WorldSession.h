@@ -42,6 +42,7 @@
 
 class BlackMarketEntry;
 class CollectionMgr;
+class ChallengeModeMgr;
 class Creature;
 class InstanceLock;
 class Item;
@@ -53,6 +54,15 @@ class Warden;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
+class ChangePlayerDifficultyResult;
+class RequestMapStats;
+class GetChallengeModeRewards;
+class ChallengeModeRewards;
+class RequestLeaders;
+class RequestChallengeModeAffixes;
+class RequestChallengeModeAffixesResult;
+class ResetChallengeMode;
+class StartChallengeMode;
 struct AuctionPosting;
 struct BlackMarketTemplate;
 struct ChrCustomizationReqEntry;

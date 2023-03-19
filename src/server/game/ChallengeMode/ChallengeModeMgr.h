@@ -21,9 +21,10 @@
 
 #ifndef _CHALLENGEMODEMGR_H
 #define _CHALLENGEMODEMGR_H
+
 struct ChallengeMember
 {
-    ObjectGuid& guid;
+    ObjectGuid guid;
     uint16 specId;
     uint32 Date;                    /// time when recorde done
     uint32 ChallengeLevel;          /// 2-15 but blizzard store it as uint32? rly?
@@ -32,7 +33,9 @@ struct ChallengeMember
     bool operator <(const ChallengeMember& i) const;
     bool operator ==(const ChallengeMember& i) const;
 };
+
 typedef std::set<ChallengeMember> ChallengeMemberList;
+static const std::list<uint32> ChallengeChestList = { 252674,252677,252686,252668,252665,252056,252680,252671,252683,269852,269871,269843 };
 
 struct ChallengeData
 {
@@ -52,11 +55,47 @@ struct ChallengeData
 
 struct OploteLoot
 {
-    ObjectGuid& guid;
+    ObjectGuid guid;
     uint32 Date;
     uint32 ChallengeLevel;
     std::set<uint32> chestListID;
     bool needSave = true;
+};
+
+enum ChallengeSpells : uint32
+{
+    ChallengersMight = 206150, /// generic creature aura
+    ChallengersBurden = 206151, /// generic player aura
+    ChallengerBolstering = 209859,
+    ChallengerNecrotic = 209858,
+    ChallengerOverflowing = 221772,
+    ChallengerSanguine = 226489,
+    ChallengerRaging = 228318,
+    ChallengerSummonVolcanicPlume = 209861,
+    ChallengerVolcanicPlume = 209862,
+    ChallengerBursting = 240443,
+    ChallengerQuake = 240447,
+    ChallengerGrievousWound = 240559,
+
+    //Explosive
+    SPELL_FEL_EXPLOSIVES_SUMMON_1 = 240444, //Short dist
+    SPELL_FEL_EXPLOSIVES_SUMMON_2 = 243110, //Long dist
+    SPELL_FEL_EXPLOSIVES_VISUAL = 240445,
+    SPELL_FEL_EXPLOSIVES_DMG = 240446,
+
+    SPELL_CHALLENGE_ANTIKICK = 305284,
+};
+
+enum ChallengeNpcs : uint32
+{
+    NpcVolcanicPlume = 105877,
+    NPC_FEL_EXPLOSIVES = 120651,
+};
+
+enum MiscChallengeData : uint32
+{
+    ChallengeDelayTimer = 10,
+
 };
 
 typedef std::unordered_map<uint16 /*ChallengeID*/, ChallengeData*> ChallengeByMap;
@@ -68,8 +107,6 @@ typedef std::unordered_map<ObjectGuid /*MemberGUID*/, OploteLoot> OploteLootMap;
 
 struct MapChallengeModeEntry;
 
-
-static const std::list<uint32> ChallengeChestList = { 282736,282737,288642,288644,290544,290621,290758,290759,290761,282735};
 
 class TC_GAME_API ChallengeModeMgr
 {
@@ -92,6 +129,8 @@ public:
     InstanceScript* GetInstanceScript() const;
     void SetChallengeMapData(ObjectGuid::LowType const& ID, ChallengeData* data);
     void CheckBestGuildMapId(ChallengeData* challengeData);
+    MapChallengeModeEntry const* GetMapChallengeModeEntryByModeId(uint32 modeId);
+    uint8 GetActiveAffixe();
     uint32 GetDamageMultiplier(uint8 challengeLevel);
     uint32 GetHealthMultiplier(uint8 challengeLevel);
     void HitTimer();
@@ -107,6 +146,13 @@ public:
     uint32 GetChallengeTimer();
     std::vector<int32> GetBonusListIdsForRewards(uint32 baseItemIlevel, uint8 challengeLevel);
     void Reward(Player* player, uint8 challengeLevel);
+    void LoadFromDB();
+    void SaveOploteLootToDB();
+    void GenerateCurrentWeekAffixes();
+    void GenerateManualAffixes();
+    void GenerateOploteLoot(bool manual = false);
+    uint32 GetChest(uint32 challangeId);
+    uint32 GetRandomChallengeAffixId(uint32 affix, uint32 level);
     GuidUnorderedSet _challengers;
     InstanceScript* _instanceScript;
     static bool IsChest(uint32 goEntry);

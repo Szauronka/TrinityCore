@@ -17,6 +17,7 @@
 
 #include "ScenarioMgr.h"
 #include "Containers.h"
+#include "ChallengeModeMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceScenario.h"
@@ -40,14 +41,14 @@ InstanceScenario* ScenarioMgr::CreateInstanceScenario(InstanceMap const* map, Te
     uint32 scenarioID = 0;
     switch (team)
     {
-        case TEAM_ALLIANCE:
-            scenarioID = dbDataItr->second.Scenario_A;
-            break;
-        case TEAM_HORDE:
-            scenarioID = dbDataItr->second.Scenario_H;
-            break;
-        default:
-            break;
+    case TEAM_ALLIANCE:
+        scenarioID = dbDataItr->second.Scenario_A;
+        break;
+    case TEAM_HORDE:
+        scenarioID = dbDataItr->second.Scenario_H;
+        break;
+    default:
+        break;
     }
 
     auto itr = _scenarioData.find(scenarioID);
@@ -221,4 +222,16 @@ ScenarioPOIVector const* ScenarioMgr::GetScenarioPOIs(int32 criteriaTreeID) cons
         return &itr->second;
 
     return nullptr;
+}
+
+InstanceScenario* ScenarioMgr::CreateInstanceScenarioByID(InstanceMap* map, uint32 scenarioID)
+{
+    auto itr = _scenarioData.find(scenarioID);
+    if (itr == _scenarioData.end())
+    {
+        TC_LOG_ERROR("scenario", "Table `scenarios` contained data linking scenario (Id: %u) to map (Id: %u), difficulty (Id: %u) but no scenario data was found related to that scenario Id.", scenarioID, map->GetId(), map->GetDifficultyID());
+        return nullptr;
+    }
+
+    return new InstanceScenario(map, &itr->second);
 }

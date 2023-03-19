@@ -134,6 +134,7 @@
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 #include <sstream>
+#include <Config.h>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -18237,6 +18238,9 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES)))
         _garrison = std::move(garrison);
 
+    _LoadChallengeKey(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_CHALLENGE_KEY));
+    _LoadChallengesAffix();
+
     _InitHonorLevelOnLoadFromDB(fields.honor, fields.honorLevel);
 
     _restMgr->LoadRestBonus(REST_TYPE_HONOR, fields.honorRestState, fields.honorRestBonus);
@@ -29527,15 +29531,17 @@ uint32 TraitMgr::PlayerDataAccessor::GetPrimarySpecialization() const
 
 bool Player::InitChallengeKey(Item* item)
 {
-    if (item->GetEntry() != 138019)
+    if (item->GetEntry() != 180653)
         return true;
 
     if (!m_challengeKeyInfo.IsActive())
         return false;
 
-    //  m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
-    //  m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
-    //  m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+    m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
+    m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
+    m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+    m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
+    m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
 
     item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, m_challengeKeyInfo.ID);
     item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, m_challengeKeyInfo.Level);
@@ -29545,7 +29551,10 @@ bool Player::InitChallengeKey(Item* item)
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix1);
     if (m_challengeKeyInfo.Level > 9)
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix2);
-
+    if (m_challengeKeyInfo.Level > 12)
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
+    if (m_challengeKeyInfo.Level > 15)
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix4);
     return true;
 }
 
@@ -29554,9 +29563,9 @@ void Player::UpdateChallengeKey(Item* item)
     m_challengeKeyInfo.ID = item->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
     m_challengeKeyInfo.Level = item->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL);
 
-    // m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
-    // m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
-    // m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+    m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
+    m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
+    m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
 
     if (m_challengeKeyInfo.Level > 3)
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
@@ -29576,18 +29585,20 @@ void Player::CreateChallengeKey(Item* item)
     else
         m_challengeKeyInfo.needUpdate = true;
 
-    // if (m_challengeKeyInfo.IsActive() && !InInstance())
-      //   item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, m_challengeKeyInfo.Level);
-   //  else
-    item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, 2);
+    item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, m_challengeKeyInfo.Level ? m_challengeKeyInfo.Level : 2);
 
-    //  item->SetUInt32Value(ITEM_FIELD_EXPIRATION, sWorld->getNextChallengeKeyReset() - time(nullptr));
+    sWorld->getNextChallengeKeyReset();
 
-     // item->SetModifier(ITEM_MODIFIER_CHALLENGE_ID, Trinity::Containers::SelectRandomContainerElement(sDB2Manager.GetChallngeMaps()));
+    if (sWorld->getIntConfig(CONFIG_WEIGHTED_MYTHIC_KEYSTONE))
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, *Trinity::Containers::SelectRandomWeightedContainerElement(sDB2Manager.GetChallngeMaps(), sDB2Manager.GetChallngesWeight()));
+    else
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, Trinity::Containers::SelectRandomContainerElement(sDB2Manager.GetChallngeMaps()));
 
-     // m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
-     // m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
-     // m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+    m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
+    m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
+    m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+    m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
+    m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
 
     if (m_challengeKeyInfo.Level > 3)
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
@@ -29595,9 +29606,13 @@ void Player::CreateChallengeKey(Item* item)
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix1);
     if (m_challengeKeyInfo.Level > 9)
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix2);
+    if (m_challengeKeyInfo.Level > 12)
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
+    if (m_challengeKeyInfo.Level > 15)
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
 
     m_challengeKeyInfo.ID = item->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
-    //  m_challengeKeyInfo.timeReset = sWorld->getNextChallengeKeyReset();
+    m_challengeKeyInfo.timeReset = sWorld->getNextChallengeKeyReset();
 
     item->SetState(ITEM_CHANGED, this);
 }
@@ -29609,12 +29624,12 @@ void Player::ResetChallengeKey()
     if (!m_challengeKeyInfo.IsActive())
         return;
 
-    /*  if (m_challengeKeyInfo.timeReset >= sWorld->getNextChallengeKeyReset() && m_challengeKeyInfo.Level > 4)
+    if (m_challengeKeyInfo.timeReset >= sWorld->getNextChallengeKeyReset() && m_challengeKeyInfo.Level > 4)
       {
           m_challengeKeyInfo.Level = uint32(m_challengeKeyInfo.Level * 0.7f);
           m_challengeKeyInfo.needUpdate = true;
           return;
-      }*/
+      }
 
     m_challengeKeyInfo.ID = 0;
     m_challengeKeyInfo.Level = 0;
@@ -29626,15 +29641,21 @@ void Player::ResetChallengeKey()
 }
 
 
-void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel)
+void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel, bool runRand)
 {
     if (challengeLevel > 2)
         challengeLevel -= 1;
 
+    m_challengeKeyInfo.challengeEntry = nullptr;
     if (challengeLevel >= 2)
     {
         m_challengeKeyInfo.Level = challengeLevel;
-        m_challengeKeyInfo.ID = Trinity::Containers::SelectRandomContainerElement(sDB2Manager.GetChallngeMaps());
+        if (runRand)
+        {
+            uint16 oldID = m_challengeKeyInfo.ID;
+            while (oldID == m_challengeKeyInfo.ID)
+                m_challengeKeyInfo.ID = *Trinity::Containers::SelectRandomWeightedContainerElement(sDB2Manager.GetChallngeMaps(), sDB2Manager.GetChallngesWeight());
+        }
         m_challengeKeyInfo.needUpdate = true;
         if (item)
         {
@@ -29654,6 +29675,210 @@ void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel)
     m_challengeKeyInfo.Affix = 0;
     m_challengeKeyInfo.Affix1 = 0;
     m_challengeKeyInfo.Affix2 = 0;
+    m_challengeKeyInfo.Affix3 = 0;
     m_challengeKeyInfo.KeyIsCharded = 1;
     m_challengeKeyInfo.InstanceID = 0;
+    DestroyItemCount(180653, 100, true, true);
 }
+
+
+bool Player::AddChallengeKey(uint32 challengeId, uint32 challengeLevel/* = 2*/)
+{
+    uint32 itemId = 180653; //legion 138019 add  7.1.5.23360; bfa 158923 add 8.0.1.26903; 180653 add 9.0.1.36216;
+    uint8 count = 1;
+    uint32 noSpaceForCount = 0;
+    ItemPosCountVec dest;
+    InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+    if (msg != EQUIP_ERR_OK)
+        count -= noSpaceForCount;
+
+    if (count == 0 || dest.empty())
+    {
+        /// @todo Send to mailbox if no space
+        ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
+        return false;
+    }
+
+    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId));
+    if (item)
+    {
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, challengeId);
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, challengeLevel);
+
+        m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
+        m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
+        m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+        m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
+        m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
+
+        if (challengeLevel >= 4)
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
+        if (challengeLevel >= 7)
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix1);
+        if (challengeLevel >= 10)
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix2);
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
+
+        SendNewItem(item, count, true, false);
+    }
+    else
+        return false;
+    return true;
+}
+
+void Player::_LoadChallengeKey(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    uint8 index = 0;
+    Field* fields = result->Fetch();
+    m_challengeKeyInfo.ID = fields[index++].GetUInt16();
+    m_challengeKeyInfo.Level = fields[index++].GetUInt8();
+    m_challengeKeyInfo.Affix = fields[index++].GetUInt8();
+    m_challengeKeyInfo.Affix1 = fields[index++].GetUInt8();
+    m_challengeKeyInfo.Affix2 = fields[index++].GetUInt8();
+    m_challengeKeyInfo.Affix3 = fields[index++].GetUInt8();
+    m_challengeKeyInfo.KeyIsCharded = fields[index++].GetUInt8();
+    m_challengeKeyInfo.timeReset = fields[index++].GetUInt32();
+    m_challengeKeyInfo.InstanceID = fields[index++].GetUInt32();
+
+    if (m_challengeKeyInfo.Level < 2)
+        m_challengeKeyInfo.Level = 2;
+
+    if (!m_challengeKeyInfo.KeyIsCharded)
+    {
+        if (m_challengeKeyInfo.Level > 2)
+            ChallengeKeyCharded(nullptr, m_challengeKeyInfo.Level, false);
+        m_challengeKeyInfo.KeyIsCharded = 1;
+    }
+}
+
+void Player::_SaveChallengeKey(CharacterDatabaseTransaction& trans)
+{
+    if (!m_challengeKeyInfo.needSave && !m_challengeKeyInfo.needUpdate)
+        return;
+
+    if (m_challengeKeyInfo.Level < 2)
+        m_challengeKeyInfo.Level = 2;
+
+    uint8 index = 0;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
+    if (m_challengeKeyInfo.needUpdate)
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHALLENGE_KEY);
+    else
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHALLENGE_KEY);
+
+    stmt->setUInt16(index++, m_challengeKeyInfo.ID);
+    stmt->setUInt8(index++, m_challengeKeyInfo.Level);
+    stmt->setUInt8(index++, m_challengeKeyInfo.Affix);
+    stmt->setUInt8(index++, m_challengeKeyInfo.Affix1);
+    stmt->setUInt8(index++, m_challengeKeyInfo.Affix2);
+    stmt->setUInt8(index++, m_challengeKeyInfo.Affix3);
+    stmt->setUInt8(index++, m_challengeKeyInfo.KeyIsCharded);
+    stmt->setUInt32(index++, m_challengeKeyInfo.timeReset);
+    stmt->setUInt32(index++, m_challengeKeyInfo.InstanceID);
+    stmt->setUInt64(index++, GetGUID().IsPlayer());
+    trans->Append(stmt);
+}
+
+void Player::_LoadCompletedChallenges(PreparedQueryResult&& result)
+{
+    if (!result)
+        return;
+
+    //("SELECT KeyId, MapId, BestCompletion, LastCompletion, Medal, MedalDate  FROM character_completed_challenges WHERE guid = '%u'", GetGUID()); //if crash comment
+
+    do
+    {
+        CompletedChallenge l_Challenge;
+
+        Field* l_Field = result->Fetch();
+        uint32 l_KeyID = l_Field[0].GetUInt32();
+        l_Challenge.MapID = l_Field[1].GetUInt32();
+        l_Challenge.BestCompletion = l_Field[2].GetUInt32();
+        l_Challenge.LastCompletion = l_Field[3].GetUInt32();
+        l_Challenge.Medal = l_Field[4].GetUInt32();
+        l_Challenge.MedalDate = l_Field[5].GetUInt32();
+
+        m_CompletedChallenges.insert(std::make_pair(l_KeyID, l_Challenge));
+    } while (result->NextRow());
+}
+
+bool Player::HasChallengeCompleted(uint32 keyID) const
+{
+    if (m_CompletedChallenges.find(keyID) == m_CompletedChallenges.end())
+        return false;
+
+    return true;
+}
+
+CompletedChallenge* Player::GetCompletedChallenge(uint32 keyID)
+{
+    if (m_CompletedChallenges.find(keyID) == m_CompletedChallenges.end())
+        return nullptr;
+
+    return &m_CompletedChallenges[keyID];
+}
+
+void Player::AddCompletedChallenge(uint32 keyID, CompletedChallenge p_Challenge)
+{
+    /// Already completed
+    if (m_CompletedChallenges.find(keyID) != m_CompletedChallenges.end())
+        return;
+
+    m_CompletedChallenges.insert(std::make_pair(keyID, p_Challenge));
+}
+
+void Player::_LoadChallengesAffix()
+{
+    uint32 oldMSTime = getMSTime();
+
+    if (sConfigMgr->GetIntDefault("KeyStoneAffix.Status", 0) == 0)
+    {
+        //                                                 0      1         2
+        QueryResult result = WorldDatabase.Query("SELECT affix1, affix2, affix3 FROM challenge_affix");
+
+        if (!result)
+        {
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 challenges affix definitions. DB table `challenge_affix` is empty.");
+            return;
+        }
+
+        uint32 count = 0;
+
+        do
+        {
+            Field* l_Field = result->Fetch();
+            m_ChallengeAffix.affix_1 = l_Field[0].GetUInt32();
+            m_ChallengeAffix.affix_2 = l_Field[1].GetUInt32();
+            m_ChallengeAffix.affix_3 = l_Field[2].GetUInt32();
+
+            ++count;
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u challenges affix definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else if (sConfigMgr->GetIntDefault("KeyStoneAffix.Status", 0) == 1)
+    {
+        m_ChallengeAffix.affix_1 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix1", 0);
+        m_ChallengeAffix.affix_2 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix2", 0);
+        m_ChallengeAffix.affix_3 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix3", 0);
+        TC_LOG_INFO("server.loading", ">> Loaded config challenges affix definitions in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+    {
+        m_ChallengeAffix.affix_1 = sChallengeModeMgr->GetRandomChallengeAffixId(1, 4);
+        m_ChallengeAffix.affix_2 = sChallengeModeMgr->GetRandomChallengeAffixId(2, 7);
+        m_ChallengeAffix.affix_3 = sChallengeModeMgr->GetRandomChallengeAffixId(3, 10);
+        TC_LOG_INFO("server.loading", ">> Loaded random challenges affix definitions in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    }
+    if (m_ChallengeAffix.affix_1 == 0)
+        m_ChallengeAffix.affix_1 = sChallengeModeMgr->GetRandomChallengeAffixId(1, 4);
+    if (m_ChallengeAffix.affix_2 == 0)
+        m_ChallengeAffix.affix_2 = sChallengeModeMgr->GetRandomChallengeAffixId(2, 7);
+    if (m_ChallengeAffix.affix_3 == 0)
+        m_ChallengeAffix.affix_3 = sChallengeModeMgr->GetRandomChallengeAffixId(3, 10);
+}
+
+

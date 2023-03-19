@@ -277,9 +277,65 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // * use HandleGameObject(GUID, boolen, nullptr); in any other script
         void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
 
+        void AddTimedDelayedOperation(uint32 timeout, std::function<void()>&& function)
+        {
+            emptyWarned = false;
+            timedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(timeout, function));
+        }
+
+        std::vector<std::pair<int32, std::function<void()>>>timedDelayedOperations; ///< Delayed operations
+        bool emptyWarned; ///< Warning when there are no more delayed operations
+
         // Mythic
         void ResetChallengeMode();
         void RepopPlayersAtGraveyard();
+
+        Optional<Position> _checkPointPosition;
+        void SetCheckPointPos(Position pos) { _checkPointPosition = pos; }
+        Optional<Position> GetCheckPoint() { return _checkPointPosition; }
+
+        // Challenge
+        static uint32 const ChallengeModeOrb = 246779;
+        static uint32 const ChallengeModeDoor = 239323;
+
+        virtual void ShowChallengeDoor() { }
+        virtual void HideChallengeDoor() { }
+        void GetScenarioByID(Player* p_Player, uint32 p_ScenarioId);
+        void DoOnPlayers(std::function<void(Player*)>&& function);
+        void AfterChallengeModeStarted();
+
+        ChallengeModeMgr* GetChallenge() const;
+
+        void AddChallengeModeChests(ObjectGuid chestGuid, uint8 chestLevel);
+        ObjectGuid GetChellngeModeChests(uint8 chestLevel);
+        void AddChallengeModeDoor(ObjectGuid doorGuid);
+        void AddChallengeModeOrb(ObjectGuid orbGuid);
+        void StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4);
+        void CompleteChallengeMode();
+        bool IsChallengeModeStarted() const { return _challengeModeStarted; }
+        uint8 GetChallengeModeId() const { return _challengeModeId; }
+        uint8 GetChallengeModeLevel() const { return _challengeModeLevel; }
+        std::array<uint32, 5> GetAffixes() const;
+        bool HasAffix(Affixes affix);
+        void DoCompleteAchievement(uint32 achievement);
+        uint32 GetChallengeModeCurrentDuration() const;
+        void SendChallengeModeStart(Player* player = nullptr) const;
+        void SendChallengeModeDeathCount(Player* player = nullptr) const;
+        void SendChallengeModeElapsedTimer(Player* player = nullptr) const;
+        void SendChallengeModeMapStatsUpdate(Player* player, uint32 challengeId, uint32 recordTime) const;
+        void SendChallengeModeNewPlayerRecord(Player* player);
+        void CastChallengeCreatureSpell(Creature* creature);
+        void CastChallengePlayerSpell(Player* player);
+        void CastChallengeCreatureSpellOnDeath(Creature* creature);
+
+        // load scenario after challenge mode started
+        void SetChallengeModeScenario(uint32 scenarioId) { _challengeModeScenario = scenarioId; }
+        void SetChallengeDoorPos(Position pos) { _challengeModeDoorPosition = pos; }
+        void SetChallengeStartPos(Position pos) { _challengeModeStartPosition = pos; _checkPointPosition = pos; }
+        virtual void SpawnChallengeModeRewardChest() { }
+        void SetFontOfPowerPos(Position pos) { _challengeModeFontOfPowerPosition = pos; }
+        void SetFontOfPowerPos2(Position pos) { _challengeModeFontOfPowerPosition2 = pos; }
+        void SpawnFontOfPower();
 
         // Change active state of doors or buttons
         void DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
@@ -412,6 +468,14 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual void AfterDataLoad() { }
 
         bool _SkipCheckRequiredBosses(Player const* player = nullptr) const;
+
+        GuidUnorderedSet _challengers;
+        uint32 _challengeTimer;
+        uint32 _affixQuakingTimer;
+        uint32 _challengeLevel;
+        bool _isKeyDepleted;
+        uint32 _mapID;
+        uint8 _rewardLevel;
 
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);

@@ -3135,6 +3135,56 @@ ArenaLog.ExtendedInfo = 0
 ###################################################################################################
 
 ###################################################################################################
+# Challenge Mode
+#
+#   ArgusWowEnable
+#        Description: Not yet implemented
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+ArgusWowEnable = 1
+
+#  Dungeon.ActiveStep
+#        Description: Not yet implemented
+#        Default:     5 - (Enabled BfA)
+#                     0 - (Disabled)
+
+Dungeon.ActiveStep = 5
+
+#  Challenge.LevelLimit
+#        Description: Not yet implemented
+#        Default:     30
+
+Challenge.Key.Reset = 7
+#
+#
+#
+
+Challenge.LevelLimit = 30
+
+#  Challenge.LevelMax
+#        Description: Not yet implemented
+#        Default:     15
+
+Challenge.LevelMax = 15
+
+#  Challenge.LevelStep
+#        Description: Not yet implemented
+#        Default:     2
+
+Challenge.LevelStep = 2
+
+#  Dungeon.WeightedMythicKeystone.Enabled
+#        Description: Not yet implemented
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Dungeon.WeightedMythicKeystone.Enabled = 1
+
+#
+###################################################################################################
+
+###################################################################################################
 # NETWORK CONFIG
 #
 #    Network.Threads

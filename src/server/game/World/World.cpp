@@ -33,6 +33,7 @@
 #include "BattlePetMgr.h"
 #include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
+#include "ChallengeModeMgr.h"
 #include "ChannelMgr.h"
 #include "CharacterCache.h"
 #include "CharacterDatabaseCleaner.h"
@@ -1282,6 +1283,12 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_RANDOM_BG_RESET_HOUR] = 6;
     }
 
+    m_int_configs[CONFIG_CHALLENGE_KEY_RESET] = sConfigMgr->GetIntDefault("Challenge.Key.Reset", 7);
+    m_int_configs[CONFIG_CHALLENGE_LEVEL_LIMIT] = sConfigMgr->GetIntDefault("Challenge.LevelLimit", 30);
+    m_int_configs[CONFIG_CHALLENGE_LEVEL_MAX] = sConfigMgr->GetIntDefault("Challenge.LevelMax", 15);
+    m_int_configs[CONFIG_CHALLENGE_LEVEL_STEP] = sConfigMgr->GetIntDefault("Challenge.LevelStep", 2);
+    m_int_configs[CONFIG_WEIGHTED_MYTHIC_KEYSTONE] = sConfigMgr->GetIntDefault("Dungeon.WeightedMythicKeystone.Enabled", 1);
+
     m_int_configs[CONFIG_CALENDAR_DELETE_OLD_EVENTS_HOUR] = sConfigMgr->GetIntDefault("Calendar.DeleteOldEventsHour", 6);
     if (m_int_configs[CONFIG_CALENDAR_DELETE_OLD_EVENTS_HOUR] > 23)
     {
@@ -2343,6 +2350,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Autobroadcasts...");
     LoadAutobroadcasts();
+
+    TC_LOG_INFO("server.loading", "Loading challenge save info...");
+    sChallengeModeMgr->LoadFromDB();
 
     ///- Load and initialize scripts
     sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
@@ -3902,6 +3912,40 @@ void World::LoadPersistentWorldVariables()
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} world variables in {} ms", m_worldVariables.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+// Setting a worldstate will save it to DB
+void World::setWorldState(uint32 index, uint32 value)
+{
+    WorldStatesMap::const_iterator it = m_worldstates.find(index);
+    if (it != m_worldstates.end())
+    {
+        if (it->second == value)
+            return;
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
+
+        stmt->setUInt32(0, uint32(value));
+        stmt->setUInt32(1, index);
+
+        CharacterDatabase.Execute(stmt);
+    }
+    else
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
+
+        stmt->setUInt32(0, index);
+        stmt->setUInt32(1, uint32(value));
+
+        CharacterDatabase.Execute(stmt);
+    }
+    m_worldstates[index] = value;
+}
+
+uint32 World::getWorldState(uint32 index) const
+{
+    WorldStatesMap::const_iterator it = m_worldstates.find(index);
+    return it != m_worldstates.end() ? it->second : 0;
 }
 
 void World::ProcessQueryCallbacks()

@@ -106,7 +106,7 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
         map->TrySetOwningGroup(group);
 
     map->CreateInstanceData();
-    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, team));
+    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenarioByID(map, instanceId));
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
         map->LoadAllCells();

@@ -866,6 +866,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_AURAS,
     PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS,
     PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS,
+    PLAYER_LOGIN_QUERY_CHALLENGE_KEY,
     PLAYER_LOGIN_QUERY_LOAD_SPELLS,
     PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS,
@@ -1019,6 +1020,39 @@ enum class DisplayToastMethod : uint8
 };
 
 class Player;
+
+struct CompletedChallenge
+{
+    CompletedChallenge()
+    {
+        MapID = 0;
+        BestCompletion = 0;
+        LastCompletion = 0;
+        Medal = 0;
+        MedalDate = 0;
+    }
+
+    uint32 MapID = 0;
+    uint32 BestCompletion = 0;
+    uint32 LastCompletion = 0;
+    uint32 Medal = 0;
+    uint32 MedalDate = 0;
+};
+typedef std::map<uint32, CompletedChallenge> CompletedChallengesMap;
+
+struct ChallengeAffix
+{
+    ChallengeAffix()
+    {
+        affix_1 = 0;
+        affix_2 = 0;
+        affix_3 = 0;
+    }
+
+    uint32 affix_1 = 0;
+    uint32 affix_2 = 0;
+    uint32 affix_3 = 0;
+};
 
 /// Holder for Battleground data
 struct BGData
@@ -1699,11 +1733,22 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool WorldQuestCompleted(uint32 QuestID) const;
 
+        CompletedChallengesMap m_CompletedChallenges;
+        CompletedChallenge* GetCompletedChallenge(uint32 keyID);
+        uint32 m_affix_stauts;
+        ChallengeAffix m_ChallengeAffix;
 		bool InitChallengeKey(Item* item);
 		void UpdateChallengeKey(Item* item);
 		void CreateChallengeKey(Item* item);
 		void ResetChallengeKey();
-        void ChallengeKeyCharded(Item* item, uint32 challengeLevel);
+        void ChallengeKeyCharded(Item* item, uint32 challengeLevel, bool runRand = true);
+        bool AddChallengeKey(uint32 challengeId, uint32 challengeLevel);
+        void _LoadChallengeKey(PreparedQueryResult result);
+        void _SaveChallengeKey(CharacterDatabaseTransaction& trans);
+        void _LoadCompletedChallenges(PreparedQueryResult&& result);
+        bool HasChallengeCompleted(uint32 keyID) const;
+        void AddCompletedChallenge(uint32 keyID, CompletedChallenge p_Challenge);
+        void _LoadChallengesAffix();
 
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }
         ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }

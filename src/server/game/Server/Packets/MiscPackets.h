@@ -1067,6 +1067,18 @@ namespace WorldPackets
 
             ElaspedTimer Timer;
         };
+
+        class ChangePlayerDifficultyResult final : public ServerPacket
+        {
+        public:
+            ChangePlayerDifficultyResult(uint32 type = 0) : ServerPacket(SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT, 4), Type(type) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Type = 0;
+            uint32 InstanceDifficultyID = 0;
+            uint32 DifficultyRecID = 0;
+        };
     }
 }
 

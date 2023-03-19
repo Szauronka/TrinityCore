@@ -3961,4 +3961,24 @@ std::string InstanceMap::GetDebugInfo() const
     return sstr.str();
 }
 
+GameObject* Map::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
+{
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
+    if (!goinfo)
+    {
+        TC_LOG_ERROR("sql.sql", "Gameobject template %u not found in database!", entry);
+        return nullptr;
+    }
+
+    GameObject* go = GameObject::CreateGameObject(entry, this, pos, rot, 255, GO_STATE_READY);
+    if (!go)
+        return nullptr;
+
+    go->SetRespawnTime(respawnTime);
+    go->SetSpawnedByDefault(false);
+    AddToMap(go);
+    return go;
+}
+
+
 template class TC_GAME_API TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;

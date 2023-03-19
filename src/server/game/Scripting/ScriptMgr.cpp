@@ -2269,6 +2269,12 @@ void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lin
     tmpscript->OnConversationLineStarted(conversation, lineId, sender);
 }
 
+//Challenge
+void ScriptMgr::OnPlayerStartChallengeMode(Player* player, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnStartChallengeMode(player, level, affix1, affix2, affix3);
+}
+
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {

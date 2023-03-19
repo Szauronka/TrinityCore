@@ -834,3 +834,26 @@ WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
 
 	return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::ChangePlayerDifficultyResult::Write()
+{
+	_worldPacket.WriteBits(Type, 4);
+
+	switch (Type)
+	{
+	case 5:
+	{
+		_worldPacket.WriteBit(false);
+		_worldPacket << uint32(2766309915);
+		break;
+	}
+	case 11:
+	{
+		_worldPacket << InstanceDifficultyID;
+		_worldPacket << DifficultyRecID;
+		break;
+	}
+	}
+
+	return &_worldPacket;
+}

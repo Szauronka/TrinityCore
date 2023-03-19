@@ -113,6 +113,8 @@ public:
 
     ScenarioPOIVector const* GetScenarioPOIs(int32 criteriaTreeID) const;
 
+    InstanceScenario* CreateInstanceScenarioByID(InstanceMap* map, uint32 scenarioID);
+
 private:
     ScenarioDataContainer _scenarioData;
     ScenarioPOIContainer _scenarioPOIStore;

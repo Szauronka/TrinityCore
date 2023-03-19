@@ -94,6 +94,7 @@ enum WorldStates
     WS_BAN_WAVE_TIME = 20022,                      // Next banwave time
     WS_CURRENT_ARTIFACT_KNOWLEDGE = 20023,                      // Current Artifact Knowledge
     WS_INVASION_POINT_RESET_TIME = 20024,                      // World quest every 2 hours reset time
+    WS_CHALLENGE_AFFIXE4_RESET_TIME = 20025,                      // Challenge Affixe 4
     // Cata specific custom worldstates
     WS_GUILD_WEEKLY_RESET_TIME = 20050,                     // Next guild week reset time
 };
@@ -252,6 +253,14 @@ enum WorldFloatConfigs
 enum WorldIntConfigs
 {
     CONFIG_CHALLENGE_LEVEL_LIMIT,
+    CONFIG_CHALLENGE_LEVEL_MAX,
+    CONFIG_CHALLENGE_LEVEL_STEP,
+    CONFIG_CHALLENGE_KEY_RESET,
+    CONFIG_WEIGHTED_MYTHIC_KEYSTONE,
+    CONFIG_CHALLENGE_MANUAL_AFFIX1,
+    CONFIG_CHALLENGE_MANUAL_AFFIX2,
+    CONFIG_CHALLENGE_MANUAL_AFFIX3,
+    CONFIG_CHALLENGE_MANUAL_AFFIX4,
     CONFIG_COMPRESSION = 0,
     CONFIG_INTERVAL_SAVE,
     CONFIG_INTERVAL_GRIDCLEAN,
@@ -695,6 +704,7 @@ class TC_GAME_API World
         time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
         time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
         time_t GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
+        time_t getNextChallengeKeyReset() { return m_NextChallengeKeyReset; }
 
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
@@ -790,6 +800,9 @@ class TC_GAME_API World
         int32 GetPersistentWorldVariable(PersistentWorldVariable const& var) const;
         void SetPersistentWorldVariable(PersistentWorldVariable const& var, int32 value);
         void LoadPersistentWorldVariables();
+
+        void setWorldState(uint32 index, uint32 value);
+        uint32 getWorldState(uint32 index) const;
 
         /// Are we on a "Player versus Player" server?
         bool IsPvPRealm() const;
@@ -904,6 +917,8 @@ class TC_GAME_API World
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         std::unordered_map<std::string, int32> m_worldVariables;
+        typedef std::map<uint32, uint32> WorldStatesMap;
+        WorldStatesMap m_worldstates;
         uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
@@ -930,6 +945,7 @@ class TC_GAME_API World
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
         time_t m_NextMonthlyQuestReset;
+        time_t m_NextChallengeKeyReset;
         time_t m_NextRandomBGReset;
         time_t m_NextCalendarOldEventsDeletionTime;
         time_t m_NextGuildReset;
