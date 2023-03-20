@@ -253,7 +253,7 @@ void World::ChallengeKeyResetTime()
 
     time_t curTime = time(nullptr);
 
-    CharacterDatabase.PQuery("DELETE FROM challenge_key WHERE timeReset < ", curTime," OR Level < 5", m_NextChallengeKeyReset);
+    CharacterDatabase.PQuery("DELETE FROM challenge_key WHERE timeReset <  7 OR Level < 5");
     CharacterDatabase.Query("DELETE FROM item_instance WHERE itemEntry = 180653");
     CharacterDatabase.Query("UPDATE challenge_key SET Level = Level * 0.7");
 
