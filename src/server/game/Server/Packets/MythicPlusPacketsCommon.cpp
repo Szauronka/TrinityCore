@@ -282,15 +282,15 @@ namespace WorldPackets
         }
 
 
-        void MythicPlusRequestMapStats::Read()
+        void WorldPackets::MythicPlus::MythicPlusRequestMapStats::Read()
         {
         }
 
-        void MythicPlusCurrentAffixes::Read()
+        void WorldPackets::MythicPlus::MythicPlusCurrentAffixes::Read()
         {
         }
 
-        void MythicPlusSeasonData::Read()
+        void WorldPackets::MythicPlus::MythicPlusSeasonData::Read()
         {
         }
 

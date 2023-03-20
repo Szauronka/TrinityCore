@@ -275,7 +275,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_CAN_DUEL,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCanDuel);
     DEFINE_HANDLER(CMSG_CAN_REDEEM_TOKEN_FOR_BALANCE,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_CAST_SPELL,                                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCastSpellOpcode);
-    DEFINE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_LEADERS,                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestLeaders);
+    DEFINE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_LEADERS,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestLeaders);
     DEFINE_HANDLER(CMSG_CHANGE_BAG_SLOT_FLAG,                               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_CHANGE_BANK_BAG_SLOT_FLAG,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_CHANGE_MONUMENT_APPEARANCE,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
@@ -676,7 +676,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOVE_TIME_SKIPPED,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMoveTimeSkippedOpcode);
     DEFINE_HANDLER(CMSG_MOVE_UPDATE_FALL_SPEED,                             STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes);
     DEFINE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                                STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementAckMessage);
-    DEFINE_HANDLER(CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS,                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMythicPlusRequestMapStats);
+    DEFINE_HANDLER(CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMythicPlusRequestMapStats);
     DEFINE_HANDLER(CMSG_NEUTRAL_PLAYER_SELECT_FACTION,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_NEXT_CINEMATIC_CAMERA,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleNextCinematicCamera);
     DEFINE_HANDLER(CMSG_OBJECT_UPDATE_FAILED,                               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleObjectUpdateFailedOpcode);
@@ -808,8 +808,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_REQUEST_GUILD_REWARDS_LIST,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestGuildRewardsList);
     DEFINE_HANDLER(CMSG_REQUEST_LATEST_SPLASH_SCREEN,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestLatestSplashScreen);
     DEFINE_HANDLER(CMSG_REQUEST_LFG_LIST_BLACKLIST,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestLfgListBlackList);
-    DEFINE_HANDLER(CMSG_REQUEST_MYTHIC_PLUS_AFFIXES,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMythicPlusCurrentAffixes);
-    DEFINE_HANDLER(CMSG_REQUEST_MYTHIC_PLUS_SEASON_DATA,                    STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMythicPlusSeasonData);
+    DEFINE_HANDLER(CMSG_REQUEST_MYTHIC_PLUS_AFFIXES,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMythicPlusCurrentAffixes);
+    DEFINE_HANDLER(CMSG_REQUEST_MYTHIC_PLUS_SEASON_DATA,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMythicPlusSeasonData);
     DEFINE_HANDLER(CMSG_REQUEST_PARTY_JOIN_UPDATES,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyJoinUpdates);
     DEFINE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode);
     DEFINE_HANDLER(CMSG_REQUEST_PET_INFO,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPetInfo);

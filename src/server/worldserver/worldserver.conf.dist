@@ -1033,6 +1033,15 @@ Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
 
 #
+#    Instance.ResetTimeHour
+#        Description: Hour of the day when the global instance reset occurs.
+#        Range:       0-23
+#        Default:     4 - (04:00 AM)
+
+Instance.ResetTimeHour = 4
+
+
+#
 #    Instance.UnloadDelay
 #        Description: Time (in milliseconds) before instance maps are unloaded from memory if no
 #                     characters are inside.
