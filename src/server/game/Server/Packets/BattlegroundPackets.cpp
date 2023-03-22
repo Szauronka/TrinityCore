@@ -488,3 +488,13 @@ WorldPacket const* WorldPackets::Battleground::MapObjEvents::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::SendRequestScheduledPVPInfoResponse::Write()
+{
+	_worldPacket << uint32(BrawlType);
+	_worldPacket << int32(TimeToEnd);
+	_worldPacket.FlushBits();
+	_worldPacket.WriteBit(IsActive);
+
+	return &_worldPacket;
+}

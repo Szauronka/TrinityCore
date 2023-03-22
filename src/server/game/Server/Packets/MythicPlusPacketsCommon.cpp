@@ -162,7 +162,7 @@ namespace WorldPackets
 
         WorldPacket const* MythicPlusSeasonDataResult::Write()
         {
-            _worldPacket << uint32(IsMythicPlusActive);
+            _worldPacket << IsMythicPlusActive;
 
             return &_worldPacket;
         }

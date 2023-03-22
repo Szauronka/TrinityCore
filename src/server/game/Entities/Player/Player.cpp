@@ -29636,6 +29636,7 @@ void Player::ResetChallengeKey()
     m_challengeKeyInfo.Affix = 0;
     m_challengeKeyInfo.Affix1 = 0;
     m_challengeKeyInfo.Affix2 = 0;
+    m_challengeKeyInfo.Affix3 = 0;
     m_challengeKeyInfo.KeyIsCharded = 1;
     m_challengeKeyInfo.InstanceID = 0;
 }
@@ -29857,21 +29858,21 @@ void Player::_LoadChallengesAffix()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u challenges affix definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} challenges affix definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else if (sConfigMgr->GetIntDefault("KeyStoneAffix.Status", 0) == 1)
     {
         m_ChallengeAffix.affix_1 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix1", 0);
         m_ChallengeAffix.affix_2 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix2", 0);
         m_ChallengeAffix.affix_3 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix3", 0);
-        TC_LOG_INFO("server.loading", ">> Loaded config challenges affix definitions in %u ms", GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded config challenges affix definitions in {} ms", GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {
         m_ChallengeAffix.affix_1 = sChallengeModeMgr->GetRandomChallengeAffixId(1, 4);
         m_ChallengeAffix.affix_2 = sChallengeModeMgr->GetRandomChallengeAffixId(2, 7);
         m_ChallengeAffix.affix_3 = sChallengeModeMgr->GetRandomChallengeAffixId(3, 10);
-        TC_LOG_INFO("server.loading", ">> Loaded random challenges affix definitions in %u ms", GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded random challenges affix definitions in {} ms", GetMSTimeDiffToNow(oldMSTime));
     }
     if (m_ChallengeAffix.affix_1 == 0)
         m_ChallengeAffix.affix_1 = sChallengeModeMgr->GetRandomChallengeAffixId(1, 4);

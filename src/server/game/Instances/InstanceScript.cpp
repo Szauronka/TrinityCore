@@ -853,7 +853,7 @@ void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
     values.AddSpellMod(SPELLVALUE_BASE_POINT9, (HasAffix(Affixes::Fortified) && !isDungeonBoss) ? 1 : 0); // 10 Fortified 
     values.AddSpellMod(SPELLVALUE_BASE_POINT10, HasAffix(Affixes::Sanguine) ? 1 : 0); // 8 Sanguine 
     values.AddSpellMod(SPELLVALUE_BASE_POINT11, HasAffix(Affixes::Quaking) ? 1 : 0); // 14 Quaking 
-    values.AddSpellMod(SPELLVALUE_BASE_POINT12, HasAffix(Affixes::FelExplosives) ? 1 : 0); // 13 Explosive 
+    values.AddSpellMod(SPELLVALUE_BASE_POINT12, HasAffix(Affixes::Explosive) ? 1 : 0); // 13 Explosive 
     values.AddSpellMod(SPELLVALUE_BASE_POINT13, HasAffix(Affixes::Bursting) ? 1 : 0); // 11 Bursting 
     //5 15
     //values.AddSpellMod(SPELLVALUE_BASE_POINT14, 0); //

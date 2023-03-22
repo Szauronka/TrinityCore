@@ -2858,6 +2858,11 @@ void World::Update(uint32 diff)
     }
 
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update LFGMgr"));
+        sLFGMgr->Update(diff);
+    }
+
+    {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update LFG"));
         sLFGMgr->Update(diff);
     }

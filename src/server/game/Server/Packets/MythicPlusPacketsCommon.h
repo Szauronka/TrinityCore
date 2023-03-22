@@ -136,7 +136,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool IsMythicPlusActive = true;
+            uint8 IsMythicPlusActive = 128;
         };
 
         class MythicPlusRequestMapStatsResult final : public ServerPacket
@@ -148,8 +148,8 @@ namespace WorldPackets
 
             uint32 RunCount = 0;
             uint32 RewardCount = 0;
-            uint32 Season = 7;
-            uint32 Subseason = 71;
+            uint32 Season = 93;
+            uint32 Subseason = 91;
 
             std::vector<MythicPlusRun> mythicPlusRuns;
             //std::vector<MythicPlusReward> mythicPlusRewards;

@@ -640,6 +640,26 @@ namespace WorldPackets
             uint32 DataSize = 0;
             std::vector<uint8> Unk2;
         };
+
+        class SendRequestScheduledPVPInfoResponse final : public ServerPacket
+        {
+        public:
+            SendRequestScheduledPVPInfoResponse() : ServerPacket(SMSG_REQUEST_SCHEDULED_PVP_INFO_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BrawlType = 0;
+            int32 TimeToEnd = 0;
+            bool IsActive = false;
+        };
+
+        class JoinRatedBattleground final : public ClientPacket
+        {
+        public:
+            JoinRatedBattleground(WorldPacket&& packet) : ClientPacket(CMSG_JOIN_RATED_BATTLEGROUND, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

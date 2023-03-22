@@ -42,7 +42,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
 
     data.WriteBits(join.GroupName.length(), 8);
     data.WriteBits(join.Comment.length(), 12);
-    data.WriteBits(join.VoiceChat.length(), 6);
+    data.WriteBits(join.VoiceChat.length(), 8);
     data.WriteBit(join.AutoAccept);
     data.WriteBit(join.PrivateGroup);
     data.WriteBit(join.minChallange);
@@ -69,7 +69,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
     bool HasQuest = data.ReadBit();
     uint32 NameLen = data.ReadBits(8);
     uint32 CommenteLen = data.ReadBits(12);
-    uint32 VoiceChateLen = data.ReadBits(6);
+    uint32 VoiceChateLen = data.ReadBits(8);
     bool minChallenge = data.ReadBit();
     join.PrivateGroup = data.ReadBit();
     join.Queued = data.ReadBit();
@@ -119,7 +119,6 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
 void WorldPackets::LfgList::LfgListInviteResponse::Read()
 {
     _worldPacket >> ApplicantTicket;
-    //_worldPacket.ResetBitReader();
     Accept = _worldPacket.ReadBit();
 }
 
@@ -177,7 +176,7 @@ void WorldPackets::LfgList::LfgListSearch::Read()
     for (auto& v : Blacklist)
     {
         _worldPacket >> v.ActivityID;
-        //_worldPacket >> v.Reason;
+        _worldPacket >> v.Reason;
     }
 
     for (auto& v : Guids)
@@ -244,7 +243,7 @@ void WorldPackets::LfgList::LfgListApplyToGroup::Read()
     _worldPacket >> application.ApplicationTicket;
     _worldPacket >> application.ActivityID;
     application.Role = _worldPacket.read<uint8>();
-    application.Comment = _worldPacket.ReadString(_worldPacket.ReadBits(8));
+    application.Comment = _worldPacket.ReadString(_worldPacket.ReadBits(12));
 }
 
 void WorldPackets::LfgList::LfgListCancelApplication::Read()
@@ -319,7 +318,7 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplicationUpdate::Write()
 
         _worldPacket.WriteBits(v.ApplicationStatus, 4);
         _worldPacket.WriteBit(v.Listed);
-        _worldPacket << (v.Comment, 8);
+        _worldPacket << (v.Comment, 12);
     }
 
     return &_worldPacket;

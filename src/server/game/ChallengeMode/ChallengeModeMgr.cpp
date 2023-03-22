@@ -621,18 +621,22 @@ uint32 ChallengeModeMgr::GetRandomChallengeId(uint32 flags/* = 4*/)
 {
     std::vector<uint32> challenges;
 
+    // Season1 Dragonflight
+    // 399 Ruby Life Pools, 402 Algeth'ar Academy , 401 The Azure Vault, 400 The Nokhud Offensive, 200 Halls of Valor, 210 Court of Stars, 165 Shadowmoon Burial Grounds, 2 Temple of the Jade Serpent
+    //
+    // Season 2 Dragonflight
+    // 406 Halls of Infusion, 405 Brackenhide Hollow, 403 Uldaman: Legacy of Tyr, 404 Neltharus, 206 Neltharion's Lair, 245 Freehold, 251 Underrot, Vortex Pinacle
     for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
         if (MapChallengeModeEntry const* challengeModeEntry = sMapChallengeModeStore.LookupEntry(i))
             if (challengeModeEntry->Flags & flags &&
-                (challengeModeEntry->ID == 244 || 
-				 challengeModeEntry->ID == 245 || 
-				 challengeModeEntry->ID == 249 ||
-				 challengeModeEntry->ID == 252 ||
-				 challengeModeEntry->ID == 353 ||
-				 challengeModeEntry->ID == 250 ||
-				 challengeModeEntry->ID == 247 ||
-				 challengeModeEntry->ID == 248 ||
-				 challengeModeEntry->ID == 246  )) // Temp fix, only doable dungeons here
+                (challengeModeEntry->ID == 399 ||
+				 challengeModeEntry->ID == 402 || 
+				 challengeModeEntry->ID == 401 ||
+				 challengeModeEntry->ID == 400 ||
+				 challengeModeEntry->ID == 200 ||
+				 challengeModeEntry->ID == 210 ||
+				 challengeModeEntry->ID == 165 ||
+				 challengeModeEntry->ID == 2  )) // Temp fix, only doable dungeons here
                         challenges.push_back(challengeModeEntry->ID);
 
         if (challenges.empty())
@@ -786,7 +790,7 @@ void ChallengeModeMgr::LoadFromDB()
 
     for (auto v : _challengeMap)
         if (v.second->member.empty())
-            CharacterDatabase.PQuery("DELETE FROM `challenge` WHERE `ID` = '%u';", v.first);
+            CharacterDatabase.PQuery("DELETE FROM `challenge` WHERE `ID` = '{}';", v.first);
 
 
     if (QueryResult result = CharacterDatabase.Query("SELECT `guid`, `chestListID`, `date`, `ChallengeLevel` FROM `challenge_oplote_loot`"))
@@ -853,20 +857,19 @@ void ChallengeModeMgr::GenerateManualAffixes()
 
 void ChallengeModeMgr::GenerateCurrentWeekAffixes()
 {
-    uint32 affixes[12][4] =
+    // Season 1 DragonFlight
+    uint32 affixes[10][4] =
     {
-        { Raging, Volcanic, Tyrannical, Reaping},
-        { Teeming, FelExplosives, Fortified, Reaping},
-        { Bolstering, Grievous, Tyrannical, Reaping},
-        { Sanguine, Volcanic, Fortified, Reaping},
-        { Bursting, Skittish, Tyrannical, Beguiling},
-        { Teeming, Quaking, Fortified, Beguiling},
-        { Raging, Necrotic, Tyrannical, Beguiling},
-        { Bolstering, Skittish, Fortified, Beguiling},
-        { Teeming, Necrotic, Tyrannical, Awakened},
-        { Sanguine, Grievous, Fortified, Awakened},
-        { Bolstering, FelExplosives, Tyrannical, Awakened},
-        { Bursting, Quaking, Fortified, Awakened},
+        { Fortified, Raging, Quaking, Thundering},
+        { Tyrannical, Bursting, Grievous, Thundering},
+        { Fortified, Sanguine, Volcanic, Thundering},
+        { Tyrannical, Raging, Storming, Thundering},
+        { Fortified, Spiteful, Grievous, Thundering},
+        { Tyrannical, Sanguine, Explosive, Thundering},
+        { Fortified, Bolstering, Storming, Thundering},
+        { Tyrannical, Spiteful, Quaking, Thundering},
+        { Fortified, Bursting, Explosive, Thundering},
+        { Tyrannical, Bolstering, Volcanic, Thundering},
     };
 
     auto weekContainer = affixes[GetActiveAffixe()];
@@ -879,7 +882,7 @@ void ChallengeModeMgr::GenerateCurrentWeekAffixes()
 
 void ChallengeModeMgr::GenerateOploteLoot(bool manual)
 {
-    //TC_LOG_ERROR("misc", "GenerateOploteLoot manual %u _challengeWeekList %u", manual, _challengeWeekList.size());
+    TC_LOG_ERROR("misc", "GenerateOploteLoot manual {} _challengeWeekList {}", manual, _challengeWeekList.size());
 
     CharacterDatabase.Query("DELETE FROM challenge_oplote_loot WHERE date <= UNIX_TIMESTAMP()");
     _oploteWeekLoot.clear();

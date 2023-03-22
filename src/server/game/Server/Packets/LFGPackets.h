@@ -18,6 +18,7 @@
 #ifndef LFGPackets_h__
 #define LFGPackets_h__
 
+#include "Battleground.h"
 #include "Packet.h"
 #include "PacketUtilities.h"
 #include "ItemPacketsCommon.h"
@@ -481,6 +482,30 @@ namespace WorldPackets
             int32 SubReason1 = 0;
             int32 SubReason2 = 0;
         };
+
+        class RequestPVPRewardsResponse final : public ServerPacket
+        {
+        public:
+            RequestPVPRewardsResponse() : ServerPacket(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            LfgPlayerQuestReward Rewards[(uint8)BattlegroundBracketType::Max];
+            LfgPlayerQuestReward RatedBGRewards;
+            LfgPlayerQuestReward ArenaSkirmishRewards;
+            LfgPlayerQuestReward ArenaRewards2v2;
+            LfgPlayerQuestReward ArenaRewards3v3;
+            LfgPlayerQuestReward BrawlRewardsBattleground;
+            LfgPlayerQuestReward BrawlRewardsArena;
+
+            bool HasWon10vs10 = false;
+            bool HasWonSkirmish = false;
+            bool HasWon2vs2 = false;
+            bool HasWon3vs3 = false;
+            bool BattlegroundBraw = false;
+            bool ArenaBraw = false;
+        };
+
     }
 }
 

@@ -69,7 +69,7 @@ enum Affixes : uint32
     Fortified = 10,
     Bursting = 11,
     Grievous = 12,
-    FelExplosives = 13,
+    Explosive = 13,
     Quaking = 14,
     Relentless = 15,
     Infested = 16,
@@ -83,6 +83,8 @@ enum Affixes : uint32
     Tormented = 128,
     Infernal = 129,
     Encrypted = 130,
+    Shrouded = 131,
+    Thundering = 132,
     MaxAffixes
 };
 

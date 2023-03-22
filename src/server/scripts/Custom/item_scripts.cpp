@@ -11,7 +11,7 @@ public:
 
     bool OnCreate(Player* player, Item* item)
     {
-        if (player->HasItemCount(158923, 1, true))
+        if (player->HasItemCount(180653, 1, true))
             player->InitChallengeKey(item);
         else
             player->CreateChallengeKey(item);
