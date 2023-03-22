@@ -36,7 +36,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Unit;
-            bool IsSoftInteract = false;
         };
 
         class LegacyLootRules final : public ServerPacket
@@ -102,6 +101,7 @@ namespace WorldPackets
             void Read() override;
 
             Array<LootRequest, 1000> Loot;
+            bool IsSoftInteract = false;
         };
 
         class MasterLootItem final : public ClientPacket
@@ -142,7 +142,9 @@ namespace WorldPackets
         public:
             LootMoney(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_MONEY, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            bool IsSoftInteract = false;
         };
 
         class LootMoneyNotify final : public ServerPacket
