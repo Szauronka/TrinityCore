@@ -596,7 +596,6 @@ struct CampaignEntry
 {
     int32 ID;
     LocalizedString Title;
-    char const* InternalTitle;
     LocalizedString Description;
     int32 UiTextureKitID;
     int32 RewardQuestID;

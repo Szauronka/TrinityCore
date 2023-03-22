@@ -865,11 +865,10 @@ struct BountySetLoadInfo
 
 struct CampaignLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[15] =
+    static constexpr DB2FieldMeta Fields[14] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Title" },
-        { false, FT_STRING_NOT_LOCALIZED, "InternalTitle" },
         { false, FT_STRING, "Description" },
         { true, FT_INT, "UiTextureKitID" },
         { true, FT_INT, "RewardQuestID" },
@@ -884,7 +883,7 @@ struct CampaignLoadInfo
         { true, FT_INT, "Field100246144013" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 15, &CampaignMeta::Instance, HOTFIX_SEL_CAMPAIGN };
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &CampaignMeta::Instance, HOTFIX_SEL_CAMPAIGN };
 };
 
 struct CampaignXConditionLoadInfo

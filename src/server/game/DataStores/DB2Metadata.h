@@ -425,7 +425,7 @@ struct AreaPOIMeta
         { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
-        { FT_INT, 1, true },
+        { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -1446,7 +1446,7 @@ struct CampaignMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2031607, -1, 13, 13, 0x7E6B8B39, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2031607, -1, 13, 14, 0x7E6B8B39, Fields, -1 };
 };
 
 struct CampaignXConditionMeta
