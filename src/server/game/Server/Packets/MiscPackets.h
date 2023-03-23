@@ -549,7 +549,9 @@ namespace WorldPackets
         public:
             EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 1) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            uint8 CustomizationScope = 0;
         };
 
         struct PhaseShiftDataPhase
