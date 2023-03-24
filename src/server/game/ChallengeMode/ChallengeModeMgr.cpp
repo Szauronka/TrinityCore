@@ -415,40 +415,6 @@ void ChallengeModeMgr::SetChallengeMapData(ObjectGuid::LowType const& ID, Challe
 
 typedef std::set<ChallengeMember> ChallengeMemberList;
 
-void ChallengeModeMgr::SendChallengeModeMapStatsUpdate(Player* player)
-{
-    MapChallengeModeEntry const* mapChallengeModeEntry = GetMapChallengeModeEntry(instances->GetId());
-    if (!mapChallengeModeEntry)
-        return;
-
-    ChallengeByMap* bestMap = BestForMember(player->GetGUID());
-    if (!bestMap)
-        return;
-
-    auto itr = bestMap->find(_mapID);
-    if (itr == bestMap->end())
-        return;
-
-    ChallengeData* best = itr->second;
-    if (!best)
-        return;
-
-    WorldPackets::MythicPlus::ChallengeModeMapStatsUpdate update;
-    update.MapId = _mapID;
-    update.BestCompletionMilliseconds = best->RecordTime;
-    update.LastCompletionMilliseconds = _challengeTimer;
-    update.ChallengeID = mapChallengeModeEntry->ID;
-    update.BestMedalDate = best->Date;
-    update.Affixes = best->Affixes;
-
-    ChallengeMemberList members = best->member;
-    for (auto const& v : members)
-        update.BestSpecID.push_back(v.specId);
-
-    if (player)
-        player->SendDirectMessage(update.Write());
-}
-
 void ChallengeModeMgr::SaveChallengeToDB(ChallengeData const* challengeData)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();

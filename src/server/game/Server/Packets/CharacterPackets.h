@@ -813,6 +813,19 @@ namespace WorldPackets
             int32 XpGainReason = 0;
             int32 XpAbortReason = 0;
         };
+
+        class UpdateCharacterFlags final : public ServerPacket
+        {
+        public:
+            UpdateCharacterFlags() : ServerPacket(SMSG_UPDATE_CHARACTER_FLAGS, 16 + 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Character;
+            Optional<uint32> Flags;
+            Optional<uint32> Flags2;
+            Optional<uint32> Flags3;
+        };
     }
 }
 

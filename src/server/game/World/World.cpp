@@ -1754,6 +1754,9 @@ void World::LoadConfigSettings(bool reload)
     // Specifies if IP addresses can be logged to the database
     m_bool_configs[CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE] = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true);
 
+    m_int_configs[CONFIG_CHALLENGE_ADD_ITEM] = sConfigMgr->GetIntDefault("Challenge.AddItem", 180653); //key id
+    m_int_configs[CONFIG_CHALLENGE_ADD_ITEM_TYPE] = sConfigMgr->GetIntDefault("Challenge.AddItemType", 1);
+    m_int_configs[CONFIG_CHALLENGE_ADD_ITEM_COUNT] = sConfigMgr->GetIntDefault("Challenge.AddItemCount", 120);
     m_int_configs[CONFIG_CHALLENGE_LEVEL_LIMIT] = sConfigMgr->GetIntDefault("Challenge.LevelLimit", 30);
     m_int_configs[CONFIG_CHALLENGE_LEVEL_MAX] = sConfigMgr->GetIntDefault("Challenge.LevelMax", 15);
     m_int_configs[CONFIG_CHALLENGE_LEVEL_STEP] = sConfigMgr->GetIntDefault("Challenge.LevelStep", 2);

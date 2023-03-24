@@ -688,5 +688,25 @@ WorldPacket const* WorldPackets::Character::XPGainAborted::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Character::UpdateCharacterFlags::Write()
+{
+	_worldPacket << Character;
+	_worldPacket.WriteBit(Flags.has_value());
+	_worldPacket.WriteBit(Flags2.has_value());
+	_worldPacket.WriteBit(Flags3.has_value());
+	_worldPacket.FlushBits();
+
+	if (Flags)
+		_worldPacket << *Flags;
+
+	if (Flags2)
+		_worldPacket << *Flags2;
+
+	if (Flags3)
+		_worldPacket << *Flags3;
+
+	return &_worldPacket;
+}
+
 }
 }

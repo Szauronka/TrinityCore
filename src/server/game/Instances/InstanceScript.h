@@ -314,10 +314,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void AddChallengeModeOrb(ObjectGuid orbGuid);
         void StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4);
         void CompleteChallengeMode();
+        void SendMythicPlusMapStatsUpdate(Player* player, uint32 challengeId, uint32 recordTime) const;
         bool IsChallengeModeStarted() const { return _challengeModeStarted; }
         uint8 GetChallengeModeId() const { return _challengeModeId; }
         uint8 GetChallengeModeLevel() const { return _challengeModeLevel; }
-        std::array<uint32, 5> GetAffixes() const;
+        std::array<uint32, 4> GetAffixes() const;
         bool HasAffix(Affixes affix);
         void DoCompleteAchievement(uint32 achievement);
         uint32 GetChallengeModeCurrentDuration() const;
@@ -492,7 +493,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         bool _challengeModeStarted;
         uint8 _challengeModeId;
         uint8 _challengeModeLevel;
-        std::array<uint32, 5> _affixes;
+        std::array<uint32, 4> _affixes;
         std::bitset<size_t(Affixes::MaxAffixes)> _affixesTest;
         uint32 _challengeModeStartTime;
         uint32 _challengeModeDeathCount;

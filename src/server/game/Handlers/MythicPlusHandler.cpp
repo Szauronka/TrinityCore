@@ -17,30 +17,58 @@ void WorldSession::HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::Myt
     SendPacket(result.Write());
 }
 
+void WorldSession::SendMythicPlusMapStatsUpdate(uint32 keyID)
+{
+    WorldPacket packet(6 * 4);
+
+    for (auto const& l_ChallengeData : _player->m_CompletedChallenges)
+    {
+        if (l_ChallengeData.first == keyID)
+        {
+            CompletedChallenge l_CompletedChallenge = l_ChallengeData.second;
+
+            packet << uint32(l_CompletedChallenge.MapID);
+            packet << uint32(l_ChallengeData.first);
+            packet << uint32(l_CompletedChallenge.BestCompletion);
+            packet << uint32(l_CompletedChallenge.LastCompletion);
+            packet << uint32(l_CompletedChallenge.Medal);
+            packet << uint32(l_CompletedChallenge.MedalDate);
+
+            uint32 l_SpecCount = 5;
+            packet << uint32(l_SpecCount);
+
+            for (uint32 I = 0; I < 3; ++I)
+                packet << uint32(0);
+
+            for (uint32 J = 0; J < l_SpecCount; ++J)
+                packet << uint16(0);    ///pecID
+        }
+    }
+
+    SendPacket(&packet);
+}
+
 void WorldSession::HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::MythicPlusCurrentAffixes& mythicPlusCurrentAffixes)
 {
     WorldPackets::MythicPlus::MythicPlusCurrentAffixesResult result;
 
-    result.Count = 5;
+    result.Count = 4;
 
-    result.Affixes[0] = 9;
-    result.Affixes[1] = 8;
-    result.Affixes[2] = 124;
-    result.Affixes[3] = 121;
-    result.Affixes[4] = 128;
+    result.Affixes[0] = 10;
+    result.Affixes[1] = 6;
+    result.Affixes[2] = 14;
+    result.Affixes[3] = 132;
 
-    result.RequiredSeason[0] = 0;
+    result.RequiredSeason[0] = 9;
     result.RequiredSeason[1] = 0;
-    result.RequiredSeason[2] = 0;
-    result.RequiredSeason[3] = 5;
-    result.RequiredSeason[4] = 6;
+    result.RequiredSeason[2] = 9;
+    result.RequiredSeason[3] = 3;
 
 
     result.Affixes[0];
     result.Affixes[1];
     result.Affixes[2];
     result.Affixes[3];
-    result.Affixes[4];
 
     SendPacket(result.Write());
 }
@@ -61,121 +89,49 @@ void WorldSession::HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChall
 
 void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChallengeMode& packet)
 {
-    //if (packet.GameObjectGUID.GetEntry() != ChallengeModeOrb)
-    //    return;
 
-    if (Item* item = _player->GetItemByEntry(180653))
+    GameObject* object = _player->GetGameObjectIfCanInteractWith(packet.GameObjectGUID, GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE);
+    if (!object)
     {
-        if (Group* group = _player->GetGroup())
-        {
-            InstanceMap* inst = _player->GetMap()->ToInstanceMap();
-            if (!inst)
-            {
-                // ChatHandler(_player).PSendSysMessage("Error: Is not a Instance Map.");
-                return;
-            }
-
-            /*   if (inst->GetSpawnMode() == DIFFICULTY_MYTHIC_KEYSTONE)
-               {
-                   ChatHandler(player).PSendSysMessage("Error: For run Mythic please rerun instance.");
-                   return;
-               }*/
-
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            {
-                Player* player = itr->GetSource();
-                if (!player || !player->IsAlive())
-                {
-                    // ChatHandler(_player).PSendSysMessage("Error: Player not found or die.");
-                    return;
-                }
-
-                if (player->IsInCombat())
-                {
-                    //  ChatHandler(_player).PSendSysMessage("Error: Player in combat.");
-                    return;
-                }
-
-                if (!player->GetMap() || player->GetMap()->ToInstanceMap() != inst)
-                {
-                    //   ChatHandler(_player).PSendSysMessage("Error: Player in group not this map.");
-                    return;
-                }
-            }
-
-            if (_player->m_challengeKeyInfo.InstanceID)
-            {
-                //  ChatHandler(_player).PSendSysMessage("Error: Key allready run in other instance.");
-                return;
-            }
-
-            if (_player->m_challengeKeyInfo.Level < 2)
-            {
-                //  ChatHandler(_player).PSendSysMessage("Error: Key is bugged.");
-                return;
-            }
-
-            /*  float x = 0.0f; float y = 0.0f; float z = 0.0f; float o = 0.0f;
-              if (!sChallengeModeMgr->GetStartPosition(_player->GetMapId(), x, y, z, o, _player->GetGUID()))
-              {
-                  ChatHandler(_player).PSendSysMessage("Error: Start position not found.");
-                  return;
-              }*/
-
-            group->m_challengeEntry = sMapChallengeModeStore.LookupEntry(_player->m_challengeKeyInfo.ID);
-            group->m_affixes.fill(0);
-
-            MapChallengeModeEntry const* challengeEntry = sDB2Manager.GetChallengeModeByMapID(_player->GetMapId());
-            if (!group->m_challengeEntry || !challengeEntry || challengeEntry->MapID != group->m_challengeEntry->MapID)
-            {
-                group->m_challengeEntry = nullptr;
-                // ChatHandler(_player).PSendSysMessage("Error: Is not this challenge.");
-                return;
-            }
-
-            group->m_challengeOwner = _player->GetGUID();
-            group->m_challengeItem = item->GetGUID();
-            group->m_challengeLevel = _player->m_challengeKeyInfo.Level;
-            //group->m_noLoot = !_player->m_challengeKeyInfo.KeyIsCharded;
-
-            if (group->m_challengeLevel > 3)
-                group->m_affixes[0] = _player->m_challengeKeyInfo.Affix;
-            if (group->m_challengeLevel > 6)
-                group->m_affixes[1] = _player->m_challengeKeyInfo.Affix1;
-            if (group->m_challengeLevel > 9)
-                group->m_affixes[2] = _player->m_challengeKeyInfo.Affix2;
-
-            // WorldPackets::Instance::ChangePlayerDifficultyResult result;
-            // result.Result = AsUnderlyingType(ChangeDifficultyResult::DIFFICULTY_CHANGE_SET_COOLDOWN_S);
-            // result.CooldownReason = 2813862382;
-           //  group->BroadcastPacket(result.Write(), true);
-
-            // WorldPackets::Instance::ChangePlayerDifficultyResult result2;
-            // result2.Result = AsUnderlyingType(ChangeDifficultyResult::DIFFICULTY_CHANGE_BY_PARTY_LEADER);
-           //  result2.InstanceMapID = _player->GetMapId();
-           //  result2.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
-
-            group->SetDungeonDifficultyID(DIFFICULTY_MYTHIC_KEYSTONE);
-
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            {
-                if (Player* player = itr->GetSource())
-                {
-                    player->SetDungeonDifficultyID(DIFFICULTY_MYTHIC_KEYSTONE);
-                    // player->SendDirectMessage(result2.Write());
-                   //  player->TeleportToChallenge(_player->GetMapId(), x, y, z, o);
-                  //   player->CastSpell(player, ChallengeSpells::ChallengersBurden, true);
-                }
-            }
-            if (GameObject* challengeOrb = ObjectAccessor::FindGameObject(packet.GameObjectGUID))
-            {
-                challengeOrb->SetGoState(GOState::GO_STATE_ACTIVE);
-                challengeOrb->SetFlag(GameObjectFlags::GO_FLAG_NODESPAWN);
-            }
-        }
-        // else
-           //  ChatHandler(player).PSendSysMessage("Error: You need group for run challenge");
+        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - {%s} not found or you can not interact with it.", packet.GameObjectGUID.ToString().c_str());
+        return;
     }
+
+    Item* key = _player->GetItemByPos(packet.Bag, packet.Slot);
+    if (!key)
+    {
+        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - item in Bag {%u} and Slot {%u} not found.", packet.Bag, packet.Slot);
+        return;
+    }
+
+    if (key->GetTemplate()->GetClass() != ITEM_CLASS_REAGENT || key->GetTemplate()->GetSubClass() != ITEM_SUBCLASS_KEYSTONE)
+    {
+        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with item {%s} which have class {%u} and subclass {%u}.",
+            key->GetGUID().ToString().c_str(),
+            key->GetTemplate()->GetClass(),
+            key->GetTemplate()->GetSubClass();
+        return;
+    }
+
+    uint32 challengeModeId = key->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
+    uint32 challengeModeLevel = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL);
+    uint32 challengeModeAffix1 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1);
+    uint32 challengeModeAffix2 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2);
+    uint32 challengeModeAffix3 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3);
+    uint32 challengeModeAffix4 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4);
+
+    MapChallengeModeEntry const* entry = sMapChallengeModeStore.LookupEntry(challengeModeId);
+    if (!entry || !challengeModeLevel || entry->MapID != _player->GetMapId())
+    {
+        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with wrong challengeModeId %u and level %u.", challengeModeId, challengeModeLevel);
+        return;
+    }
+
+    if (InstanceScript* instanceScript = _player->GetInstanceScript())
+        instanceScript->StartChallengeMode(challengeModeId, challengeModeLevel, challengeModeAffix1, challengeModeAffix2, challengeModeAffix3, challengeModeAffix4);
+
+    // Blizzard do not delete the key at challenge start, will require mort research
+    _player->DestroyItem(packet.Bag, packet.Slot, true);
 }
 
 void WorldSession::HandleRequestLeaders(WorldPackets::MythicPlus::RequestLeaders& packet)

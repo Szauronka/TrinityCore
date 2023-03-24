@@ -1163,6 +1163,7 @@ class TC_GAME_API WorldSession
         void HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChallengeMode& packet);
         void HandleMythicPlusSeasonData(WorldPackets::MythicPlus::MythicPlusSeasonData& mythicPlusSeasonData);
         void HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::MythicPlusCurrentAffixes& mythicPlusCurrentAffixes);
+        void SendMythicPlusMapStatsUpdate(uint32 keyID);
         void HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::MythicPlusRequestMapStats& mythicPlusRequestMapStats);
 
         //Item Enchantment

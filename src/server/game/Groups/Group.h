@@ -369,7 +369,7 @@ class TC_GAME_API Group
         MapChallengeModeEntry const* m_challengeEntry;
         uint32 m_challengeLevel;
         uint32 m_challengeInstanceID;
-        std::array<uint32, 5> m_affixes{};
+        std::array<uint32, 4> m_affixes{};
 
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);

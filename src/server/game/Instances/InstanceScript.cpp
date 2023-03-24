@@ -969,7 +969,7 @@ uint32 InstanceScript::GetChallengeModeCurrentDuration() const
     return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
 }
 
-std::array<uint32, 5> InstanceScript::GetAffixes() const
+std::array<uint32, 4> InstanceScript::GetAffixes() const
 {
     return _affixes;
 }
@@ -992,6 +992,31 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
         {
             player->CompletedAchievement(achievementEntry);
         });
+}
+
+void InstanceScript::SendMythicPlusMapStatsUpdate(Player* player, uint32 challengeId, uint32 recordTime) const
+{
+    ChallengeByMap* bestMap = sChallengeModeMgr->BestForMember(player->GetGUID());
+    if (!bestMap)
+        return;
+
+    auto itr = bestMap->find(instance->GetId());
+    if (itr == bestMap->end())
+        return;
+
+    ChallengeData* best = itr->second;
+    if (!best)
+        return;
+
+    WorldPackets::MythicPlus::NewPlayerRecord update;
+    update.MapID = instance->GetId();
+    update.CompletionMilliseconds = best->RecordTime;
+    update.ChallengeLevel = challengeId;
+
+    ChallengeMemberList members = best->member;
+
+    if (player)
+        player->SendDirectMessage(update.Write());
 }
 
 void InstanceScript::CompleteChallengeMode()
@@ -1085,7 +1110,7 @@ void InstanceScript::CompleteChallengeMode()
     }
 
     SendChallengeModeMapStatsUpdate(player, challengeData->ChallengeID, challengeData->RecordTime);
-    //  player->GetSession()->SendChallengeModeMapStatsUpdate(mapChallengeModeEntry->ID);
+    player->GetSession()->SendMythicPlusMapStatsUpdate(mapChallengeModeEntry->ID);
 
     player->UpdateCriteria(CriteriaType::CompleteChallengeMode, instance->GetId(), _challengeModeLevel);
 

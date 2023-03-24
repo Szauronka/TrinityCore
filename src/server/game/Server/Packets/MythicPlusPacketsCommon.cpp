@@ -155,9 +155,10 @@ namespace WorldPackets
 
         void WorldPackets::MythicPlus::StartChallengeMode::Read()
         {
-            _worldPacket >> IsKeyCharged;
-            _worldPacket >> UnkInt;
             _worldPacket >> GameObjectGUID;
+            _worldPacket >> Bag;
+            _worldPacket >> Slot;
+            _worldPacket >> IsKeyCharged;
         }
 
         WorldPacket const* MythicPlusSeasonDataResult::Write()
@@ -203,20 +204,6 @@ namespace WorldPackets
 
             _worldPacket << (uint8)Energized;
             _worldPacket.FlushBits();
-
-            return &_worldPacket;
-        }
-
-        WorldPacket const* WorldPackets::MythicPlus::ChallengeModeMapStatsUpdate::Write()
-        {
-            _worldPacket << MapId;
-            _worldPacket << BestCompletionMilliseconds;
-            _worldPacket << LastCompletionMilliseconds;
-            _worldPacket << CompletedChallengeLevel;
-            _worldPacket << ChallengeID;
-            _worldPacket << BestMedalDate;
-            _worldPacket << BestSpecID[0];
-            _worldPacket << Affixes[4];
 
             return &_worldPacket;
         }
@@ -302,5 +289,19 @@ namespace WorldPackets
 
             return &_worldPacket;
         }
-    }
+
+        WorldPacket const* Rewards::Write()
+        {
+            _worldPacket << static_cast<uint32>(MapChallengeModeRewards.size());
+            _worldPacket << static_cast<uint32>(ItemRewards.size());
+
+            // for (auto const& map : MapChallengeModeRewards)
+           //      _worldPacket << map;
+
+            // for (auto const& item : ItemRewards)
+             //    _worldPacket << item;
+
+            return &_worldPacket;
+        }
+}
 }

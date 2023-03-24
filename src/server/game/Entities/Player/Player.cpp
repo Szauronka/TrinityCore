@@ -18899,6 +18899,8 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     }
                 }
             }
+            if (!InitChallengeKey(item))
+                remove = true;
         }
         else
         {

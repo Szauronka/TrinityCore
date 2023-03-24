@@ -792,7 +792,7 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
 
 void WorldPackets::Misc::QueryCountdownTimer::Read()
 {
-	uint32(Type) = _worldPacket.read<uint32>();
+	_worldPacket.read<uint32>(Type);
 }
 
 WorldPacket const* WorldPackets::Misc::OpenContainer::Write()
