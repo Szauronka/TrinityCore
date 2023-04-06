@@ -174,6 +174,39 @@ struct BattlegroundPlayer
     bool Mercenary;
 };
 
+enum BrawlInfoId
+{
+    BrawlTest = 1,
+    BrawlTarrenMill = 2,
+    BrawlTempleofHotmogu = 3,
+    BrawlGravityLapse = 4,
+    BrawlArathiBlizzard = 5,
+    BrawlDeepwindDunk = 6,
+    BrawlEyeoftheHorn = 7,
+    BrawlPackedHouse = 8,
+    BrawlWarsong = 9,
+    BrawlShadoPan = 10,
+    BrawlDeepSix6v6Battlegrounds = 11,
+    BrawlDeepSixTheBattleforGilneas = 12,
+    BrawlDeepSixWarsongGulch = 13,
+    BrawlDeepSixSilvershardMines = 14,
+    BrawlDeepSixTempleofKotmogu = 15,
+    BrawlDeepSixEyeoftheStorm = 16,
+    BrawlCookingImpossible = 17,
+    BrawlStockedHouse = 18,
+    SeethingShore = 19,
+    BrawlClassicAshran = 120,
+    BrawlCompStomp = 121,
+    Wintergrasp = 122,
+    BrawlTeemingIsland = 123,
+    KorraksRevenge = 124,
+    DeepwindGorge = 125,
+    BrawlKorrakRevenge = 126,
+    SoloShuffle = 127,
+    SoloShuffleEnigmaArena = 128,
+    BrawlDeepwindDetonation = 129,
+};
+
 struct BattlegroundObjectInfo
 {
     BattlegroundObjectInfo() : object(nullptr), timer(0), spellid(0) { }

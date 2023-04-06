@@ -491,10 +491,25 @@ WorldPacket const* WorldPackets::Battleground::MapObjEvents::Write()
 
 WorldPacket const* WorldPackets::Battleground::SendRequestScheduledPVPInfoResponse::Write()
 {
-	_worldPacket << uint32(BrawlType);
-	_worldPacket << int32(TimeToEnd);
+	_worldPacket << uint32(brawlInfoId);
 	_worldPacket.FlushBits();
-	_worldPacket.WriteBit(IsActive);
+	_worldPacket.WriteBit(HasSpecialEventInfo);
+
+    if (HasSpecialEventInfo)
+    {
+        _worldPacket << specialEventInfo.size();
+    }
+
+	return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::ConquestFormulaConstants::Write()
+{
+	_worldPacket << uint32(PvpMinCPPerWeek);
+	_worldPacket << uint32(PvpMaxCPPerWeek);
+	_worldPacket << uint32(PvpCPBaseCoefficient);
+	_worldPacket << float(PvpCPExpCoefficient);
+	_worldPacket << float(PvpCPNumerator);
 
 	return &_worldPacket;
 }

@@ -14,6 +14,19 @@ void WorldSession::HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::Myt
 {
     WorldPackets::MythicPlus::MythicPlusRequestMapStatsResult result;
 
+    uint32 maps = sChallengeModeMgr->GetRandomChallengeId();
+    for (auto& mythicPlusRun : result.mythicPlusRuns)
+    {
+        mythicPlusRun.MapChallengeModeID = maps;
+    }
+
+    for (auto& mythicPlusRequest : mythicPlusRequestMapStats.dungeonScoreSeasonData)
+    {
+        mythicPlusRequest.Season = result.Season;
+    }
+
+    result.Subseason = uint32(mythicPlusRequestMapStats.SubSeason = 91);
+
     SendPacket(result.Write());
 }
 

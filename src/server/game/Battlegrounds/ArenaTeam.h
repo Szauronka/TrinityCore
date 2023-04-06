@@ -106,6 +106,12 @@ struct ArenaTeamStats
     uint32 Rank;
 };
 
+const float g_PvpMinCPPerWeek = 1500.f;
+const float g_PvpMaxCPPerWeek = 3000.f;
+const float g_PvpCPNumerator = 1511.26f;
+const float g_PvpCPBaseCoefficient = 1639.28f;
+const float g_PvpCPExpCoefficient = 0.00412f;
+
 #define MAX_ARENA_SLOT 3                                    // 0..2 slots
 
 class TC_GAME_API ArenaTeam

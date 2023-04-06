@@ -111,6 +111,9 @@ namespace WorldPackets
             MythicPlusRequestMapStats(WorldPacket&& packet) : ClientPacket(CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS, std::move(packet)) { }//15
 
             void Read() override;
+
+            std::vector< DungeonScoreSeasonData> dungeonScoreSeasonData;
+            uint32 SubSeason = 91;
         };
 
         class MythicPlusCurrentAffixes final : public ClientPacket
@@ -149,10 +152,8 @@ namespace WorldPackets
             uint32 RunCount = 0;
             uint32 RewardCount = 0;
             uint32 Season = 9;
-            uint32 Subseason = 93;
-
+            uint32 Subseason = 0;
             std::vector<MythicPlusRun> mythicPlusRuns;
-            //std::vector<MythicPlusReward> mythicPlusRewards;
         };
 
         class MythicPlusCurrentAffixesResult final : public ServerPacket

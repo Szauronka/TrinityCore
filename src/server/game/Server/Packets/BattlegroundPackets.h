@@ -18,6 +18,7 @@
 #ifndef BattlegroundPackets_h__
 #define BattlegroundPackets_h__
 
+#include "Battleground.h"
 #include "Packet.h"
 #include "LFGPacketsCommon.h"
 #include "ObjectGuid.h"
@@ -648,15 +649,53 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 BrawlType = 0;
+            struct SpecialEventInfo
+            {
+                uint32 PvpBrawlID = 0;
+                uint32 AchievementID = 0;
+                bool CanQueue = false;
+            };
+
+            BrawlInfoId brawlInfoId;
             int32 TimeToEnd = 0;
-            bool IsActive = false;
+            bool HasSpecialEventInfo = false;
+            std::vector<SpecialEventInfo> specialEventInfo;
+        };
+
+        class ConquestFormulaConstants final : public ServerPacket
+        {
+        public:
+            ConquestFormulaConstants() : ServerPacket(SMSG_CONQUEST_FORMULA_CONSTANTS, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 PvpMinCPPerWeek = 0;
+            uint32 PvpMaxCPPerWeek = 0;
+            float PvpCPBaseCoefficient = 0.0f;
+            float PvpCPExpCoefficient = 0.0f;
+            float PvpCPNumerator = 0.0f;
         };
 
         class JoinRatedBattleground final : public ClientPacket
         {
         public:
             JoinRatedBattleground(WorldPacket&& packet) : ClientPacket(CMSG_JOIN_RATED_BATTLEGROUND, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestScheduledPVPInfo final : public ClientPacket
+        {
+        public:
+            RequestScheduledPVPInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_SCHEDULED_PVP_INFO, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestConquestFormulaConstants final : public ClientPacket
+        {
+        public:
+            RequestConquestFormulaConstants(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS, std::move(packet)) { }
 
             void Read() override { }
         };

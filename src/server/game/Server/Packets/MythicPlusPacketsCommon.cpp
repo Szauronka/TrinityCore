@@ -127,15 +127,34 @@ namespace WorldPackets
             return data;
         }
 
+        void WorldPackets::MythicPlus::MythicPlusRequestMapStats::Read()
+        {
+            _worldPacket.ReadBits(dungeonScoreSeasonData.size());
+            _worldPacket >> SubSeason;
+        }
+
         WorldPacket const* MythicPlusRequestMapStatsResult::Write()
         {
-            _worldPacket << uint32(mythicPlusRuns.size());
+            _worldPacket << uint32(RunCount);
             _worldPacket << uint32(RewardCount);
             _worldPacket << int32(Season);
             _worldPacket << int32(Subseason);
+            _worldPacket << uint32(mythicPlusRuns.size());
+            _worldPacket.FlushBits();
 
             for (MythicPlusRun mythicPlusRun : mythicPlusRuns)
-                _worldPacket << mythicPlusRun;
+            {
+                _worldPacket << mythicPlusRun.Completed;
+                _worldPacket << mythicPlusRun.CompletionDate;
+                _worldPacket << mythicPlusRun.DurationMs;
+                _worldPacket << mythicPlusRun.KeystoneAffixIDs.size();
+                _worldPacket << mythicPlusRun.Level;
+                _worldPacket << mythicPlusRun.MapChallengeModeID;
+                _worldPacket << mythicPlusRun.Members.size();
+                _worldPacket << mythicPlusRun.RunScore;
+                _worldPacket << mythicPlusRun.Season;
+                _worldPacket << mythicPlusRun.StartDate;
+            }
 
             return &_worldPacket;
         }
@@ -266,11 +285,6 @@ namespace WorldPackets
             }
 
             return data;
-        }
-
-
-        void WorldPackets::MythicPlus::MythicPlusRequestMapStats::Read()
-        {
         }
 
         void WorldPackets::MythicPlus::MythicPlusCurrentAffixes::Read()
