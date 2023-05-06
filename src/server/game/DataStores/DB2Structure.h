@@ -756,6 +756,7 @@ struct ChrCustomizationChoiceEntry
     uint16 UiOrderIndex;
     int32 Flags;
     int32 AddedInPatch;
+    int32 SoundKitID;
     std::array<int32, 2> SwatchColor;
 };
 
@@ -781,6 +782,7 @@ struct ChrCustomizationElementEntry
     int32 ChrCustomizationDisplayInfoID;
     int32 ChrCustItemGeoModifyID;
     int32 ChrCustomizationVoiceID;
+    int32 AnimKitID;
 };
 
 struct ChrCustomizationOptionEntry
@@ -965,6 +967,7 @@ struct ContentTuningEntry
     int32 TargetLevelMin;
     int32 TargetLevelMax;
     int32 MinItemLevel;
+    float QuestXpMultiplier;
 
     EnumFlag<ContentTuningFlag> GetFlags() const { return static_cast<ContentTuningFlag>(Flags); }
 
@@ -1459,7 +1462,7 @@ struct CurvePointEntry
     DBCPosition2D Pos;
     DBCPosition2D PreSLSquishPos;
     uint32 ID;
-    uint16 CurveID;
+    int32 CurveID;
     uint8 OrderIndex;
 };
 
@@ -2239,6 +2242,8 @@ struct ItemBonusTreeNodeEntry
     uint16 ChildItemLevelSelectorID;
     int32 ChildItemBonusListGroupID;
     int32 IblGroupPointsModSetID;
+    int32 Unknown1010_1;
+    int32 Unknown1010_2;
     uint32 ParentItemBonusTreeID;
 };
 
@@ -2961,6 +2966,7 @@ struct MovieEntry
     uint8 KeyID;
     uint32 AudioFileDataID;
     uint32 SubtitleFileDataID;
+    int32 SubtitleFileFormat;
 };
 
 struct NameGenEntry
@@ -4440,8 +4446,8 @@ struct UiMapEntry
     uint32 ID;
     int32 ParentUiMapID;
     int32 Flags;
-    uint32 System;
-    uint32 Type;
+    uint8 System;
+    uint8 Type;
     int32 BountySetID;
     uint32 BountyDisplayLocation;
     int32 VisibilityPlayerConditionID;
@@ -4549,7 +4555,7 @@ struct VehicleEntry
 {
     uint32 ID;
     int32 Flags;
-    uint8 FlagsB;
+    int32 FlagsB;
     float TurnSpeed;
     float PitchSpeed;
     float PitchMin;
