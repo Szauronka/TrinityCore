@@ -3312,7 +3312,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         public:
             struct ChallengeKeyInfo
             {
-                ChallengeKeyInfo() : InstanceID(0), timeReset(0), ID(0), Level(2), Affix(0), Affix1(0), Affix2(0), Affix3(0), KeyIsCharded(1), needSave(false), needUpdate(false) { }
+                ChallengeKeyInfo() : InstanceID(0), timeReset(0), ID(0), Level(2), Affix(0), Affix1(0), Affix2(0), Affix3(0), Affix4(0), KeyIsCharded(1), needSave(false), needUpdate(false) { }
 
                 bool IsActive() { return ID != 0; }
 
@@ -3326,7 +3326,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                 uint8 Affix2 = 0;
                 uint8 Affix3 = 0;
                 uint8 Affix4 = 0;
-                uint8 Affix5 = 0;
                 uint8 KeyIsCharded = 0;
                 bool needSave;
                 bool needUpdate;

@@ -217,6 +217,7 @@ namespace WorldPackets
             _worldPacket << (uint32)Affixes2;
             _worldPacket << (uint32)Affixes3;
             _worldPacket << (uint32)Affixes4;
+            _worldPacket << (uint32)Affixes5;
 
             _worldPacket << (uint32)DeathCount;
             _worldPacket << (uint32)ClientEncounterStartPlayerInfo;

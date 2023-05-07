@@ -65,12 +65,13 @@ void WorldSession::HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::Myth
 {
     WorldPackets::MythicPlus::MythicPlusCurrentAffixesResult result;
 
-    result.Count = 4;
+    result.Count = 5;
 
     result.Affixes[0] = 10;
     result.Affixes[1] = 6;
     result.Affixes[2] = 14;
     result.Affixes[3] = 132;
+    result.Affixes[4] = 0;
 
     result.RequiredSeason[0] = 9;
     result.RequiredSeason[1] = 0;
@@ -82,6 +83,7 @@ void WorldSession::HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::Myth
     result.Affixes[1];
     result.Affixes[2];
     result.Affixes[3];
+    result.Affixes[4];
 
     SendPacket(result.Write());
 }

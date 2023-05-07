@@ -95,6 +95,7 @@ enum WorldStates
     WS_CURRENT_ARTIFACT_KNOWLEDGE = 20023,                      // Current Artifact Knowledge
     WS_INVASION_POINT_RESET_TIME = 20024,                      // World quest every 2 hours reset time
     WS_CHALLENGE_AFFIXE4_RESET_TIME = 20025,                      // Challenge Affixe 4
+    WS_CHALLENGE_AFFIXE5_RESET_TIME = 20026,
     // Cata specific custom worldstates
     WS_GUILD_WEEKLY_RESET_TIME = 20050,                     // Next guild week reset time
 };

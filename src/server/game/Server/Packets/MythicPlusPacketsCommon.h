@@ -69,7 +69,7 @@ namespace WorldPackets
             int32 Season = 0;
             std::vector<MythicPlusMember> Members;
             float RunScore = 0.0f;
-            std::array<int32, 4> KeystoneAffixIDs;
+            std::array<int32, 5> KeystoneAffixIDs;
         };
 
         struct DungeonScoreBestRunForAffix
@@ -164,8 +164,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Count = 0;
-            std::array<uint32, 4> Affixes;//Length: 44
-            std::array<uint32, 4> RequiredSeason;
+            std::array<uint32, 5> Affixes{ 0, 0, 0, 0 };
+            std::array<uint32, 4> RequiredSeason{ 0, 0, 0, 0 };
         };
 
         class ResetChallengeMode final : public ClientPacket
@@ -216,7 +216,7 @@ namespace WorldPackets
         class Start final : public ServerPacket
         {
         public:
-            Start() : ServerPacket(SMSG_CHALLENGE_MODE_START, 33) { }
+            Start() : ServerPacket(SMSG_CHALLENGE_MODE_START) { }
 
             WorldPacket const* Write() override;
 
@@ -229,6 +229,7 @@ namespace WorldPackets
             uint32 Affixes2 = 0;
             uint32 Affixes3 = 0;
             uint32 Affixes4 = 0;
+            uint32 Affixes5 = 0;
 
             uint32 ClientEncounterStartPlayerInfo = 0;
 
