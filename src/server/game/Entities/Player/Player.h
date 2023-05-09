@@ -1166,6 +1166,7 @@ private:
 uint32 constexpr PLAYER_MAX_HONOR_LEVEL = 500;
 uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 10;
 uint32 constexpr SPELL_PVP_RULES_ENABLED = 134735;
+float constexpr MAX_AREA_SPIRIT_HEALER_RANGE = 20.0f;
 
 enum class ZonePVPTypeOverride : uint32
 {
@@ -2948,6 +2949,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
+        void SetAreaSpiritHealer(Creature* creature);
+        ObjectGuid const& GetSpiritHealerGUID() const { return _areaSpiritHealerGUID; }
+        bool CanAcceptAreaSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _areaSpiritHealerGUID; }
+        void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
+        void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3309,6 +3316,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;
+
         public:
             struct ChallengeKeyInfo
             {
@@ -3331,6 +3339,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                 bool needUpdate;
             };
             ChallengeKeyInfo m_challengeKeyInfo;
+
+        ObjectGuid _areaSpiritHealerGUID;
+
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);
