@@ -471,6 +471,7 @@ public:
     std::vector<JournalEncounterItemEntry const*> const* GetJournalItemsByEncounter(uint32 encounterId);
     std::vector<JournalEncounterEntry const*> const* GetJournalEncounterByJournalInstanceId(uint32 instanceId);
     JournalTierEntry const* GetJournalTier(uint32 index) const;
+    double GetChallngeWeight(uint32 mapID);
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);
@@ -526,10 +527,8 @@ public:
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
 
     std::vector<QuestLineXQuestEntry const*> const* GetQuestsOrderForQuestLine(uint32 questLineId) const;
-
-    std::vector<uint32> GetChallngeMaps();
-    std::vector<double> GetChallngesWeight();
-
+    std::vector<uint32> GetChallengeMaps();
+    std::vector<double> GetChallengesWeight();
 	MapChallengeModeEntry const* GetChallengeModeByMapID(uint32 mapID);
 
 private:

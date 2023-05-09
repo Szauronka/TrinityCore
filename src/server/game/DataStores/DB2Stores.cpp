@@ -1350,6 +1350,16 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (JournalTierEntry const* journalTier : sJournalTierStore)
         _journalTiersByIndex.push_back(journalTier);
 
+    for (MapChallengeModeEntry const* entry : sMapChallengeModeStore)
+    {
+        _mapChallengeModeEntrybyMap[entry->MapID] = entry;
+        if (entry->Flags != 2)
+        {
+            _challengeModeMaps.emplace_back(entry->ID);
+            _challengeWeightMaps.emplace_back(GetChallngeWeight(entry->MapID));
+        }
+    }
+
     for (GroupFinderActivityEntry const* activities : sGroupFinderActivityStore)
         _groupFinderActivity.push_back(activities);
 
@@ -2801,6 +2811,52 @@ JournalTierEntry const* DB2Manager::GetJournalTier(uint32 index) const
     return nullptr;
 }
 
+double DB2Manager::GetChallngeWeight(uint32 mapID)
+{
+    if (sWorld->getBoolConfig(CONFIG_ARGUSWOW_ENABLE))
+    {
+        switch (sWorld->getIntConfig(CONFIG_DUNGEON_ACTIVE_STEP))
+        {
+        case 0: // Disable all dungeons           
+        case 1: // step 8.3
+            switch (mapID)
+            {
+            case 2290: //Mist of tirna scithe    
+            case 2286: //Necrotic wake             
+            case 2291: //De other side     
+            case 2287: //Halls of atonement
+            case 2289: //plaguefall
+            case 2284: //sanguine depths
+            case 2285: //spires of ascension
+            case 2293: // Theater of pain
+            case 2441: // Tazavesh     
+                return 0.0;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    switch (mapID)
+    {
+    case 2290: //Mist of tirna scithe   
+        return 10.0;
+    case 2286: //Necrotic wake             
+    case 2291: //De other side     
+    case 2287: //Halls of atonement
+        return 8.5;
+    case 2289: //plaguefall
+    case 2284: //sanguine depths
+    case 2285: //spires of ascension
+        return 7.5;
+    case 2293: // Theater of pain
+    case 2441: // Tazavesh     
+        return 6.5;
+    }
+    return 0.0;
+}
+
 LFGDungeonsEntry const* DB2Manager::GetLfgDungeon(uint32 mapId, Difficulty difficulty)
 {
     for (LFGDungeonsEntry const* dungeon : sLFGDungeonsStore)
@@ -3630,12 +3686,12 @@ std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsOrderForQue
     return nullptr;
 }
 
-std::vector<uint32> DB2Manager::GetChallngeMaps()
+std::vector<uint32> DB2Manager::GetChallengeMaps()
 {
     return _challengeModeMaps;
 }
 
-std::vector<double> DB2Manager::GetChallngesWeight()
+std::vector<double> DB2Manager::GetChallengesWeight()
 {
     return _challengeWeightMaps;
 }

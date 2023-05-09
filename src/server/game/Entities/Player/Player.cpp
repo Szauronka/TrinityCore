@@ -29644,6 +29644,9 @@ void Player::UpdateChallengeKey(Item* item)
 
 void Player::CreateChallengeKey(Item* item)
 {
+    std::vector<double> challengeWeight = sDB2Manager.GetChallengesWeight();
+    std::vector<uint32> challengeMap = sDB2Manager.GetChallengeMaps();
+
     if (!m_challengeKeyInfo.IsActive())
         m_challengeKeyInfo.needSave = true;
     else
@@ -29654,9 +29657,9 @@ void Player::CreateChallengeKey(Item* item)
     sWorld->getNextChallengeKeyReset();
 
     if (sWorld->getIntConfig(CONFIG_WEIGHTED_MYTHIC_KEYSTONE))
-        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, *Trinity::Containers::SelectRandomWeightedContainerElement(sDB2Manager.GetChallngeMaps(), sDB2Manager.GetChallngesWeight()));
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, *Trinity::Containers::SelectRandomWeightedContainerElement(challengeMap, std::span(challengeWeight)));
     else
-        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, Trinity::Containers::SelectRandomContainerElement(sDB2Manager.GetChallngeMaps()));
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, Trinity::Containers::SelectRandomContainerElement(challengeMap));
 
     m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
     m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
@@ -29714,6 +29717,9 @@ void Player::ResetChallengeKey()
 
 void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel, bool runRand)
 {
+    std::vector<double> challengeWeight = sDB2Manager.GetChallengesWeight();
+    std::vector<uint32> challengeMap = sDB2Manager.GetChallengeMaps();
+
     if (challengeLevel > 2)
         challengeLevel -= 1;
 
@@ -29725,7 +29731,7 @@ void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel, bool runRand
         {
             uint16 oldID = m_challengeKeyInfo.ID;
             while (oldID == m_challengeKeyInfo.ID)
-                m_challengeKeyInfo.ID = *Trinity::Containers::SelectRandomWeightedContainerElement(sDB2Manager.GetChallngeMaps(), sDB2Manager.GetChallngesWeight());
+                m_challengeKeyInfo.ID = *Trinity::Containers::SelectRandomWeightedContainerElement(challengeMap, std::span(challengeWeight));
         }
         m_challengeKeyInfo.needUpdate = true;
         if (item)

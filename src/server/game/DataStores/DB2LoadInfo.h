@@ -4387,19 +4387,20 @@ struct QuestFactionRewardLoadInfo
 
 struct QuestPOIBlobLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[9] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "MapID" },
         { true, FT_INT, "UiMapID" },
+        { true, FT_INT, "Flags" },
         { false, FT_BYTE, "NumPoints" },
         { false, FT_INT, "QuestID" },
         { true, FT_INT, "ObjectiveIndex" },
         { true, FT_INT, "ObjectiveID" },
         { false, FT_INT, "PlayerConditionID" },
-        { false, FT_INT, "UNK_9_0_1" },
+        { false, FT_INT, "NavigationPlayerConditionID" },
     };
-    static constexpr DB2LoadInfo Instance{ Fields,9, &QuestPOIBlobMeta::Instance, HOTFIX_SEL_QUEST_POI_BLOB };
+    static constexpr DB2LoadInfo Instance{ Fields,10, &QuestPOIBlobMeta::Instance, HOTFIX_SEL_QUEST_POI_BLOB };
 };
 
 struct QuestInfoLoadInfo
