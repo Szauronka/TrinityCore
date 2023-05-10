@@ -3152,6 +3152,8 @@ struct PowerTypeEntry
     float RegenPeace;
     float RegenCombat;
     int16 Flags;
+
+    EnumFlag<PowerTypeFlags> GetFlags() const { return static_cast<PowerTypeFlags>(Flags); }
 };
 
 struct PrestigeLevelInfoEntry
