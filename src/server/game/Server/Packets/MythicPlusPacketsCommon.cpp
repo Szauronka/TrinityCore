@@ -161,7 +161,7 @@ namespace WorldPackets
 
         WorldPacket const* MythicPlusCurrentAffixesResult::Write()
         {
-            _worldPacket << uint32(Count);
+            _worldPacket << Count;
 
             for (uint32 i = 0; i < Count; ++i)
             {

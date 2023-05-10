@@ -63,6 +63,7 @@
 #include "Util.h"
 #include "World.h"
 #include <sstream>
+#include <ChallengeModeMgr.h>
 
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
@@ -1186,6 +1187,21 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             seasonInfo.CurrentArenaSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
 
         SendPacket(seasonInfo.Write());
+    }
+
+    // Send MythicSeason
+    {
+        WorldPackets::Battleground::SeasonInfo mythicseasonInfo;
+        mythicseasonInfo.MythicPlusDisplaySeasonID = sWorld->getIntConfig(CONFIG_MYTHIC_PLUS_CURRENT_SEASON);   // TODO
+
+        if (sWorld->getBoolConfig(CONFIG_ARGUSWOW_ENABLE))
+            mythicseasonInfo.MythicPlusDisplaySeasonID = sWorld->getIntConfig(CONFIG_MYTHIC_PLUS_CURRENT_SEASON);   // TODO
+
+        sChallengeModeMgr->GenerateCurrentWeekAffixes();
+        sChallengeModeMgr->GetActiveAffixe();
+        sChallengeModeMgr->LoadFromDB();
+
+        SendPacket(mythicseasonInfo.Write());
     }
 
     // send server info

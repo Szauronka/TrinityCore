@@ -165,7 +165,7 @@ namespace WorldPackets
 
             uint32 Count = 0;
             std::array<uint32, 5> Affixes{ 0, 0, 0, 0 };
-            std::array<uint32, 4> RequiredSeason{ 0, 0, 0, 0 };
+            std::array<uint32, 5> RequiredSeason{ 0, 0, 0, 0 };
         };
 
         class ResetChallengeMode final : public ClientPacket

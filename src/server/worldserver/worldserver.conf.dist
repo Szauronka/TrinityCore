@@ -3190,7 +3190,8 @@ Challenge.LevelStep = 2
 
 Dungeon.WeightedMythicKeystone.Enabled = 1
 
-#
+# MythicPlus.CurrentSeason 9 Dragonflight
+MythicPlus.CurrentSeason = 9
 ###################################################################################################
 
 ###################################################################################################
