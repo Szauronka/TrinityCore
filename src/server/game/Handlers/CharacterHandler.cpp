@@ -1197,7 +1197,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         if (sWorld->getBoolConfig(CONFIG_ARGUSWOW_ENABLE))
             mythicseasonInfo.MythicPlusDisplaySeasonID = sWorld->getIntConfig(CONFIG_MYTHIC_PLUS_CURRENT_SEASON);   // TODO
 
-        sChallengeModeMgr->GenerateCurrentWeekAffixes();
         sChallengeModeMgr->GetActiveAffixe();
         sChallengeModeMgr->LoadFromDB();
 

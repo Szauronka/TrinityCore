@@ -1764,7 +1764,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHALLENGE_LEVEL_MAX] = sConfigMgr->GetIntDefault("Challenge.LevelMax", 15);
     m_int_configs[CONFIG_CHALLENGE_LEVEL_STEP] = sConfigMgr->GetIntDefault("Challenge.LevelStep", 2);
     m_int_configs[CONFIG_WEIGHTED_MYTHIC_KEYSTONE] = sConfigMgr->GetIntDefault("Dungeon.WeightedMythicKeystone.Enabled", 1);
-    m_int_configs[CONFIG_MYTHIC_PLUS_CURRENT_SEASON] = sConfigMgr->GetIntDefault("MythicPlus.CurrentSeason", 9);
+    m_int_configs[CONFIG_MYTHIC_PLUS_CURRENT_SEASON] = sConfigMgr->GetIntDefault("MythicPlus.CurrentSeason", 19);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
