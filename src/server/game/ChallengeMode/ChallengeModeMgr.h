@@ -39,7 +39,7 @@ static const std::list<uint32> ChallengeChestList = { 252674,252677,252686,25266
 
 struct ChallengeData
 {
-    std::array<uint32, 4> Affixes;  /// key modifiers
+    std::array<uint32, 5> Affixes;  /// key modifiers
     ObjectGuid::LowType GuildID;    /// is it guild group
     ObjectGuid::LowType ID;         /// challenge id
     uint32 RecordTime;              /// time taken for complite challenge

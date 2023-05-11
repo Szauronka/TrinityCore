@@ -129,18 +129,29 @@ namespace WorldPackets
 
         void WorldPackets::MythicPlus::MythicPlusRequestMapStats::Read()
         {
-            _worldPacket.ReadBits(dungeonScoreSeasonData.size());
-            _worldPacket >> SubSeason;
+            _worldPacket >> BnetAccountGUID;
+            _worldPacket >> MapChallengeModeID;
         }
 
         WorldPacket const* MythicPlusRequestMapStatsResult::Write()
         {
-            _worldPacket << uint32(RunCount);
-            _worldPacket << uint32(RewardCount);
-            _worldPacket << int32(Season);
-            _worldPacket << int32(Subseason);
-            _worldPacket << uint32(mythicPlusRuns.size());
+            _worldPacket << RunCount;
+            _worldPacket << RewardCount;
+            _worldPacket << Season;
+            _worldPacket << Subseason;
+            _worldPacket << mythicPlusRuns.size();
+            _worldPacket << mythicPlusRewards.size();
             _worldPacket.FlushBits();
+
+            for (MythicPlusReward mythicPlusReward : mythicPlusRewards)
+            {
+                _worldPacket << mythicPlusReward.Unk1;
+                _worldPacket << mythicPlusReward.Unk2;
+                _worldPacket << mythicPlusReward.Unk3;
+                _worldPacket << mythicPlusReward.Unk4;
+                _worldPacket << mythicPlusReward.Unk5;
+                _worldPacket << mythicPlusReward.UnknownBool;
+            }
 
             for (MythicPlusRun mythicPlusRun : mythicPlusRuns)
             {
@@ -177,7 +188,6 @@ namespace WorldPackets
             _worldPacket >> GameObjectGUID;
             _worldPacket >> Bag;
             _worldPacket >> Slot;
-            _worldPacket >> IsKeyCharged;
         }
 
         WorldPacket const* MythicPlusSeasonDataResult::Write()
@@ -189,19 +199,19 @@ namespace WorldPackets
 
         WorldPacket const* WorldPackets::MythicPlus::UpdateDeathCount::Write()
         {
-            _worldPacket << (uint32)DeathCount;
+            _worldPacket << DeathCount;
 
             return &_worldPacket;
         }
 
         WorldPacket const* WorldPackets::MythicPlus::Complete::Write()
         {
-            _worldPacket << (uint32)Duration;
-            _worldPacket << (uint32)MapId;
-            _worldPacket << (uint32)ChallengeId;
-            _worldPacket << (uint32)ChallengeLevel;
+            _worldPacket << ChallengeLevel;
+            _worldPacket << MapId;
+            _worldPacket << ChallengeId;
+            _worldPacket << ChallengeLevel;
 
-            _worldPacket << (uint8)IsCompletedInTimer;
+            _worldPacket << IsCompletedInTimer;
             _worldPacket.FlushBits();
 
             return &_worldPacket;
@@ -230,10 +240,11 @@ namespace WorldPackets
 
         void WorldPackets::MythicPlus::RequestLeaders::Read()
         {
-            _worldPacket >> MapId;
             LastGuildUpdate = _worldPacket.read<uint32>();
             LastRealmUpdate = _worldPacket.read<uint32>();
+            _worldPacket >> MapId;
             _worldPacket >> ChallengeID;
+
         }
 
         WorldPacket const* WorldPackets::MythicPlus::RequestLeadersResult::Write()

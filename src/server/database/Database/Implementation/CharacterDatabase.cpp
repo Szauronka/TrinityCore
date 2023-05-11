@@ -793,9 +793,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHALLENGE_OPLOTE_LOOT, "DELETE FROM challenge_oplote_loot WHERE date <= UNIX_TIMESTAMP()", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHALLENGE_OPLOTE_LOOT_BY_GUID, "DELETE FROM challenge_oplote_loot WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHALLENGE_MEMBER, "DELETE FROM challenge_member WHERE member = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_CHALLENGE_KEY, "SELECT ID, Level, Affix, Affix1, Affix2, KeyIsCharded, timeReset, InstanceID FROM challenge_key WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_UPD_CHALLENGE_KEY, "UPDATE challenge_key SET ID = ?, Level = ?, Affix = ?, Affix1 = ?, Affix2 = ?, KeyIsCharded = ?, timeReset = ?, InstanceID = ? WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CHALLENGE_KEY, "REPLACE INTO challenge_key (ID, Level, Affix, Affix1, Affix2, KeyIsCharded, timeReset, InstanceID, guid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHALLENGE_KEY, "SELECT ID, Level, Affix, Affix1, Affix2, Affix3, Affix4, KeyIsCharded, timeReset, InstanceID FROM challenge_key WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHALLENGE_KEY, "UPDATE challenge_key SET ID = ?, Level = ?, Affix = ?, Affix1 = ?, Affix2 = ?, Affix3 = ?, Affix4 = ?, KeyIsCharded = ?, timeReset = ?, InstanceID = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHALLENGE_KEY, "REPLACE INTO challenge_key (ID, Level, Affix, Affix1, Affix2, Affix3, Affix4, KeyIsCharded, timeReset, InstanceID, guid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHALLENGE_KEY, "DELETE FROM challenge_key WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_COMPLETED_CHALLENGE, "SELECT KeyId, MapId, BestCompletion, LastCompletion, Medal, MedalDate  FROM character_completed_challenges WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_COMPLETED_CHALLENGE, "INSERT INTO character_completed_challenges (guid, KeyId, MapId, BestCompletion, LastCompletion, Medal, MedalDate) VALUE (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);

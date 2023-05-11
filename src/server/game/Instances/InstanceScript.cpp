@@ -686,7 +686,7 @@ void InstanceScript::AfterChallengeModeStarted()
     }
 }
 
-void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4)
+void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4, uint8 affix5)
 {
     _challengeModeId = modeid;
     MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntryByModeId(GetChallengeModeId());
@@ -706,6 +706,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     _affixes[1] = affix2;
     _affixes[2] = affix3;
     _affixes[3] = affix4;
+    _affixes[4] = affix5;
     for (auto const& affix : _affixes)
         _affixesTest.set(affix);
     _challengeModeStarted = true;
@@ -761,7 +762,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
         {
             CastChallengePlayerSpell(player);
     // HOOK to PLAYERSCRIPT
-    sScriptMgr->OnPlayerStartChallengeMode(player, level, _affixes[0], _affixes[1], _affixes[2]);
+    sScriptMgr->OnPlayerStartChallengeMode(player, level, _affixes[0], _affixes[1], _affixes[2], _affixes[3], _affixes[4]);
         });
 
     AddTimedDelayedOperation(10000, [this]()
@@ -982,7 +983,7 @@ uint32 InstanceScript::GetChallengeModeCurrentDuration() const
     return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
 }
 
-std::array<uint32, 4> InstanceScript::GetAffixes() const
+std::array<uint32, 5> InstanceScript::GetAffixes() const
 {
     return _affixes;
 }
@@ -1049,7 +1050,7 @@ void InstanceScript::CompleteChallengeMode()
         });
 
     WorldPackets::MythicPlus::Complete complete;
-    complete.Duration = totalDuration;
+    complete.CompletionMilliseconds = totalDuration;
     complete.MapId = instance->GetId();
     complete.ChallengeId = mapChallengeModeEntry->ID;
     complete.ChallengeLevel = _challengeModeLevel + mythicIncrement;

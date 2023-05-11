@@ -1630,6 +1630,16 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     return tmpscript->OnQuestAccept(player, item, quest);
 }
 
+bool ScriptMgr::OnCreate(Player* player, Item* item)
+{
+    ASSERT(player);
+    ASSERT(item);
+
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
+    //
+    return tmpscript->OnCreate(player, item);
+}
+
 bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId)
 {
     ASSERT(player);
@@ -2269,9 +2279,9 @@ void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lin
 }
 
 //Challenge
-void ScriptMgr::OnPlayerStartChallengeMode(Player* player, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3)
+void ScriptMgr::OnPlayerStartChallengeMode(Player* player, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4, uint8 affix5)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnStartChallengeMode(player, level, affix1, affix2, affix3);
+    FOREACH_SCRIPT(PlayerScript)->OnStartChallengeMode(player, level, affix1, affix2, affix3, affix4, affix5);
 }
 
 // Scene
@@ -2568,6 +2578,11 @@ ItemScript::ItemScript(char const* name)
 ItemScript::~ItemScript() = default;
 
 bool ItemScript::OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/)
+{
+    return false;
+}
+
+bool ItemScript::OnCreate(Player* /*player*/, Item* /*item*/)
 {
     return false;
 }

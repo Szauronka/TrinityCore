@@ -20,12 +20,14 @@ void WorldSession::HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::Myt
         mythicPlusRun.MapChallengeModeID = maps;
     }
 
-    for (auto& mythicPlusRequest : mythicPlusRequestMapStats.dungeonScoreSeasonData)
+    for (auto& mythicPlusMembers : result.mythicPlusRuns)
     {
-        mythicPlusRequest.Season = result.Season;
+        mythicPlusMembers.Members.size();
+        for (auto& member : mythicPlusMembers.Members)
+        {
+            member.BnetAccountGUID = GetPlayer()->GetGUID();
+        }
     }
-
-    result.Subseason = uint32(mythicPlusRequestMapStats.SubSeason = 91);
 
     SendPacket(result.Write());
 }
@@ -77,6 +79,7 @@ void WorldSession::HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::Myth
     result.RequiredSeason[1] = 0;
     result.RequiredSeason[2] = 9;
     result.RequiredSeason[3] = 3;
+    result.RequiredSeason[4] = 0;
 
 
     result.Affixes[0];
@@ -134,6 +137,7 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     uint32 challengeModeAffix2 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2);
     uint32 challengeModeAffix3 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3);
     uint32 challengeModeAffix4 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4);
+    uint32 challengeModeAffix5 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4);
 
     MapChallengeModeEntry const* entry = sMapChallengeModeStore.LookupEntry(challengeModeId);
     if (!entry || !challengeModeLevel || entry->MapID != _player->GetMapId())
@@ -143,7 +147,7 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     }
 
     if (InstanceScript* instanceScript = _player->GetInstanceScript())
-        instanceScript->StartChallengeMode(challengeModeId, challengeModeLevel, challengeModeAffix1, challengeModeAffix2, challengeModeAffix3, challengeModeAffix4);
+        instanceScript->StartChallengeMode(challengeModeId, challengeModeLevel, challengeModeAffix1, challengeModeAffix2, challengeModeAffix3, challengeModeAffix4, challengeModeAffix5);
 
     // Blizzard do not delete the key at challenge start, will require mort research
     _player->DestroyItem(packet.Bag, packet.Slot, true);

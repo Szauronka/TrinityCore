@@ -101,6 +101,16 @@ namespace WorldPackets
             int32 TotalRuns = 0;
         };
 
+        struct MythicPlusReward
+        {
+            uint32 Unk1;
+            uint32 Unk2;
+            uint64 Unk3;
+            uint64 Unk4;
+            uint64 Unk5;
+            bool UnknownBool;
+        };
+
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSummary const& dungeonScoreSummary);
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreData const& dungeonScoreData);
 
@@ -112,8 +122,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector< DungeonScoreSeasonData> dungeonScoreSeasonData;
-            uint32 SubSeason = 91;
+            ObjectGuid BnetAccountGUID;
+            int64 MapChallengeModeID = 0;
         };
 
         class MythicPlusCurrentAffixes final : public ClientPacket
@@ -130,6 +140,7 @@ namespace WorldPackets
             MythicPlusSeasonData(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_MYTHIC_PLUS_SEASON_DATA, std::move(packet)) { }
 
             void Read() override;
+
         };
 
         class MythicPlusSeasonDataResult final : public ServerPacket
@@ -154,6 +165,7 @@ namespace WorldPackets
             uint32 Season = 9;
             uint32 Subseason = 0;
             std::vector<MythicPlusRun> mythicPlusRuns;
+            std::vector<MythicPlusReward> mythicPlusRewards;
         };
 
         class MythicPlusCurrentAffixesResult final : public ServerPacket
@@ -186,7 +198,6 @@ namespace WorldPackets
             ObjectGuid GameObjectGUID;
             uint8 Bag = 0;
             uint32 Slot = 0;
-            uint8 IsKeyCharged = 128;
         };
 
         class UpdateDeathCount final : public ServerPacket
@@ -206,10 +217,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Duration = 0;
             uint32 MapId = 0;
-            uint32 ChallengeId = 0;
+            uint32 CompletionMilliseconds = 0;
             uint32 ChallengeLevel = 0;
+            uint32 ChallengeId = 0;
             uint8 IsCompletedInTimer = 128;
         };
 
@@ -243,10 +254,10 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 MapId = 0;
-            uint32 ChallengeID = 0;
             time_t LastGuildUpdate = time(nullptr);
             time_t LastRealmUpdate = time(nullptr);
+            uint32 MapId = 0;
+            uint32 ChallengeID = 0;
         };
 
         struct ModeAttempt

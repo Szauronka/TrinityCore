@@ -211,6 +211,14 @@ uint32 ChallengeModeMgr::GetBigCAForLoot(ChallengeModeMgr* const challenge, uint
         // Greater Dungeons
         return 147810; // Greater Adept's Spoils
     }
+    case 2516: // The Nokhud Offensive
+    case 2515: // The Azure Vault
+    case 960: // Temple Of The Jade Serpent
+    case 1176: // Shadowmoon Burial Grounds
+    case 2521: // Ruby Life Pools
+    case 1477: // Halls Of Valor
+    case 1571: // Court of Stars
+    case 2526: // Algeth'ar Academy
     default:
         break;
     }
@@ -375,6 +383,16 @@ bool ChallengeModeMgr::IsChest(uint32 goEntry)
     case 290759: // The Underrot
     case 290761: // Shrine of the Storm
     case 282735: // Freehold
+    case 381955: // Ruby Life Pools
+    case 381946: // The Azure Vault
+    case 381966: // The Nokhud Offensive
+    case 381972: // Temple of the Jade Serpent
+    case 381971: // Shadowmoon Burial Grounds
+    case 381969: // Halls Of Valor
+    case 252062: // Halls Of Valor Superior
+    case 381970: // Court Of Stars
+    case 252687: // Court Of Stars Superior
+    case 252688: // Court Of Stars Peerless
          return true;
     default:
         break;

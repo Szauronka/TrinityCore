@@ -386,6 +386,8 @@ class TC_GAME_API ItemScript : public ScriptObject
         // Called when a player accepts a quest from the item.
         virtual bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
 
+        virtual bool OnCreate(Player* player, Item* item);
+
         // Called when a player uses the item.
         virtual bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId);
 
@@ -731,7 +733,7 @@ class TC_GAME_API PlayerScript : public ScriptObject
         virtual void OnReputationChange(Player* player, uint32 factionId, int32& standing, bool incremental);
 
         //Called when a player Start ChallengeMode
-        virtual void OnStartChallengeMode(Player* /*player*/, uint8 /*level*/, uint8 /*affix1*/, uint8 /*affix2*/, uint8 /*affix3*/) { }
+        virtual void OnStartChallengeMode(Player* /*player*/, uint8 /*level*/, uint8 /*affix1*/, uint8 /*affix2*/, uint8 /*affix3*/, uint8 /*affix4*/, uint8 /*affix5*/) { }
 
         // Called when a duel is requested
         virtual void OnDuelRequest(Player* target, Player* challenger);
@@ -1108,6 +1110,7 @@ class TC_GAME_API ScriptMgr
     public: /* ItemScript */
 
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
+        bool OnCreate(Player* player, Item* item);
         bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
         bool OnItemRemove(Player* player, Item* item);
@@ -1274,7 +1277,7 @@ class TC_GAME_API ScriptMgr
         void OnConversationCreate(Conversation* conversation, Unit* creator);
         void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
 
-        void OnPlayerStartChallengeMode(Player* player, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3);
+        void OnPlayerStartChallengeMode(Player* player, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4, uint8 affix5);
 
     public: /* SceneScript */
 
