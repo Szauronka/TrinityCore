@@ -25,30 +25,30 @@
 struct ChallengeMember
 {
     ObjectGuid guid;
-    uint16 specId;
-    uint32 Date;                    /// time when recorde done
-    uint32 ChallengeLevel;          /// 2-15 but blizzard store it as uint32? rly?
-    uint32 ChestID;
+    uint16 specId = 0;
+    uint32 Date = 0;                    /// time when recorde done
+    uint32 ChallengeLevel =0;          /// 2-15 but blizzard store it as uint32? rly?
+    uint32 ChestID = 0;
 
     bool operator <(const ChallengeMember& i) const;
     bool operator ==(const ChallengeMember& i) const;
 };
 
 typedef std::set<ChallengeMember> ChallengeMemberList;
-static const std::list<uint32> ChallengeChestList = { 252674,252677,252686,252668,252665,252056,252680,252671,252683,269852,269871,269843 };
+static const std::list<uint32> ChallengeChestList = { 252674,252677,252686,252668,252665,252056,252680,252671,252683,269852,269871,269843, 381955, 381946, 381966, 381972, 381971, 381969, 252062, 381970, 252687, 252688 };
 
 struct ChallengeData
 {
-    std::array<uint32, 5> Affixes;  /// key modifiers
-    ObjectGuid::LowType GuildID;    /// is it guild group
-    ObjectGuid::LowType ID;         /// challenge id
-    uint32 RecordTime;              /// time taken for complite challenge
-    uint32 Date;                    /// time when recorde done
-    uint32 ChallengeLevel;          /// 2-15 but blizzard store it as uint32? rly?
-    uint32 ChestID;
-    uint16 MapID;
-    uint16 ChallengeID;
-    uint8  TimerLevel;              /// like 0 - not in time; 1-2-3 'timer deal' by db2 data 1-2-3 chests
+    std::array<uint32, 5> Affixes{0, 0, 0, 0, 0};   /// key modifiers
+    ObjectGuid::LowType GuildID;                    /// is it guild group
+    ObjectGuid::LowType ID;                         /// challenge id
+    uint32 RecordTime = 0;                          /// time taken for complite challenge
+    uint32 Date = 0;                                /// time when recorde done
+    uint32 ChallengeLevel = 0;                      /// 2-15 but blizzard store it as uint32? rly?
+    uint32 ChestID = 0;
+    uint16 MapID = 0;
+    uint16 ChallengeID = 0;
+    uint8  TimerLevel = 0;                          /// like 0 - not in time; 1-2-3 'timer deal' by db2 data 1-2-3 chests
 
     ChallengeMemberList member;
 };
@@ -56,9 +56,9 @@ struct ChallengeData
 struct OploteLoot
 {
     ObjectGuid guid;
-    uint32 Date;
-    uint32 ChallengeLevel;
-    std::set<uint32> chestListID;
+    uint32 Date = 0;
+    uint32 ChallengeLevel = 0;
+    std::set<uint32> chestListID = { 0 };
     bool needSave = true;
 };
 
@@ -164,16 +164,16 @@ protected:
 
 
     std::map<ObjectGuid, uint8> _countItems;
-    uint16 _chestTimers[3];
-    uint8 _rewardLevel;
+    uint16 _chestTimers[3] = {0, 0, 0};
+    uint8 _rewardLevel = 0;
   
     ChallengeMap _challengeMap;
     ChallengesOfMember _lastForMember;
-    uint32 _challengeTimer;
+    uint32 _challengeTimer = 0;
     ChallengesOfMember _challengesOfMember;
     ChallengeByMap _bestForMap;
-    uint32 _mapID;
-    uint32 _challengeLevel;
+    uint32 _mapID = 0;
+    uint32 _challengeLevel = 0;
     Map* _map;
     GuildBestRecord m_GuildBest;
     ChallengeWeekListMap _challengeWeekList;

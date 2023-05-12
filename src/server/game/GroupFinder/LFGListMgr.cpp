@@ -151,12 +151,18 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
 
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
     status.Request.RequiredItemLevel = lfgEntry->ItemLevel;
-    status.Request.HonorLevel = lfgEntry->HonorLevel;
+    status.Request.AutoAccept = lfgEntry->AutoAccept;
+    status.Request.TypeActivity = lfgEntry->TypeActivity;
+    status.Request.HasQuest = lfgEntry->HasQuest;
     status.Request.GroupName = lfgEntry->GroupName;
     status.Request.Comment = lfgEntry->Comment;
     status.Request.VoiceChat = lfgEntry->VoiceChat;
-    status.Request.AutoAccept = lfgEntry->AutoAccept;
+    status.Request.minChallange = lfgEntry->minChallange;
+    status.Request.PrivateGroup = lfgEntry->PrivateGroup;
+    status.Request.Queued;
+    status.Request.HonorLevel = lfgEntry->HonorLevel;
     status.Request.QuestID = lfgEntry->QuestID;
+    status.Request.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
 
     if (worldSession)
     {

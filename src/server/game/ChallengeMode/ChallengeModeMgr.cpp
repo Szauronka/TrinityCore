@@ -28,6 +28,7 @@
 #include "Map.h"
 #include "MythicPlusPacketsCommon.h"
 #include <sstream>
+#include <ObjectAccessor.h>
 
 
 ChallengeModeMgr* ChallengeModeMgr::instance()
@@ -542,17 +543,20 @@ void ChallengeModeMgr::HitTimer()
 
 void ChallengeModeMgr::ResetGo()
 {
-   // if (InstanceScript* script = GetInstanceScript())
-     //   for (ObjectGuid guid : script->_challengeDoorGuids)
-           // if (GameObject* challengeDoor = sObjectAccessor->FindGameObject(guid))
-             //   challengeDoor->SetGoState(GO_STATE_READY);
-   //
-   //if (InstanceScript* script = GetInstanceScript())
-   //    if (GameObject* challengeOrb = _map->GetGameObject(script->_challengeOrbGuid))
-   //    {
-   //        challengeOrb->SetGoState(GO_STATE_READY);
-   //        challengeOrb->RemoveFlag(GO_FLAG_NODESPAWN);
-   //    }
+    if (InstanceScript* script = GetInstanceScript())
+        for (ObjectGuid guid : script->_challengeDoorGuids)
+        {
+            GameObject* obj = ObjectAccessor::FindGameObject(guid);
+            if (GameObject* challengeDoor = obj)
+                challengeDoor->SetGoState(GO_STATE_READY);
+        }
+   
+   if (InstanceScript* script = GetInstanceScript())
+       if (GameObject* challengeOrb = _map->GetGameObject(script->_challengeOrbGuid))
+       {
+           challengeOrb->SetGoState(GO_STATE_READY);
+           challengeOrb->RemoveFlag(GO_FLAG_NODESPAWN);
+       }
 }
 
 ChallengeData* ChallengeModeMgr::BestGuildChallenge(ObjectGuid::LowType const& GuildID, uint16 ChallengeID)
