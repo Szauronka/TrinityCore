@@ -219,20 +219,26 @@ namespace WorldPackets
 
         WorldPacket const* WorldPackets::MythicPlus::Start::Write()
         {
-            _worldPacket << (uint32)MapID;
-            _worldPacket << (uint32)ChallengeID;
-            _worldPacket << (uint32)ChallengeLevel;
+            _worldPacket << MapID;
+            _worldPacket << ChallengeID;
+            _worldPacket << ChallengeLevel;
 
-            _worldPacket << (uint32)Affixes1;
-            _worldPacket << (uint32)Affixes2;
-            _worldPacket << (uint32)Affixes3;
-            _worldPacket << (uint32)Affixes4;
-            _worldPacket << (uint32)Affixes5;
+            _worldPacket << Affixes1;
+            _worldPacket << Affixes2;
+            _worldPacket << Affixes3;
+            _worldPacket << Affixes4;
+            _worldPacket << Affixes5;
 
-            _worldPacket << (uint32)DeathCount;
-            _worldPacket << (uint32)ClientEncounterStartPlayerInfo;
+            _worldPacket << DeathCount;
+            _worldPacket << ClientEncounterStartPlayerInfo;
 
-            _worldPacket << (uint8)Energized;
+            _worldPacket << Energized;
+
+            for (uint32 i = 0; i < DeathCount; ++i)
+            {
+                _worldPacket << DeathCount;
+            }
+
             _worldPacket.FlushBits();
 
             return &_worldPacket;

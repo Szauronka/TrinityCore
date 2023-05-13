@@ -1307,10 +1307,15 @@ public:
 
         if (count > 0 && item)
         {
-            player->SendNewItem(item, count, false, true);
-            handler->PSendSysMessage(LANG_ADDITEM, itemId, count, handler->GetNameLink(playerTarget).c_str());
-            if (player != playerTarget)
-                playerTarget->SendNewItem(item, count, true, false);
+            if (item->GetEntry() == 180653) // Mythic Keystone
+                player->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), urand(1, 20));
+            else
+            {
+                player->SendNewItem(item, count, false, true);
+                handler->PSendSysMessage(LANG_ADDITEM, itemId, count, handler->GetNameLink(playerTarget).c_str());
+                if (player != playerTarget)
+                    playerTarget->SendNewItem(item, count, true, false);
+            }
         }
 
         if (noSpaceForCount > 0)

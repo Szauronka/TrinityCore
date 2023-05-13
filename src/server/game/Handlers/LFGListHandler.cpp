@@ -59,7 +59,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
 
         result.ApplicationTicket.RequesterGuid = group->GetGUID();
         result.ApplicationTicket.Id = group->GetGUID().GetCounter();
-        result.ApplicationTicket.Type = WorldPackets::LFG::RideType::Lfg;
+        result.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
         result.ApplicationTicket.Time = lfgEntry->CreationTime;
         result.UnkGuid1 = group->GetLeaderGUID();
         result.UnkGuid2 = group->GetLeaderGUID();
@@ -84,16 +84,17 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
         result.JoinRequest.RequiredItemLevel = lfgEntry->ItemLevel;
         result.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
         result.JoinRequest.AutoAccept = lfgEntry->AutoAccept;
-        result.JoinRequest.HasQuest = lfgEntry->HasQuest;
-        result.JoinRequest.PrivateGroup = lfgEntry->PrivateGroup;
-        result.JoinRequest.minChallange = lfgEntry->minChallange;
-        result.JoinRequest.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
         result.JoinRequest.TypeActivity = lfgEntry->TypeActivity;
+        result.JoinRequest.HasQuest = lfgEntry->HasQuest;
         result.JoinRequest.GroupName = lfgEntry->GroupName;
         result.JoinRequest.Comment = lfgEntry->Comment;
         result.JoinRequest.VoiceChat = lfgEntry->VoiceChat;
-        result.JoinRequest.AutoAccept = lfgEntry->AutoAccept;
+        result.JoinRequest.minChallange = lfgEntry->minChallange;
+        result.JoinRequest.PrivateGroup = lfgEntry->PrivateGroup;
+        result.JoinRequest.Queued = lfgEntry->Queued;
         result.JoinRequest.QuestID = lfgEntry->QuestID;
+        result.JoinRequest.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
+
 
         results.SearchResults.emplace_back(result);
     }
@@ -111,7 +112,7 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
     list->Comment = packet.Request.Comment;
     list->VoiceChat = packet.Request.VoiceChat;
     list->HonorLevel = packet.Request.HonorLevel;
-    if (packet.Request.QuestID)
+    if (packet.Request.QuestID.has_value())
         list->QuestID = *packet.Request.QuestID;
     list->ApplicationGroup = nullptr;
     list->PrivateGroup = packet.Request.PrivateGroup;
@@ -184,7 +185,7 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     entry->Comment = packet.UpdateRequest.Comment;
     entry->VoiceChat = packet.UpdateRequest.VoiceChat;
     entry->HonorLevel = packet.UpdateRequest.HonorLevel;
-    if (packet.UpdateRequest.QuestID)
+    if (packet.UpdateRequest.QuestID.has_value())
         entry->QuestID = *packet.UpdateRequest.QuestID;
 
     if (packet.UpdateRequest.RequiredItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))

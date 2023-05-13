@@ -2817,19 +2817,27 @@ double DB2Manager::GetChallngeWeight(uint32 mapID)
     {
         switch (sWorld->getIntConfig(CONFIG_DUNGEON_ACTIVE_STEP))
         {
-        case 0: // Disable all dungeons           
-        case 1: // step 8.3
+        case 0: // Disable all dungeons
+        case 1: // step 9.2
             switch (mapID)
             {
-            case 2290: //Mist of tirna scithe    
-            case 2286: //Necrotic wake             
-            case 2291: //De other side     
+            case 2290: //Mist of tirna scithe
+            case 2286: //Necrotic wake
+            case 2291: //De other side
             case 2287: //Halls of atonement
             case 2289: //plaguefall
             case 2284: //sanguine depths
             case 2285: //spires of ascension
             case 2293: // Theater of pain
-            case 2441: // Tazavesh     
+            case 2441: // Tazavesh
+            case 2516: // The Nokhud Offensive
+            case 2515: // The Azure Vault
+            case 960: // Temple Of The Jade Serpent
+            case 1176: // Shadowmoon Burial Grounds
+            case 2521: // Ruby Life Pools
+            case 1477: // Halls Of Valor
+            case 1571: // Court of Stars
+            case 2526: // Algeth'ar Academy
                 return 0.0;
             }
             break;
@@ -2840,10 +2848,10 @@ double DB2Manager::GetChallngeWeight(uint32 mapID)
 
     switch (mapID)
     {
-    case 2290: //Mist of tirna scithe   
+    case 2290: //Mist of tirna scithe
         return 10.0;
-    case 2286: //Necrotic wake             
-    case 2291: //De other side     
+    case 2286: //Necrotic wake
+    case 2291: //De other side
     case 2287: //Halls of atonement
         return 8.5;
     case 2289: //plaguefall
@@ -2851,7 +2859,15 @@ double DB2Manager::GetChallngeWeight(uint32 mapID)
     case 2285: //spires of ascension
         return 7.5;
     case 2293: // Theater of pain
-    case 2441: // Tazavesh     
+    case 2441: // Tazavesh
+    case 2516: // The Nokhud Offensive
+    case 2515: // The Azure Vault
+    case 960: // Temple Of The Jade Serpent
+    case 1176: // Shadowmoon Burial Grounds
+    case 2521: // Ruby Life Pools
+    case 1477: // Halls Of Valor
+    case 1571: // Court of Stars
+    case 2526: // Algeth'ar Academy
         return 6.5;
     }
     return 0.0;

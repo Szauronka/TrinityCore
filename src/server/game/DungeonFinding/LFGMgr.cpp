@@ -485,31 +485,48 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
     if (joinData.result == LFG_JOIN_OK)
     {
         bool isDungeon = false;
+        bool isScenario = false;
         for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end() && joinData.result == LFG_JOIN_OK; ++it)
         {
             LfgType type = GetDungeonType(*it);
             switch (type)
             {
-                case LFG_TYPE_RANDOM:
-                    if (dungeons.size() > 1)               // Only allow 1 random dungeon
-                        joinData.result = LFG_JOIN_INVALID_SLOT;
-                    else
-                        rDungeonId = (*dungeons.begin());
-                    [[fallthrough]]; // Random can only be dungeon or heroic dungeon
-                case LFG_TYPE_HEROIC:
-                case LFG_TYPE_DUNGEON:
-                    if (isRaid)
-                        joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
-                    isDungeon = true;
-                    break;
-                case LFG_TYPE_RAID:
-                    if (isDungeon)
-                        joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
-                    isRaid = true;
-                    break;
-                default:
+            case LFG_TYPE_RANDOM:
+                if (dungeons.size() > 1)               // Only allow 1 random dungeon
                     joinData.result = LFG_JOIN_INVALID_SLOT;
-                    break;
+                else
+                    rDungeonId = (*dungeons.begin());
+                [[fallthrough]]; // Random can only be dungeon or heroic dungeon
+            case LFG_TYPE_HEROIC:
+            case LFG_TYPE_DUNGEON:
+                if (isRaid)
+                    joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
+                isDungeon = true;
+                break;
+            case LFG_TYPE_RAID:
+                if (isDungeon)
+                    joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
+                isRaid = true;
+                break;
+            case LFG_QUEUE_SCENARIO:
+                if (isRaid || isDungeon)
+                    joinData.result = LFG_JOIN_GROUP_FULL;
+                if (LFGDungeonData const* dungeon = GetLFGDungeon(*it))
+                {
+                    if (dungeon->difficulty == DIFFICULTY_3_MAN_SCENARIO_HC && !isContinue)
+                    {
+                        // heroic scenarios can be queued only in full group
+                        if (!grp)
+                            joinData.result = LFG_JOIN_PARTY_PLAYERS_FROM_DIFFERENT_REALMS;
+                        else if (grp->GetMembersCount() < dungeon->group)
+                            joinData.result = LFG_JOIN_TOO_FEW_MEMBERS;
+                    }
+                }
+                isScenario = true;
+                break;
+            default:
+                joinData.result = LFG_JOIN_INVALID_SLOT;
+                break;
             }
         }
 
@@ -574,6 +591,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
             if (dungeons.empty())
                 joinData.result = LFG_JOIN_NO_SLOTS;
         }
+        if (isScenario)
+            roles = roles & (PLAYER_ROLE_LEADER | PLAYER_ROLE_DAMAGE);
     }
 
     // Can't join. Send result

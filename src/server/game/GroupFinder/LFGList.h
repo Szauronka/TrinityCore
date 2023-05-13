@@ -143,5 +143,6 @@ struct LFGListEntry
     bool minChallange = false;
     float TypeActivity = 0.0f;
     bool HasQuest = false;
+    bool Queued = false;
     uint32 MinMyticPlusRating = 0;
 };

@@ -657,7 +657,7 @@ void InstanceScript::GetScenarioByID(Player* p_Player, uint32 p_ScenarioId)
 
     if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenarioByID(map, p_ScenarioId))
     {
-        TC_LOG_ERROR("scripts", "GetScenarioByID CreateInstanceScenario %s", "");
+        TC_LOG_ERROR("scripts", "GetScenarioByID CreateInstanceScenario {}", p_ScenarioId, "");
         map->SetInstanceScenario(instanceScenario);
     }
     else
@@ -748,7 +748,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
     instance->SendToPlayers(changePlayerDifficultyResult.Write());
 
-    instance->SendToPlayers(WorldPackets::MythicPlus::ResetChallengeMode(instance->GetId()).Write());
+    //instance->SendToPlayers(WorldPackets::MythicPlus::ResetChallengeMode(instance->GetId()).Write());
 
     WorldPackets::Misc::StartTimer startTimer;
     startTimer.Type = WorldPackets::Misc::StartTimer::ChallengeMode;
