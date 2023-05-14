@@ -280,6 +280,7 @@ namespace WorldPackets
         class SetFactionInactive;
         class SetWatchedFaction;
         class SetPlayerDeclinedNames;
+        class RequestWeeklyRewards;
 
         enum class LoginFailureReason : uint8;
     }
@@ -1266,6 +1267,8 @@ class TC_GAME_API WorldSession
         void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid);
         void SendUndeleteCooldownStatusResponse(uint32 currentCooldown, uint32 maxCooldown);
         void SendUndeleteCharacterResponse(CharacterUndeleteResult result, WorldPackets::Character::CharacterUndeleteInfo const* undeleteInfo);
+
+        void SendWeeklyRewardsRequests(WorldPackets::Character::RequestWeeklyRewards& weeklyRewards);
 
         // played time
         void HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& packet);

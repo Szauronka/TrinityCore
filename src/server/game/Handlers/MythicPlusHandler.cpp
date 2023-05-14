@@ -111,23 +111,23 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     GameObject* object = _player->GetGameObjectIfCanInteractWith(packet.GameObjectGUID, GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE);
     if (!object)
     {
-        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - {%s} not found or you can not interact with it.", packet.GameObjectGUID.ToString().c_str());
+        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - {} not found or you can not interact with it.", packet.GameObjectGUID.ToString().c_str());
         return;
     }
 
     Item* key = _player->GetItemByPos(packet.Bag, packet.Slot);
     if (!key)
     {
-        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - item in Bag {%u} and Slot {%u} not found.", packet.Bag, packet.Slot);
+        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - item in Bag {} and Slot {} not found.", packet.Bag, packet.Slot);
         return;
     }
 
     if (key->GetTemplate()->GetClass() != ITEM_CLASS_REAGENT || key->GetTemplate()->GetSubClass() != ITEM_SUBCLASS_KEYSTONE)
     {
-        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with item {%s} which have class {%u} and subclass {%u}.",
+        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with item {} which have class {} and subclass {}.",
             key->GetGUID().ToString().c_str(),
             key->GetTemplate()->GetClass(),
-            key->GetTemplate()->GetSubClass();
+            key->GetTemplate()->GetSubClass());
         return;
     }
 
@@ -142,7 +142,7 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     MapChallengeModeEntry const* entry = sMapChallengeModeStore.LookupEntry(challengeModeId);
     if (!entry || !challengeModeLevel || entry->MapID != _player->GetMapId())
     {
-        //TC_LOG_DEBUG("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with wrong challengeModeId %u and level %u.", challengeModeId, challengeModeLevel);
+        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with wrong challengeModeId {} and level {}.", challengeModeId, challengeModeLevel);
         return;
     }
 

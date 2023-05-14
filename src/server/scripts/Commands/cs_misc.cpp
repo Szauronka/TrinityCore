@@ -1299,19 +1299,22 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), itemContext, bonusListIDs);
-
-        // remove binding (let GM give it to another player later)
-        if (player == playerTarget)
-            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
-                if (Item* item1 = player->GetItemByPos(itr->pos))
-                    item1->SetBinding(false);
-
-        if (count > 0 && item)
+        if (itemId == 180653) // Mythic Keystone
         {
-            if (item->GetEntry() == 180653) // Mythic Keystone
-                player->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), urand(1, 20));
-            else
+            player->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), urand(1, 20));
+        }
+
+        else
+        {
+            Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), itemContext, bonusListIDs);
+
+            // remove binding (let GM give it to another player later)
+            if (player == playerTarget)
+                for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+                    if (Item* item1 = player->GetItemByPos(itr->pos))
+                        item1->SetBinding(false);
+
+            if (count > 0 && item)
             {
                 player->SendNewItem(item, count, false, true);
                 handler->PSendSysMessage(LANG_ADDITEM, itemId, count, handler->GetNameLink(playerTarget).c_str());

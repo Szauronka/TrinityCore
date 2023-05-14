@@ -818,7 +818,7 @@ void InstanceScript::CastChallengePlayerSpell(Player* player)
     values.AddSpellMod(SPELLVALUE_BASE_POINT2, (HasAffix(Affixes::Skittish)) /*&& player->IsInTankSpec()) ? 1 : 0*/); // 2 Skittish 
     values.AddSpellMod(SPELLVALUE_BASE_POINT3, HasAffix(Affixes::Grievous) ? 1 : 0);  // 12 Grievous 
 
-    //TODO player->CastSpell(SPELL_CHALLENGER_BURDEN, values, player, TRIGGERED_FULL_MASK);
+    player->CastSpell(player, SPELL_CHALLENGER_BURDEN, values);
 }
 
 void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
@@ -923,6 +923,7 @@ void InstanceScript::SendChallengeModeMapStatsUpdate(Player* player, uint32 chal
         return;
 
     ChallengeData* best = itr->second;
+    recordTime = best->RecordTime;
     if (!best)
         return;
 

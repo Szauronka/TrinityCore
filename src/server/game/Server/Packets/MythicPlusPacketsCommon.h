@@ -188,6 +188,16 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class ChallengeModeReset final : public ServerPacket
+        {
+        public:
+            ChallengeModeReset(WorldPacket&& packet) : ServerPacket(SMSG_CHALLENGE_MODE_RESET) {}
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+        };
+
         class StartChallengeMode final : public ClientPacket
         {
         public:
@@ -195,9 +205,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid GameObjectGUID;
             uint8 Bag = 0;
-            uint32 Slot = 0;
+            int32 Slot = 0;
+            ObjectGuid GameObjectGUID;
         };
 
         class UpdateDeathCount final : public ServerPacket
@@ -289,6 +299,8 @@ namespace WorldPackets
             uint32 ChallengeID = 0;
             time_t LastGuildUpdate = time(nullptr);
             time_t LastRealmUpdate = time(nullptr);
+            uint32 GuildLeadersCount = 0;
+            uint32 RealmLeadersCount = 0;
             std::vector<ModeAttempt> GuildLeaders;
             std::vector<ModeAttempt> RealmLeaders;
         };
@@ -342,7 +354,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<MapChallengeModeReward> MapChallengeModeRewards;
-            std::vector<ItemReward> ItemRewards;
         };
     }
 }

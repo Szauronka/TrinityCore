@@ -806,7 +806,8 @@ void ChallengeModeMgr::LoadFromDB()
     if ((sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1) < 15) &&
         (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2) < 15) &&
         (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3) < 15) &&
-        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) < 15))
+        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) < 15) &&
+        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX5) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX5) < 15))
         GenerateManualAffixes();
 }
 
@@ -840,6 +841,7 @@ void ChallengeModeMgr::GenerateManualAffixes()
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2));
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3));
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4));
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX5));
 }
 
 
@@ -866,11 +868,14 @@ void ChallengeModeMgr::GenerateCurrentWeekAffixes()
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME, weekContainer[1]);
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME, weekContainer[2]);
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME, weekContainer[3]);
+    sWorld->setWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME, weekContainer[4]);
 }
 
 void ChallengeModeMgr::GenerateOploteLoot(bool manual)
 {
-    TC_LOG_ERROR("misc", "GenerateOploteLoot manual {} _challengeWeekList {}", manual, _challengeWeekList.size());
+    bool _manual = false;
+    manual = _manual;
+    TC_LOG_ERROR("misc", "GenerateOploteLoot manual {} _challengeWeekList {}", _manual, _challengeWeekList.size());
 
     CharacterDatabase.Query("DELETE FROM challenge_oplote_loot WHERE date <= UNIX_TIMESTAMP()");
     _oploteWeekLoot.clear();
@@ -899,7 +904,7 @@ void ChallengeModeMgr::GenerateOploteLoot(bool manual)
             else
             {
                 OploteLoot& lootOplote = _oploteWeekLoot[c.first];
-                //  lootOplote.Date = sWorld->getNextChallengeKeyReset();
+                lootOplote.Date = sWorld->getNextChallengeKeyReset();
                 lootOplote.ChallengeLevel = v->ChallengeLevel;
                 lootOplote.needSave = true;
                 lootOplote.guid = c.first;
