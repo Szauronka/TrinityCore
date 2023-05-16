@@ -27,6 +27,7 @@
 #include "StringConvert.h"
 #include "Map.h"
 #include "MythicPlusPacketsCommon.h"
+#include "WorldSession.h"
 #include <sstream>
 #include <ObjectAccessor.h>
 
@@ -441,17 +442,18 @@ void ChallengeModeMgr::SaveChallengeToDB(ChallengeData const* challengeData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHALLENGE);
     stmt->setUInt32(0, challengeData->ID);
     stmt->setUInt64(1, challengeData->GuildID);
-    stmt->setUInt16(2, challengeData->MapID);
-    stmt->setUInt32(3, challengeData->RecordTime);
-    stmt->setUInt32(4, challengeData->Date);
-    stmt->setUInt8(5, challengeData->ChallengeLevel);
-    stmt->setUInt8(6, challengeData->TimerLevel);
+    stmt->setUInt32(2, challengeData->MapID);
+    stmt->setUInt32(3, challengeData->ChallengeID);
+    stmt->setUInt32(4, challengeData->RecordTime);
+    stmt->setUInt32(5, challengeData->Date);
+    stmt->setUInt8(6, challengeData->ChallengeLevel);
+    stmt->setUInt8(7, challengeData->TimerLevel);
     std::ostringstream affixesListIDs;
-    for (uint16 affixe : challengeData->Affixes)
-       if (affixe)
-          affixesListIDs << affixe << ' ';
-   stmt->setString(7, affixesListIDs.str());
-   stmt->setUInt32(8, challengeData->ChestID);
+    for (uint32 affixe : challengeData->Affixes)
+        if (affixe)
+            affixesListIDs << affixe << ' ';
+    stmt->setString(8, affixesListIDs.str());
+    stmt->setUInt32(12, challengeData->ChestID);
     trans->Append(stmt);
 
     for (auto const& v : challengeData->member)
@@ -718,7 +720,7 @@ void ChallengeModeMgr::Reward(Player* player, uint8 challengeLevel)
 
 void ChallengeModeMgr::LoadFromDB()
 {
-    if (QueryResult result = CharacterDatabase.Query("SELECT `ID`, `GuildID`, `MapID`, `RecordTime`, `Date`, `ChallengeLevel`, `TimerLevel`, `Affixes`, `ChestID`, `ChallengeID` FROM `challenge`"))
+    if (QueryResult result = CharacterDatabase.Query("SELECT `ID`, `GuildID`, `MapID`, ChallengeID, `RecordTime`, `Date`, `ChallengeLevel`, `TimerLevel`, `Affixes`, `ChestID`, `ChallengeID` FROM `challenge`"))
     {
         do
         {
@@ -727,26 +729,25 @@ void ChallengeModeMgr::LoadFromDB()
             auto challengeData = new ChallengeData;
             challengeData->ID = fields[0].GetUInt64();
             challengeData->GuildID = fields[1].GetUInt64();
-            challengeData->MapID = fields[2].GetUInt16();
-            challengeData->ChallengeID = fields[3].GetUInt16();
+            challengeData->MapID = fields[2].GetUInt32();
+            challengeData->ChallengeID = fields[3].GetUInt32();
             challengeData->RecordTime = fields[4].GetUInt32();
             if (challengeData->RecordTime < 10000)
                 challengeData->RecordTime *= IN_MILLISECONDS;
             challengeData->Date = fields[5].GetUInt32();
             challengeData->ChallengeLevel = fields[6].GetUInt8();
             challengeData->TimerLevel = fields[7].GetUInt8();
-            challengeData->ChestID = fields[9].GetUInt32();
-
-            if (!challengeData->ChallengeID)
-                if (MapChallengeModeEntry const* challengeEntry = sDB2Manager.GetChallengeModeByMapID(challengeData->MapID))
-                    challengeData->ChallengeID = challengeEntry->ID;
-
             challengeData->Affixes.fill(0);
 
             uint8 i = 0;
             for (std::string_view token : Trinity::Tokenize(fields[8].GetString().c_str(), ' ', false))
                 if (Optional<int32> affix = Trinity::StringTo<int32>(token))
                     challengeData->Affixes[i] = *affix;
+            challengeData->ChestID = fields[12].GetUInt32();
+
+            if (!challengeData->ChallengeID)
+                if (MapChallengeModeEntry const* challengeEntry = sDB2Manager.GetChallengeModeByMapID(challengeData->MapID))
+                    challengeData->ChallengeID = challengeEntry->ID;
 
             _challengeMap[challengeData->ID] = challengeData;
             CheckBestMapId(challengeData);
@@ -806,8 +807,7 @@ void ChallengeModeMgr::LoadFromDB()
     if ((sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX1) < 15) &&
         (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2) < 15) &&
         (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3) < 15) &&
-        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) < 15) &&
-        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX5) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX5) < 15))
+        (sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) > 0 && sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4) < 15))
         GenerateManualAffixes();
 }
 
@@ -841,7 +841,6 @@ void ChallengeModeMgr::GenerateManualAffixes()
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX2));
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX3));
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX4));
-    sWorld->setWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME, sWorld->getIntConfig(CONFIG_CHALLENGE_MANUAL_AFFIX5));
 }
 
 
@@ -868,7 +867,6 @@ void ChallengeModeMgr::GenerateCurrentWeekAffixes()
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME, weekContainer[1]);
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME, weekContainer[2]);
     sWorld->setWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME, weekContainer[3]);
-    sWorld->setWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME, weekContainer[4]);
 }
 
 void ChallengeModeMgr::GenerateOploteLoot(bool manual)

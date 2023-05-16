@@ -749,7 +749,7 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 {
     _worldPacket << TotalTime;
     _worldPacket << TimeLeft;
-    _worldPacket << int32(Type);
+    _worldPacket << Type;
 
     return &_worldPacket;
 }

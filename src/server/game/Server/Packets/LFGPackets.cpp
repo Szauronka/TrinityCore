@@ -16,6 +16,7 @@
  */
 
 #include "LFGPackets.h"
+#include "Player.h"
 
 void WorldPackets::LFG::DFJoin::Read()
 {
@@ -240,21 +241,22 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMe
 
 WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
 {
-    _worldPacket << Ticket;
     _worldPacket << uint8(Result);
     _worldPacket << uint8(ResultDetail);
-    _worldPacket << uint32(BlackList.size());
+    _worldPacket << BlackListCount;
+    _worldPacket << BlackListNamesCount;
     _worldPacket << uint32(BlackListNames.size());
 
-    for (LFGBlackList const& blackList : BlackList)
-        _worldPacket << blackList;
+    for (uint32 i = 0; i < BlackListCount; ++i)
+        _worldPacket << uint32(BlackList.size());
 
-    for (std::string const* str : BlackListNames)
-        _worldPacket.WriteBits(str->length() + 1, 24);
+    for(uint32 i = 0; i < BlackListNamesCount; ++i)
+        for (std::string const* str : BlackListNames)
+            _worldPacket.WriteBits(str->length() + 1, 24);
 
-    for (std::string const* str : BlackListNames)
-        if (!str->empty())
-            _worldPacket << *str;
+        for (std::string const* str : BlackListNames)
+         if (!str->empty())
+                _worldPacket << *str;
 
     return &_worldPacket;
 }
@@ -297,10 +299,10 @@ WorldPacket const* WorldPackets::LFG::LFGPlayerReward::Write()
     _worldPacket << uint32(ActualSlot);
     _worldPacket << int32(RewardMoney);
     _worldPacket << int32(AddedXP);
-    _worldPacket << uint32(Rewards.size());
+    _worldPacket << RewardsCount;
 
-    for (LFGPlayerRewards const& reward : Rewards)
-        _worldPacket << reward;
+    for (uint32 i = 0; i < RewardsCount; ++i)
+        _worldPacket << Rewards.size(),i;
 
     return &_worldPacket;
 }
@@ -382,6 +384,7 @@ WorldPacket const* WorldPackets::LFG::LFGTeleportDenied::Write()
 WorldPacket const* WorldPackets::LFG::OpenLfgDungeonFinder::Write()
 {
     _worldPacket << uint32(DungeonEntry);
+
     return &_worldPacket;
 }
 

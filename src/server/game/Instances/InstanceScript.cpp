@@ -686,7 +686,7 @@ void InstanceScript::AfterChallengeModeStarted()
     }
 }
 
-void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4, uint8 affix5)
+void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4)
 {
     _challengeModeId = modeid;
     MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntryByModeId(GetChallengeModeId());
@@ -706,7 +706,6 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     _affixes[1] = affix2;
     _affixes[2] = affix3;
     _affixes[3] = affix4;
-    _affixes[4] = affix5;
     for (auto const& affix : _affixes)
         _affixesTest.set(affix);
     _challengeModeStarted = true;
@@ -751,31 +750,31 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     //instance->SendToPlayers(WorldPackets::MythicPlus::ResetChallengeMode(instance->GetId()).Write());
 
     WorldPackets::Misc::StartTimer startTimer;
-    startTimer.Type = WorldPackets::Misc::StartTimer::ChallengeMode;
-    startTimer.TotalTime = (Seconds(10));
-    startTimer.TimeLeft = (Seconds(10));
+    startTimer.Type == TimerType(ChallengeMode);
+    startTimer.TotalTime = Seconds(10);
+    startTimer.TimeLeft = Seconds(10);
     instance->SendToPlayers(startTimer.Write());
 
     SendChallengeModeStart();
 
     DoOnPlayers([this, level](Player* player)
-        {
-            CastChallengePlayerSpell(player);
-    // HOOK to PLAYERSCRIPT
-    sScriptMgr->OnPlayerStartChallengeMode(player, level, _affixes[0], _affixes[1], _affixes[2], _affixes[3], _affixes[4]);
-        });
+    {
+        CastChallengePlayerSpell(player);
+        // HOOK to PLAYERSCRIPT
+        sScriptMgr->OnPlayerStartChallengeMode(player, level, _affixes[0], _affixes[1], _affixes[2], _affixes[3]);
+    });
 
     AddTimedDelayedOperation(10000, [this]()
-        {
-            _challengeModeStartTime = getMSTime();
+    {
+        _challengeModeStartTime = getMSTime();
 
-    SendChallengeModeElapsedTimer();
+        SendChallengeModeElapsedTimer();
 
-    if (GameObject* door = GetGameObject(GOB_CHALLENGER_DOOR))
-        DoUseDoorOrButton(door->GetGUID(), WEEK);
+        if (GameObject* door = GetGameObject(GOB_CHALLENGER_DOOR))
+            DoUseDoorOrButton(door->GetGUID(), WEEK);
 
-    HideChallengeDoor();
-        });
+        HideChallengeDoor();
+    });
 }
 
 void InstanceScript::SpawnFontOfPower()
@@ -984,7 +983,7 @@ uint32 InstanceScript::GetChallengeModeCurrentDuration() const
     return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
 }
 
-std::array<uint32, 5> InstanceScript::GetAffixes() const
+std::array<uint32, 4> InstanceScript::GetAffixes() const
 {
     return _affixes;
 }

@@ -6697,11 +6697,15 @@ enum ChallengeMode
     SPELL_CHALLENGER_BURDEN = 206151
 };
 
-enum TimerType
+enum TimerType : uint8
 {
-    WORLD_TIMER_TYPE_PVP                      = 0,
-    WORLD_TIMER_TYPE_CHALLENGE_MODE           = 1,
-    WORLD_TIMER_TIMER_TYPE_PROVING_GROUND     = 2,
+    Pvp                         = 0,
+    ChallengeMode               = 1,
+    ProvingGround               = 2,
+    EventAOTrial                = 3,
+    NoodleStandShift            = 4,
+    TanaanScenarioEventTimer    = 12
+
 };
 
 enum class CurrencyDbFlags : uint8

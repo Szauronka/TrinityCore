@@ -25,7 +25,10 @@
 
 void WorldSession::HandleRequestLfgListBlackList(WorldPackets::LfgList::RequestLfgListBlacklist& /*packet*/)
 {
-    SendPacket(WorldPackets::LfgList::LfgListUpdateBlacklist().Write()); /// Activity and Reason loop - We dont need it
+    WorldPackets::LfgList::LfgListUpdateBlacklist updateBlacklist;
+ 
+
+    SendPacket(updateBlacklist.Write()); /// Activity and Reason loop - We dont need it
 }
 
 void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& packet)
@@ -135,6 +138,8 @@ void WorldSession::HandleLfgListInviteResponse(WorldPackets::LfgList::LfgListInv
 
 void WorldSession::HandleLfgListGetStatus(WorldPackets::LfgList::LfgListGetStatus& /*packet*/)
 {
+    WorldPackets::LfgList::LfgListUpdateStatus status;
+    SendPacket(status.Write());
 }
 
 void WorldSession::HandleLfgListApplyToGroup(WorldPackets::LfgList::LfgListApplyToGroup& packet)

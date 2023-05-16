@@ -69,7 +69,7 @@ namespace WorldPackets
             int32 Season = 0;
             std::vector<MythicPlusMember> Members;
             float RunScore = 0.0f;
-            std::array<int32, 5> KeystoneAffixIDs;
+            std::array<int32, 4> KeystoneAffixIDs;
         };
 
         struct DungeonScoreBestRunForAffix
@@ -176,8 +176,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Count = 0;
-            std::array<uint32, 5> Affixes{ 0, 0, 0, 0, 0 };
-            std::array<uint32, 5> RequiredSeason{ 0, 0, 0, 0, 0 };
+            std::array<uint32, 4> Affixes{ 0, 0, 0, 0 };
+            std::array<uint32, 4> RequiredSeason{ 0, 0, 0, 0 };
         };
 
         class ResetChallengeMode final : public ClientPacket
@@ -250,7 +250,6 @@ namespace WorldPackets
             uint32 Affixes2 = 0;
             uint32 Affixes3 = 0;
             uint32 Affixes4 = 0;
-            uint32 Affixes5 = 0;
 
             uint32 ClientEncounterStartPlayerInfo = 0;
 
@@ -297,10 +296,11 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             uint32 ChallengeID = 0;
-            time_t LastGuildUpdate = time(nullptr);
-            time_t LastRealmUpdate = time(nullptr);
             uint32 GuildLeadersCount = 0;
             uint32 RealmLeadersCount = 0;
+            time_t LastGuildUpdate = time(nullptr);
+            time_t LastRealmUpdate = time(nullptr);
+
             std::vector<ModeAttempt> GuildLeaders;
             std::vector<ModeAttempt> RealmLeaders;
         };
@@ -349,10 +349,11 @@ namespace WorldPackets
         class Rewards final : public ServerPacket
         {
         public:
-            Rewards() : ServerPacket(SMSG_WEEKLY_REWARDS_PROGRESS_RESULT, 8) { }
+            Rewards() : ServerPacket(SMSG_WEEKLY_REWARDS_PROGRESS_RESULT) { }
 
             WorldPacket const* Write() override;
 
+            uint32 Week = 1;
             std::vector<MapChallengeModeReward> MapChallengeModeRewards;
         };
     }

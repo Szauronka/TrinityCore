@@ -255,7 +255,6 @@ namespace WorldPackets
 
             void Read() override { }
 
-            WorldPackets::LFG::LfgPlayerInfo lfgPlayerInfo;
         };
 
         class LfgListApplicationUpdate final : public ServerPacket
@@ -335,18 +334,15 @@ namespace WorldPackets
         class LfgListUpdateStatus final : public ServerPacket
         {
         public:
-            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS, 28 + 1 + 1 + 4 + 4 + 2 + 2 + 2) { }
+            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS) { }
 
             WorldPacket const* Write() override;
 
             LFG::RideTicket ApplicationTicket;
             uint32 ExpirationTime = 0;
             uint8 ResultID = 0;
-            uint32 Unknow1 = 0;
-            bool UnknownBool = false;
-            uint8 Status = 0;
-            bool Listed = false;
             ListRequest Request;
+            bool Listed = false;
         };
 
         struct LfgListSearchResult

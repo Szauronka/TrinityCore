@@ -895,18 +895,16 @@ WorldPacket const* QueryQuestRewardResponse::Write()
     _worldPacket << CurrencyCount;
     _worldPacket << MoneyReward;
     _worldPacket << BonusCount;
-    _worldPacket << uint32(ItemRewards.size());
-    _worldPacket << uint32(CurrencyRewards.size());
     _worldPacket << Flags;
 
-    for (auto const& currency : CurrencyRewards)
+    for (auto& currency : CurrencyRewards)
     {
         _worldPacket << currency.CurrencyID;
         _worldPacket << currency.Amount;
         _worldPacket << currency.CurrencyCount;
     }
 
-    for (auto const& item : ItemRewards)
+    for (auto& item : ItemRewards)
     {
         _worldPacket << item.Item;
         _worldPacket.WriteBit(item.HasItemBonus);

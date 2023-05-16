@@ -359,7 +359,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
 
         WorldPackets::Misc::StartTimer startTimer;
-        startTimer.Type         = WorldPackets::Misc::StartTimer::Pvp;
+        startTimer.Type         == (TimerType(Pvp));
         startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
         startTimer.TotalTime    = countdownMaxForBGType;
 
@@ -1064,7 +1064,7 @@ void Battleground::AddPlayer(Player* player)
             Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
 
             WorldPackets::Misc::StartTimer startTimer;
-            startTimer.Type         = WorldPackets::Misc::StartTimer::Pvp;
+            startTimer.Type         = (TimerType(Pvp));
             startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
             startTimer.TotalTime    = countdownMaxForBGType;
             player->SendDirectMessage(startTimer.Write());
@@ -1170,7 +1170,7 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
 void Battleground::SendStartTimer(TimerType type)
 {
-	if (type != WORLD_TIMER_TYPE_PVP)
+	if (type != (TimerType(Pvp)))
 		return;
 
     Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
@@ -1181,7 +1181,7 @@ void Battleground::SendStartTimer(TimerType type)
 	m_PrematureCountDownTimer = 0;
 
 	WorldPackets::Misc::StartTimer startTimer;
-	startTimer.Type == WorldPackets::Misc::StartTimer::Pvp;;
+	startTimer.Type == (TimerType(Pvp));
 	startTimer.TimeLeft = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime() / 1000));
 	startTimer.TotalTime = countdownMaxForBGType;
 	SendPacketToAll(startTimer.Write());

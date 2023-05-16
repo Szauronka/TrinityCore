@@ -83,6 +83,17 @@ namespace WorldPackets
             std::vector<FactionStandingData> Faction;
             bool ShowVisual = false;
         };
+
+        class FactionBonusInfo final : public ServerPacket
+        {
+        public:
+            FactionBonusInfo() : ServerPacket(SMSG_FACTION_BONUS_INFO) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 FactionCount = 0;
+            bool FactionHasBonus = false;
+        };
     }
 }
 

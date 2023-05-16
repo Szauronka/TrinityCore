@@ -10,24 +10,9 @@
 #include <ChallengeModeMgr.h>
 
 
-void WorldSession::HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::MythicPlusRequestMapStats& mythicPlusRequestMapStats)
+void WorldSession::HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::MythicPlusRequestMapStats& /*mythicPlusRequestMapStats*/)
 {
     WorldPackets::MythicPlus::MythicPlusRequestMapStatsResult result;
-
-    uint32 maps = sChallengeModeMgr->GetRandomChallengeId();
-    for (auto& mythicPlusRun : result.mythicPlusRuns)
-    {
-        mythicPlusRun.MapChallengeModeID = maps;
-    }
-
-    for (auto& mythicPlusMembers : result.mythicPlusRuns)
-    {
-        mythicPlusMembers.Members.size();
-        for (auto& member : mythicPlusMembers.Members)
-        {
-            member.BnetAccountGUID = GetPlayer()->GetGUID();
-        }
-    }
 
     SendPacket(result.Write());
 }
@@ -63,42 +48,36 @@ void WorldSession::SendMythicPlusMapStatsUpdate(uint32 keyID)
     SendPacket(&packet);
 }
 
-void WorldSession::HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::MythicPlusCurrentAffixes& mythicPlusCurrentAffixes)
+void WorldSession::HandleMythicPlusCurrentAffixes(WorldPackets::MythicPlus::MythicPlusCurrentAffixes& /*mythicPlusCurrentAffixes*/)
 {
     WorldPackets::MythicPlus::MythicPlusCurrentAffixesResult result;
-
-    result.Count = 5;
-
-    result.Affixes[0] = 10;
-    result.Affixes[1] = 6;
-    result.Affixes[2] = 14;
-    result.Affixes[3] = 132;
-    result.Affixes[4] = 0;
+    ChallengeData affix;
+    result.Count = 4;
 
     result.RequiredSeason[0] = 9;
     result.RequiredSeason[1] = 0;
     result.RequiredSeason[2] = 9;
     result.RequiredSeason[3] = 3;
-    result.RequiredSeason[4] = 0;
 
 
-    result.Affixes[0];
-    result.Affixes[1];
-    result.Affixes[2];
-    result.Affixes[3];
-    result.Affixes[4];
+
+    result.Affixes[0] = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
+    result.Affixes[1] = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
+    result.Affixes[2] = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
+    result.Affixes[3] = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
+
 
     SendPacket(result.Write());
 }
 
-void WorldSession::HandleMythicPlusSeasonData(WorldPackets::MythicPlus::MythicPlusSeasonData& mythicPlusSeasonData)
+void WorldSession::HandleMythicPlusSeasonData(WorldPackets::MythicPlus::MythicPlusSeasonData& /*mythicPlusSeasonData*/)
 {
     WorldPackets::MythicPlus::MythicPlusSeasonDataResult result;
 
     SendPacket(result.Write());
 }
 
-void WorldSession::HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChallengeMode& packet)
+void WorldSession::HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChallengeMode& /*packet*/)
 {
     if (auto const& instanceScript = _player->GetInstanceScript())
         if (instanceScript->instance->IsMythic())
@@ -137,7 +116,6 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     uint32 challengeModeAffix2 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2);
     uint32 challengeModeAffix3 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3);
     uint32 challengeModeAffix4 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4);
-    uint32 challengeModeAffix5 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4);
 
     MapChallengeModeEntry const* entry = sMapChallengeModeStore.LookupEntry(challengeModeId);
     if (!entry || !challengeModeLevel || entry->MapID != _player->GetMapId())
@@ -147,7 +125,7 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     }
 
     if (InstanceScript* instanceScript = _player->GetInstanceScript())
-        instanceScript->StartChallengeMode(challengeModeId, challengeModeLevel, challengeModeAffix1, challengeModeAffix2, challengeModeAffix3, challengeModeAffix4, challengeModeAffix5);
+        instanceScript->StartChallengeMode(challengeModeId, challengeModeLevel, challengeModeAffix1, challengeModeAffix2, challengeModeAffix3, challengeModeAffix4);
 
     // Blizzard do not delete the key at challenge start, will require mort research
     _player->DestroyItem(packet.Bag, packet.Slot, true);

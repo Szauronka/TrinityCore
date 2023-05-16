@@ -227,7 +227,6 @@ namespace WorldPackets
             _worldPacket << Affixes2;
             _worldPacket << Affixes3;
             _worldPacket << Affixes4;
-            _worldPacket << Affixes5;
 
             _worldPacket << DeathCount;
             _worldPacket << ClientEncounterStartPlayerInfo;
@@ -255,15 +254,12 @@ namespace WorldPackets
 
         WorldPacket const* WorldPackets::MythicPlus::RequestLeadersResult::Write()
         {
-            _worldPacket << MapID;
-            _worldPacket << ChallengeID;
-            _worldPacket.AppendPackedTime(LastGuildUpdate);
-            _worldPacket.AppendPackedTime(LastRealmUpdate);
             _worldPacket << GuildLeadersCount;
             _worldPacket << RealmLeadersCount;
-
-            _worldPacket << static_cast<uint32>(GuildLeaders.size());
-            _worldPacket << static_cast<uint32>(RealmLeaders.size());
+            _worldPacket.AppendPackedTime(LastGuildUpdate);
+            _worldPacket.AppendPackedTime(LastRealmUpdate);
+            _worldPacket << MapID;
+            _worldPacket << ChallengeID;
 
             for (auto const& guildLeaders : GuildLeaders)
             {
@@ -273,8 +269,6 @@ namespace WorldPackets
                 _worldPacket << guildLeaders.CompletionDate;
                 _worldPacket << guildLeaders.MedalEarned;
             }
-
-
 
             for (auto const& realmLeaders : RealmLeaders)
             {
@@ -326,7 +320,8 @@ namespace WorldPackets
 
         WorldPacket const* Rewards::Write()
         {
-            _worldPacket << static_cast<uint32>(MapChallengeModeRewards.size());
+            _worldPacket << Week;
+            _worldPacket << uint32(MapChallengeModeRewards.size());
 
 
             for (auto const& map : MapChallengeModeRewards)

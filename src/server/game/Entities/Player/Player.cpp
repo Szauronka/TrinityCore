@@ -29610,7 +29610,6 @@ bool Player::InitChallengeKey(Item* item)
     m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
     m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
     m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
-    m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME);
 
     item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, m_challengeKeyInfo.ID);
     item->SetState(ITEM_CHANGED, this);
@@ -29618,7 +29617,7 @@ bool Player::InitChallengeKey(Item* item)
     switch (m_challengeKeyInfo.Level)
     {
     case 16:
-        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix4);
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
         item->SetState(ITEM_CHANGED, this);
     case 15:
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
@@ -29647,12 +29646,11 @@ void Player::UpdateChallengeKey(Item* item)
     m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
     m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
     m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
-    m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME);
 
     switch (m_challengeKeyInfo.Level)
     {
     case 16:
-        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix4);
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
         item->SetState(ITEM_CHANGED, this);
     case 15:
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
@@ -29703,12 +29701,11 @@ void Player::CreateChallengeKey(Item* item)
     m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
     m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
     m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
-    m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
 
     switch (m_challengeKeyInfo.Level)
     {
     case 16:
-        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix4);
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
         item->SetState(ITEM_CHANGED, this);
     case 15:
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
@@ -29752,7 +29749,6 @@ void Player::ResetChallengeKey()
     m_challengeKeyInfo.Affix1 = 0;
     m_challengeKeyInfo.Affix2 = 0;
     m_challengeKeyInfo.Affix3 = 0;
-    m_challengeKeyInfo.Affix4 = 0;
     m_challengeKeyInfo.KeyIsCharded = 1;
     m_challengeKeyInfo.InstanceID = 0;
 }
@@ -29796,7 +29792,6 @@ void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel, bool runRand
     m_challengeKeyInfo.Affix1 = 0;
     m_challengeKeyInfo.Affix2 = 0;
     m_challengeKeyInfo.Affix3 = 0;
-    m_challengeKeyInfo.Affix4 = 0;
     m_challengeKeyInfo.KeyIsCharded = 1;
     m_challengeKeyInfo.InstanceID = 0;
     DestroyItemCount(180653, 100, true, true);
@@ -29805,6 +29800,7 @@ void Player::ChallengeKeyCharded(Item* item, uint32 challengeLevel, bool runRand
 
 bool Player::AddChallengeKey(uint32 challengeId, uint32 challengeLevel/* = 2*/)
 {
+    Player* player = nullptr;
     uint32 itemId = 180653; //legion 138019 add  7.1.5.23360; bfa 158923 add 8.0.1.26903; 180653 add 9.0.1.36216;
     uint8 count = 1;
     uint32 noSpaceForCount = 0;
@@ -29825,35 +29821,28 @@ bool Player::AddChallengeKey(uint32 challengeId, uint32 challengeLevel/* = 2*/)
     {
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, challengeId);
         item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, challengeLevel);
-        item->SetState(ITEM_CHANGED, this);
 
         m_challengeKeyInfo.Affix = sWorld->getWorldState(WS_CHALLENGE_AFFIXE1_RESET_TIME);
         m_challengeKeyInfo.Affix1 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE2_RESET_TIME);
         m_challengeKeyInfo.Affix2 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE3_RESET_TIME);
         m_challengeKeyInfo.Affix3 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE4_RESET_TIME);
-        m_challengeKeyInfo.Affix4 = sWorld->getWorldState(WS_CHALLENGE_AFFIXE5_RESET_TIME);
 
         switch (m_challengeKeyInfo.Level)
         {
-        case 16:
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix4);
-            item->SetState(ITEM_CHANGED, this);
-        case 15:
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
-            item->SetState(ITEM_CHANGED, this);
-        case 12:
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix2);
-            item->SetState(ITEM_CHANGED, this);
-        case 9:
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix1);
-            item->SetState(ITEM_CHANGED, this);
-        case 6:
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
-            item->SetState(ITEM_CHANGED, this);
-        default:
-            break;
+            case 16:
+                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
+            case 15:
+                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
+            case 12:
+                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix2);
+            case 9:
+                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix1);
+            case 6:
+                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
+            default:
+                break;
         }
-
+        item->SetState(ITEM_CHANGED, player);
         SendNewItem(item, count, true, false);
     }
     else
@@ -29874,7 +29863,6 @@ void Player::_LoadChallengeKey(PreparedQueryResult result)
     m_challengeKeyInfo.Affix1 = fields[index++].GetUInt8();
     m_challengeKeyInfo.Affix2 = fields[index++].GetUInt8();
     m_challengeKeyInfo.Affix3 = fields[index++].GetUInt8();
-    m_challengeKeyInfo.Affix4 = fields[index++].GetUInt8();
     m_challengeKeyInfo.KeyIsCharded = fields[index++].GetUInt8();
     m_challengeKeyInfo.timeReset = fields[index++].GetUInt32();
     m_challengeKeyInfo.InstanceID = fields[index++].GetUInt32();
@@ -29911,7 +29899,6 @@ void Player::_SaveChallengeKey(CharacterDatabaseTransaction& trans)
     stmt->setUInt8(index++, m_challengeKeyInfo.Affix1);
     stmt->setUInt8(index++, m_challengeKeyInfo.Affix2);
     stmt->setUInt8(index++, m_challengeKeyInfo.Affix3);
-    stmt->setUInt8(index++, m_challengeKeyInfo.Affix4);
     stmt->setUInt8(index++, m_challengeKeyInfo.KeyIsCharded);
     stmt->setUInt32(index++, m_challengeKeyInfo.timeReset);
     stmt->setUInt32(index++, m_challengeKeyInfo.InstanceID);
@@ -29973,8 +29960,8 @@ void Player::_LoadChallengesAffix()
 
     if (sConfigMgr->GetIntDefault("KeyStoneAffix.Status", 0) == 0)
     {
-        //                                                 0      1         2
-        QueryResult result = WorldDatabase.Query("SELECT affix1, affix2, affix3 FROM challenge_affix");
+        //                                                 0      1         2       3
+        QueryResult result = WorldDatabase.Query("SELECT affix1, affix2, affix3, affix4 FROM challenge_affix");
 
         if (!result)
         {
@@ -29990,6 +29977,7 @@ void Player::_LoadChallengesAffix()
             m_ChallengeAffix.affix_1 = l_Field[0].GetUInt32();
             m_ChallengeAffix.affix_2 = l_Field[1].GetUInt32();
             m_ChallengeAffix.affix_3 = l_Field[2].GetUInt32();
+            m_ChallengeAffix.affix_4 = l_Field[3].GetUInt32();
 
             ++count;
         } while (result->NextRow());
@@ -30001,6 +29989,7 @@ void Player::_LoadChallengesAffix()
         m_ChallengeAffix.affix_1 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix1", 0);
         m_ChallengeAffix.affix_2 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix2", 0);
         m_ChallengeAffix.affix_3 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix3", 0);
+        m_ChallengeAffix.affix_4 = sConfigMgr->GetIntDefault("KeyStoneAffix.Affix4", 0);
         TC_LOG_INFO("server.loading", ">> Loaded config challenges affix definitions in {} ms", GetMSTimeDiffToNow(oldMSTime));
     }
     else
@@ -30008,6 +29997,7 @@ void Player::_LoadChallengesAffix()
         m_ChallengeAffix.affix_1 = sChallengeModeMgr->GetRandomChallengeAffixId(1, 4);
         m_ChallengeAffix.affix_2 = sChallengeModeMgr->GetRandomChallengeAffixId(2, 7);
         m_ChallengeAffix.affix_3 = sChallengeModeMgr->GetRandomChallengeAffixId(3, 10);
+        m_ChallengeAffix.affix_4 = sChallengeModeMgr->GetRandomChallengeAffixId(4, 15);
         TC_LOG_INFO("server.loading", ">> Loaded random challenges affix definitions in {} ms", GetMSTimeDiffToNow(oldMSTime));
     }
     if (m_ChallengeAffix.affix_1 == 0)
@@ -30016,6 +30006,8 @@ void Player::_LoadChallengesAffix()
         m_ChallengeAffix.affix_2 = sChallengeModeMgr->GetRandomChallengeAffixId(2, 7);
     if (m_ChallengeAffix.affix_3 == 0)
         m_ChallengeAffix.affix_3 = sChallengeModeMgr->GetRandomChallengeAffixId(3, 10);
+    if (m_ChallengeAffix.affix_4 == 0)
+        m_ChallengeAffix.affix_4 = sChallengeModeMgr->GetRandomChallengeAffixId(4, 15);
 }
 
 

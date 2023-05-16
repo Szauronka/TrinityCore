@@ -89,11 +89,6 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
 
 WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 {
-    std::sort(Blacklist.begin(), Blacklist.end(), [](LFGListBlacklist const& a, LFGListBlacklist const& b) -> bool
-        {
-            return a.ActivityID < b.ActivityID;
-        });
-
     _worldPacket << static_cast<uint32>(Blacklist.size());
     for (auto const& map : Blacklist)
         _worldPacket << map;
@@ -106,11 +101,8 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
     _worldPacket << ApplicationTicket;
     _worldPacket << ExpirationTime;
     _worldPacket << ResultID;
-    _worldPacket << Unknow1;
-    _worldPacket.WriteBit(UnknownBool);
-    _worldPacket << Status;
-    _worldPacket.WriteBit(Listed);
     _worldPacket << Request;
+    _worldPacket.WriteBit(Listed);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

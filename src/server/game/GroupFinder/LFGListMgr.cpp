@@ -146,7 +146,7 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     }
 
     status.ExpirationTime = lfgEntry->Timeout;
-    status.Status = AsUnderlyingType(debugStatus != LFGListStatus::None ? debugStatus : LFGListStatus::Joined);
+    //status.Status = AsUnderlyingType(debugStatus != LFGListStatus::None ? debugStatus : LFGListStatus::Joined);
     status.Listed = listed;
 
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
