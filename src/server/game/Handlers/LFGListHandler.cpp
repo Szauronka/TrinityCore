@@ -58,7 +58,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
             if (GetPlayer()->GetGuildId() == 0 || GetPlayer()->GetGuildId() != leader->GetGuildId())
                 continue;
 
-        auto activityID = sDB2Manager.GetActivity(lfgEntry->GroupFinderActivityData->ID);
+        uint32 activityID = lfgEntry->GroupFinderActivityData->ID;
 
         result.ApplicationTicket.RequesterGuid = group->GetGUID();
         result.ApplicationTicket.Id = group->GetGUID().GetCounter();
@@ -83,7 +83,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
             if (auto applicant = member.second.GetPlayer())
                 result.Members.emplace_back(applicant->GetClass(), member.second.RoleMask);
 
-        result.JoinRequest.ActivityID = activityID.size();
+        result.JoinRequest.ActivityID = activityID;
         result.JoinRequest.RequiredItemLevel = lfgEntry->ItemLevel;
         result.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
         result.JoinRequest.AutoAccept = lfgEntry->AutoAccept;

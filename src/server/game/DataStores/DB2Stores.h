@@ -415,7 +415,6 @@ public:
 
     uint32 GetEmptyAnimStateID() const;
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
-    std::vector<uint32> GetActivity(uint32 activityID) const;
     static bool IsInArea(uint32 objectAreaId, uint32 areaId);
     std::vector<AreaPOIEntry const*> GetAreaPoiID(uint32 areaId) const;
     static ContentTuningEntry const* GetContentTuningForArea(AreaTableEntry const* areaEntry);
