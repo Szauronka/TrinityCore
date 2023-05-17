@@ -36,7 +36,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
 {
     data << join.ActivityID;
     data << join.RequiredItemLevel;
-    data << join.AutoAccept;
+    data << join.HonorLevel;
     data << join.TypeActivity;
     data << join.MinMyticPlusRating;
 
@@ -46,6 +46,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
     data.WriteBit(join.AutoAccept);
     data.WriteBit(join.PrivateGroup);
     data.WriteBit(join.minChallange);
+    data.WriteBit(join.LimitToFaction);
     data.WriteBit(join.QuestID.has_value() && *join.QuestID != 0);
     data.FlushBits();
 
@@ -56,6 +57,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
     if (join.QuestID.has_value() && *join.QuestID != 0)
         data << *join.QuestID;
 
+    if (join.minChallange && join.MinMyticPlusRating != 0)
+        data << join.MinMyticPlusRating;
+
     return data;
 }
 
@@ -63,7 +67,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
 {
     data >> join.ActivityID;
     data >> join.RequiredItemLevel;
-    data >> join.AutoAccept;
+    data >> join.HonorLevel;
     data >> join.TypeActivity;
 
     bool HasQuest = data.ReadBit();
@@ -72,6 +76,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
     uint32 VoiceChateLen = data.ReadBits(8);
     bool minChallenge = data.ReadBit();
     join.PrivateGroup = data.ReadBit();
+    join.LimitToFaction = data.ReadBit();
     join.Queued = data.ReadBit();
 
     join.GroupName = data.ReadString(NameLen);
@@ -89,6 +94,11 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
 
 WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 {
+    std::sort(Blacklist.begin(), Blacklist.end(), [](LFGListBlacklist const& a, LFGListBlacklist const& b) -> bool
+        {
+            return a.ActivityID < b.ActivityID;
+        });
+
     _worldPacket << static_cast<uint32>(Blacklist.size());
     for (auto const& map : Blacklist)
         _worldPacket << map;
@@ -112,6 +122,7 @@ void WorldPackets::LfgList::LfgListInviteResponse::Read()
 {
     _worldPacket >> ApplicantTicket;
     Accept = _worldPacket.ReadBit();
+    _worldPacket.FlushBits();
 }
 
 void WorldPackets::LfgList::LfgListLeave::Read()
@@ -185,10 +196,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListSearchResult
     data << listSearch.UnkGuid4;
     data << listSearch.UnkGuid5;
     data << listSearch.VirtualRealmAddress;
-    data << static_cast<uint32>(listSearch.BNetFriendsGuids.size());
-    data << static_cast<uint32>(listSearch.NumCharFriendsGuids.size());
-    data << static_cast<uint32>(listSearch.NumGuildMateGuids.size());
-    data << static_cast<uint32>(listSearch.Members.size());
+    data << uint32(listSearch.BNetFriendsGuids.size());
+    data << uint32(listSearch.NumCharFriendsGuids.size());
+    data << uint32(listSearch.NumGuildMateGuids.size());
+    data << uint32(listSearch.Members.size());
     data << listSearch.CompletedEncounters;
     data << listSearch.Age;
     data << listSearch.ApplicationStatus;
@@ -223,7 +234,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::MemberInfo const
 WorldPacket const* WorldPackets::LfgList::LfgListSearchResults::Write()
 {
     _worldPacket << AppicationsCount;
-    _worldPacket << static_cast<uint32>(SearchResults.size());
+    _worldPacket << SearchResults.size();
     for (auto const& v : SearchResults)
         _worldPacket << v;
 
@@ -284,13 +295,13 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplyToGroupResponce::Write()
 WorldPacket const* WorldPackets::LfgList::LfgListApplicationUpdate::Write()
 {
     _worldPacket << ApplicationTicket;
-    _worldPacket << static_cast<uint32>(Applicants.size());
+    _worldPacket << Applicants.size();
     _worldPacket << UnkInt;
     for (auto const& v : Applicants)
     {
         _worldPacket << v.ApplicantTicket;
         _worldPacket << v.ApplicantPartyLeader;
-        _worldPacket << static_cast<uint32>(v.Member.size());
+        _worldPacket << v.Member.size();
         for (auto const& z : v.Member)
         {
             _worldPacket << z.PlayerGUID;
@@ -300,7 +311,7 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplicationUpdate::Write()
             _worldPacket << z.HonorLevel;
             _worldPacket << z.PossibleRoleMask;
             _worldPacket << z.SelectedRoleMask;
-            _worldPacket << static_cast<uint32>(z.AcStat.size());
+            _worldPacket << z.AcStat.size();
             for (auto const& x : z.AcStat)
             {
                 _worldPacket << x.UnkInt4;
@@ -318,13 +329,13 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplicationUpdate::Write()
 
 WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
 {
-    _worldPacket << static_cast<uint32>(ResultUpdate.size());
+    _worldPacket << ResultUpdate.size();
     for (auto const& update : ResultUpdate)
     {
         _worldPacket << update.ApplicationTicket;
         _worldPacket << update.UnkInt;
 
-        _worldPacket << static_cast<uint32>(update.Members.size());
+        _worldPacket << update.Members.size();
         for (auto const& member : update.Members)
             _worldPacket << member;
 
@@ -368,13 +379,13 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
 WorldPacket const* WorldPackets::LfgList::LfgListApplicantlistUpdate::Write()
 {
 	_worldPacket << ApplicationTicket;
-	_worldPacket << static_cast<uint32>(Applicants.size());
+	_worldPacket << Applicants.size();
 	_worldPacket << UnkInt;
 	for (auto const& v : Applicants)
 	{
 		_worldPacket << v.ApplicantTicket;
 		_worldPacket << v.ApplicantPartyLeader;
-		_worldPacket << static_cast<uint32>(v.Member.size());
+		_worldPacket << v.Member.size();
 		for (auto const& z : v.Member)
 		{
 			_worldPacket << z.PlayerGUID;
@@ -384,7 +395,7 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplicantlistUpdate::Write()
 			_worldPacket << z.HonorLevel;
 			_worldPacket << z.PossibleRoleMask;
 			_worldPacket << z.SelectedRoleMask;
-			_worldPacket << static_cast<uint32>(z.AcStat.size());
+			_worldPacket << z.AcStat.size();
 			for (auto const& x : z.AcStat)
 			{
 				_worldPacket << x.UnkInt4;
@@ -398,4 +409,13 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplicantlistUpdate::Write()
 	}
 
 	return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LfgList::LfgListUpdateExpiration::Write()
+{
+    _worldPacket << ApplicationTicket;
+    _worldPacket << TimeoutTime;
+    _worldPacket << Status;
+
+    return &_worldPacket;
 }

@@ -58,7 +58,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
             if (GetPlayer()->GetGuildId() == 0 || GetPlayer()->GetGuildId() != leader->GetGuildId())
                 continue;
 
-        auto activityID = lfgEntry->GroupFinderActivityData->ID;
+        auto activityID = sDB2Manager.GetActivity(lfgEntry->GroupFinderActivityData->ID);
 
         result.ApplicationTicket.RequesterGuid = group->GetGUID();
         result.ApplicationTicket.Id = group->GetGUID().GetCounter();
@@ -83,7 +83,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
             if (auto applicant = member.second.GetPlayer())
                 result.Members.emplace_back(applicant->GetClass(), member.second.RoleMask);
 
-        result.JoinRequest.ActivityID = activityID;
+        result.JoinRequest.ActivityID = activityID.size();
         result.JoinRequest.RequiredItemLevel = lfgEntry->ItemLevel;
         result.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
         result.JoinRequest.AutoAccept = lfgEntry->AutoAccept;
@@ -110,12 +110,13 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
     auto list = new LFGListEntry;
     list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
     list->ItemLevel = packet.Request.RequiredItemLevel;
+    list->LimitToFaction = packet.Request.LimitToFaction;
     list->AutoAccept = packet.Request.AutoAccept;
     list->GroupName = packet.Request.GroupName;
     list->Comment = packet.Request.Comment;
     list->VoiceChat = packet.Request.VoiceChat;
     list->HonorLevel = packet.Request.HonorLevel;
-    if (packet.Request.QuestID.has_value())
+    if (packet.Request.QuestID)
         list->QuestID = *packet.Request.QuestID;
     list->ApplicationGroup = nullptr;
     list->PrivateGroup = packet.Request.PrivateGroup;
@@ -190,7 +191,7 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     entry->Comment = packet.UpdateRequest.Comment;
     entry->VoiceChat = packet.UpdateRequest.VoiceChat;
     entry->HonorLevel = packet.UpdateRequest.HonorLevel;
-    if (packet.UpdateRequest.QuestID.has_value())
+    if (packet.UpdateRequest.QuestID)
         entry->QuestID = *packet.UpdateRequest.QuestID;
 
     if (packet.UpdateRequest.RequiredItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))

@@ -151,6 +151,7 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
 
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
     status.Request.RequiredItemLevel = lfgEntry->ItemLevel;
+    status.Request.HonorLevel = lfgEntry->HonorLevel;
     status.Request.AutoAccept = lfgEntry->AutoAccept;
     status.Request.TypeActivity = lfgEntry->TypeActivity;
     status.Request.HasQuest = lfgEntry->HasQuest;
@@ -159,7 +160,8 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     status.Request.VoiceChat = lfgEntry->VoiceChat;
     status.Request.minChallange = lfgEntry->minChallange;
     status.Request.PrivateGroup = lfgEntry->PrivateGroup;
-    status.Request.Queued;
+    status.Request.LimitToFaction = lfgEntry->LimitToFaction;
+    status.Request.Queued =lfgEntry->Queued;
     status.Request.HonorLevel = lfgEntry->HonorLevel;
     status.Request.QuestID = lfgEntry->QuestID;
     status.Request.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
@@ -226,7 +228,7 @@ std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 activityCatego
 
         if (filterString.length() && listEntry->GroupName.length())
         {
-            auto upperName = listEntry->GroupName;
+            auto& upperName = listEntry->GroupName;
             std::transform(upperName.begin(), upperName.end(), upperName.begin(), toupper);
             std::transform(filterString.begin(), filterString.end(), filterString.begin(), toupper);
 
@@ -441,14 +443,32 @@ bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry const* activity) const
 
     switch (activity->GroupFinderCategoryID)
     {
-    case LFG_LIST_ACTIVITY_CATEGORY_ARENA:
-    case LFG_LIST_ACTIVITY_CATEGORY_ARENA_SKIRMISH:
+    case LFG_LIST_ACTIVITY_CATEGORY_ARENAS:
+    case LFG_LIST_ACTIVITY_CATEGORY_ARENA_SKIRMISHES:
     case LFG_LIST_ACTIVITY_CATEGORY_BATTLEGROUNDS:
     case LFG_LIST_ACTIVITY_CATEGORY_RATED_BATTLEGROUNDS:
-    case LFG_LIST_ACTIVITY_CATEGORY_OUTDOOR_PVP:
+    case LFG_LIST_ACTIVITY_CATEGORY_ISLAND_EXPEDITIONS:
         return true;
     default:
-        return activity->ID == 17;    ///< Custom PvP
+        return activity->ID == LFG_LIST_ACTIVITY_CATEGORY_CUSTOM;    ///< Custom PvP
+    }
+}
+
+bool LFGListMgr::IsActivityDungeon(GroupFinderActivityEntry const* activity) const
+{
+    if (!activity)
+        return false;
+
+    switch (activity->GroupFinderCategoryID)
+    {
+        case LFG_LIST_ACTIVITY_CATEGORY_DUNGEON:
+        case LFG_LIST_ACTIVITY_CATEGORY_QUESTING:
+        case LFG_LIST_ACTIVITY_CATEGORY_RAIDS:
+        case LFG_LIST_ACTIVITY_CATEGORY_SCENARIOS:
+        case LFG_LIST_ACTIVITY_CATEGORY_THORGAST:
+            return true;
+        default:
+            return activity->ID == LFG_LIST_ACTIVITY_CATEGORY_DUNGEON;
     }
 }
 

@@ -42,16 +42,18 @@ enum class LFGListApplicationStatus : uint8
 
 enum LFGListActivityCategory
 {
-    LFG_LIST_ACTIVITY_CATEGORY_ZONE = 1,
-    LFG_LIST_ACTIVITY_CATEGORY_DUNGEON = 2,
-    LFG_LIST_ACTIVITY_CATEGORY_RAID = 3,
-    LFG_LIST_ACTIVITY_CATEGORY_ARENA = 4,
-    LFG_LIST_ACTIVITY_CATEGORY_SCENARIO = 5,
-    LFG_LIST_ACTIVITY_CATEGORY_CUSTOM = 6,
-    LFG_LIST_ACTIVITY_CATEGORY_ARENA_SKIRMISH = 7,
-    LFG_LIST_ACTIVITY_CATEGORY_BATTLEGROUNDS = 8,
-    LFG_LIST_ACTIVITY_CATEGORY_RATED_BATTLEGROUNDS = 9,
-    LFG_LIST_ACTIVITY_CATEGORY_OUTDOOR_PVP = 10
+    LFG_LIST_ACTIVITY_CATEGORY_QUESTING                      = 1,
+    LFG_LIST_ACTIVITY_CATEGORY_DUNGEON                       = 2,
+    LFG_LIST_ACTIVITY_CATEGORY_RAIDS                         = 3,
+    LFG_LIST_ACTIVITY_CATEGORY_ARENAS                        = 4,
+    LFG_LIST_ACTIVITY_CATEGORY_SCENARIOS                     = 5,
+    LFG_LIST_ACTIVITY_CATEGORY_CUSTOM                        = 6,
+    LFG_LIST_ACTIVITY_CATEGORY_ARENA_SKIRMISHES              = 7,
+    LFG_LIST_ACTIVITY_CATEGORY_BATTLEGROUNDS                 = 8,
+    LFG_LIST_ACTIVITY_CATEGORY_RATED_BATTLEGROUNDS           = 9,
+    LFG_LIST_ACTIVITY_CATEGORY_ISLAND_EXPEDITIONS            = 111,
+    LFG_LIST_ACTIVITY_CATEGORY_THORGAST                      = 113
+
 };
 
 enum class LFGListStatus : uint8
@@ -134,6 +136,7 @@ struct LFGListEntry
     uint32 CreationTime;
     uint32 HonorLevel;
     uint32 QuestID;
+    uint32 ActivityID = 0;
     float ItemLevel;
     std::string GroupName;
     std::string Comment;
@@ -143,6 +146,7 @@ struct LFGListEntry
     bool minChallange = false;
     float TypeActivity = 0.0f;
     bool HasQuest = false;
+    bool LimitToFaction = false;
     bool Queued = false;
     uint32 MinMyticPlusRating = 0;
 };

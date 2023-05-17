@@ -20,7 +20,8 @@
 
 #include "Packet.h"
 #include "LFGPacketsCommon.h"
-#include <LFGPackets.h>
+#include "LFGPackets.h"
+
 
 namespace WorldPackets
 {
@@ -48,6 +49,7 @@ namespace WorldPackets
             bool AutoAccept = false;
             float TypeActivity = 0.0f;
             bool HasQuest = false;
+            bool LimitToFaction = false;
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
@@ -218,7 +220,6 @@ namespace WorldPackets
 
             void Read() override { }
 
-            WorldPackets::LFG::LfgPlayerInfo lfgPlayerInfo;
             ListRequest Request;
         };
 
@@ -323,11 +324,10 @@ namespace WorldPackets
         class LfgListUpdateBlacklist final : public ServerPacket
         {
         public:
-            LfgListUpdateBlacklist() : ServerPacket(SMSG_LFG_LIST_UPDATE_BLACKLIST, 4) { }
+            LfgListUpdateBlacklist() : ServerPacket(SMSG_LFG_LIST_UPDATE_BLACKLIST) { }
 
             WorldPacket const* Write() override;
 
-            uint32 BlacklistEntryCount = 0;
             std::vector<LFGListBlacklist> Blacklist;
         };
 
@@ -367,11 +367,23 @@ namespace WorldPackets
         class LfgListSearchResultUpdate final : public ServerPacket
         {
         public:
-            LfgListSearchResultUpdate() : ServerPacket(SMSG_LFG_LIST_SEARCH_RESULTS_UPDATE, 4) { }
+            LfgListSearchResultUpdate() : ServerPacket(SMSG_LFG_LIST_SEARCH_RESULTS_UPDATE) { }
 
             WorldPacket const* Write() override;
 
             Array<LfgListSearchResult, 50> ResultUpdate;
+        };
+
+        class LfgListUpdateExpiration final : public ServerPacket
+        {
+        public:
+            LfgListUpdateExpiration() : ServerPacket(SMSG_LFG_LIST_UPDATE_EXPIRATION) { }
+
+            WorldPacket const* Write() override;
+
+            LFG::RideTicket ApplicationTicket;
+            uint32 TimeoutTime = 0;
+            uint8 Status = 0;
         };
     }
 }

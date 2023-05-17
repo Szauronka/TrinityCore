@@ -471,3 +471,11 @@ WorldPacket const* WorldPackets::LFG::RequestPVPRewardsResponse::Write()
 
 	return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::LFG::SetFastLaunchResult::Write()
+{
+	_worldPacket.WriteBit(Set);
+	_worldPacket.FlushBits();
+
+	return &_worldPacket;
+}

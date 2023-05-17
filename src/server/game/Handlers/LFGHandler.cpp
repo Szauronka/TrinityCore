@@ -150,7 +150,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
     // Get player locked Dungeons
     for (auto const& lock : sLFGMgr->GetLockedDungeons(_player->GetGUID()))
-        lfgPlayerInfo.BlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel, 1);
+        lfgPlayerInfo.BlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel,1);
 
     for (uint32 slot : randomDungeons)
     {
@@ -223,7 +223,7 @@ void WorldSession::SendLfgPartyLockInfo()
         WorldPackets::LFG::LFGBlackList& lfgBlackList = lfgPartyInfo.Player.back();
         lfgBlackList.PlayerGuid = pguid;
         for (auto const& lock : sLFGMgr->GetLockedDungeons(pguid))
-            lfgBlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel, 0);
+            lfgBlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel,1);
     }
 
     TC_LOG_DEBUG("lfg", "SMSG_LFG_PARTY_INFO {}", GetPlayerInfo());

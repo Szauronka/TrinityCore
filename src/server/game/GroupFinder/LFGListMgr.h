@@ -48,6 +48,7 @@ class LFGListMgr
         LFGListStatus CanQueueFor(LFGListEntry* entry, Player* requestingPlayer, bool apply = true);
         void RemoveAllApplicationsByPlayer(uint32 playerGUID, bool notify = false);
         bool IsActivityPvP(GroupFinderActivityEntry const* activity) const;
+        bool IsActivityDungeon(GroupFinderActivityEntry const* activity) const;
         float GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* activity, Player* player) const;
         uint8 GetApplicationCountByPlayer(ObjectGuid::LowType guid) const;
         float GetLowestItemLevelInGroup(LFGListEntry* entry) const;

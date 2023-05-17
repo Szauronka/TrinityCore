@@ -509,6 +509,16 @@ namespace WorldPackets
             bool ArenaBraw = false;
         };
 
+        class SetFastLaunchResult final : public ServerPacket
+        {
+        public:
+            SetFastLaunchResult() : ServerPacket(SMSG_SET_DF_FAST_LAUNCH_RESULT, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Set = false;
+        };
+
     }
 }
 
