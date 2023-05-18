@@ -260,4 +260,13 @@ void SetPetSlot::Read()
     _worldPacket >> DestSlot;
     _worldPacket >> StableMaster;
 }
+WorldPacket const* GossipQuestUpdate::Write()
+{
+    _worldPacket << GossipGUID;
+    _worldPacket << uint32(QuestDataText.size());
+
+    for (ClientGossipText const& text : QuestDataText)
+        _worldPacket << text;
+    return &_worldPacket;
+}
 }

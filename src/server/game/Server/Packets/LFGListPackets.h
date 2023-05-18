@@ -256,6 +256,7 @@ namespace WorldPackets
 
             void Read() override { }
 
+
         };
 
         class LfgListApplicationUpdate final : public ServerPacket

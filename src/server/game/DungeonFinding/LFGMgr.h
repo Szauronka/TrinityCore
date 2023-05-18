@@ -75,12 +75,10 @@ enum LfgFlags
 /// Determines the type of instance
 enum LfgType
 {
-    LFG_TYPE_NONE                                = 0,
+    LFG_TYPE_10_V10_BATTLEGROUND                 = 0,
     LFG_TYPE_DUNGEON                             = 1,
     LFG_TYPE_RAID                                = 2,
-    LFG_TYPE_QUEST                               = 3,
     LFG_TYPE_ZONE                                = 4,
-    LFG_TYPE_HEROIC                              = 5,
     LFG_TYPE_RANDOM                              = 6
 };
 
@@ -173,6 +171,7 @@ typedef std::map<ObjectGuid, LfgPlayerBoot> LfgPlayerBootContainer;
 typedef std::map<ObjectGuid, LfgGroupData> LfgGroupDataContainer;
 typedef std::map<ObjectGuid, LfgPlayerData> LfgPlayerDataContainer;
 typedef std::unordered_map<uint32, LFGDungeonData> LFGDungeonContainer;
+typedef std::unordered_map<uint32, uint32> ShortageRoleMaskContainer;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
@@ -311,6 +310,7 @@ struct LFGDungeonData
 
     // Helpers
     uint32 Entry() const { return id + (type << 24); }
+    bool IsRaid() const;
 };
 
 class TC_GAME_API LFGMgr
@@ -355,6 +355,8 @@ class TC_GAME_API LFGMgr
         uint32 GetDungeon(ObjectGuid guid, bool asId = true);
         /// Get the map id of the current dungeon
         uint32 GetDungeonMapId(ObjectGuid guid);
+        //// Get the heroic version of the current dungeon Id
+        uint32 GetDungeonIdForDifficulty(uint32 dungeonId, Difficulty difficulty);
         /// Get kicks left in current group
         uint8 GetKicksLeft(ObjectGuid gguid);
         /// Load Lfg group info from DB
@@ -431,6 +433,14 @@ class TC_GAME_API LFGMgr
         LfgState GetOldState(ObjectGuid guid);
         /// Check if given group guid is lfg
         bool IsLfgGroup(ObjectGuid guid);
+
+        // Shortages
+        void SetShortageRoleMask(uint32 dungeonId, uint8 role);
+        /// Returns the stored role mask for the shortage system indexed by random dungeon id
+        uint32 GetShortageRoleMask(uint32 dungeonId);
+        /// Checks if the player's class is allowed to perform his selected roles
+        bool CanPerformSelectedRoles(uint8 playerClass, uint8 roles) const;
+
         /// Gets the player count of given group
         uint8 GetPlayerCount(ObjectGuid guid);
         /// Add a new Proposal
@@ -462,6 +472,7 @@ class TC_GAME_API LFGMgr
         void RemovePlayerData(ObjectGuid guid);
         void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string const*>* playersMissingRequirement, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
+        void AddDungeonsFromGroupingMap(LfgCachedDungeonContainer& container, uint32 groupId, uint32 dungeonId);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
 
         // Proposals
@@ -492,6 +503,8 @@ class TC_GAME_API LFGMgr
         LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType
         // Reward System
         LfgRewardContainer RewardMapStore;                 /// Stores rewards for random dungeons
+        // Shortage System
+        ShortageRoleMaskContainer ShortageRoleMaskStore;   ///< Stores the roles that are enligible for additional rewards indexed by random dungeonId
         LFGDungeonContainer LfgDungeonStore;
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckContainer RoleChecksStore;             /// Current Role checks

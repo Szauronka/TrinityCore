@@ -224,6 +224,7 @@ DB2Storage<KeystoneAffixEntry>                  sKeystoneAffixStore("KeystoneAff
 DB2Storage<LanguageWordsEntry>                  sLanguageWordsStore("LanguageWords.db2", &LanguageWordsLoadInfo::Instance);
 DB2Storage<LanguagesEntry>                      sLanguagesStore("Languages.db2", &LanguagesLoadInfo::Instance);
 DB2Storage<LFGDungeonsEntry>                    sLFGDungeonsStore("LFGDungeons.db2", &LfgDungeonsLoadInfo::Instance);
+DB2Storage<LFGDungeonsGroupingMapEntry>         sLFGDungeonsGroupingMapStore("LFGDungeonsGroupingMap.db2", &LfgDungeonsGroupingMapLoadInfo::Instance);
 DB2Storage<LightEntry>                          sLightStore("Light.db2", &LightLoadInfo::Instance);
 DB2Storage<LiquidTypeEntry>                     sLiquidTypeStore("LiquidType.db2", &LiquidTypeLoadInfo::Instance);
 DB2Storage<LockEntry>                           sLockStore("Lock.db2", &LockLoadInfo::Instance);
@@ -865,6 +866,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sLanguagesStore);
     LOAD_DB2(sLFGDungeonsStore);
+    LOAD_DB2(sLFGDungeonsGroupingMapStore);
     LOAD_DB2(sLightStore);
     LOAD_DB2(sLiquidTypeStore);
     LOAD_DB2(sLockStore);

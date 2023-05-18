@@ -3594,6 +3594,19 @@ struct LfgDungeonsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 31, &LFGDungeonsMeta::Instance, HOTFIX_SEL_LFG_DUNGEONS };
 };
 
+struct LfgDungeonsGroupingMapLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "RandomLfgDungeonsID" },
+        { false, FT_BYTE, "GroupID" },
+        { false, FT_INT, "LfgDungeonsID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &LFGDungeonsGroupingMapMeta::Instance, HOTFIX_SEL_LFG_DUNGEONS_GROUPING_MAP };
+};
+
 struct LightLoadInfo
 {
     static constexpr DB2FieldMeta Fields[15] =

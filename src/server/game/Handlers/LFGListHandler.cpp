@@ -20,15 +20,13 @@
 #include "Group.h"
 #include "LfgListPackets.h"
 #include "SocialMgr.h"
+#include "Player.h"
 #include "Chat.h"
 #include "ObjectAccessor.h"
 
 void WorldSession::HandleRequestLfgListBlackList(WorldPackets::LfgList::RequestLfgListBlacklist& /*packet*/)
 {
-    WorldPackets::LfgList::LfgListUpdateBlacklist updateBlacklist;
- 
-
-    SendPacket(updateBlacklist.Write()); /// Activity and Reason loop - We dont need it
+    SendPacket(WorldPackets::LfgList::LfgListUpdateBlacklist().Write()); /// Activity and Reason loop - We dont need it
 }
 
 void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& packet)
@@ -58,7 +56,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
             if (GetPlayer()->GetGuildId() == 0 || GetPlayer()->GetGuildId() != leader->GetGuildId())
                 continue;
 
-        uint32 activityID = lfgEntry->GroupFinderActivityData->ID;
+        auto activityID = lfgEntry->GroupFinderActivityData->ID;
 
         result.ApplicationTicket.RequesterGuid = group->GetGUID();
         result.ApplicationTicket.Id = group->GetGUID().GetCounter();
@@ -94,6 +92,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
         result.JoinRequest.VoiceChat = lfgEntry->VoiceChat;
         result.JoinRequest.minChallange = lfgEntry->minChallange;
         result.JoinRequest.PrivateGroup = lfgEntry->PrivateGroup;
+        result.JoinRequest.LimitToFaction = lfgEntry->LimitToFaction;
         result.JoinRequest.Queued = lfgEntry->Queued;
         result.JoinRequest.QuestID = lfgEntry->QuestID;
         result.JoinRequest.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
@@ -110,16 +109,21 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
     auto list = new LFGListEntry;
     list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
     list->ItemLevel = packet.Request.RequiredItemLevel;
-    list->LimitToFaction = packet.Request.LimitToFaction;
-    list->AutoAccept = packet.Request.AutoAccept;
+    list->HonorLevel = packet.Request.HonorLevel;
+    list->TypeActivity = packet.Request.TypeActivity;
+    list->HasQuest = packet.Request.HasQuest;
     list->GroupName = packet.Request.GroupName;
     list->Comment = packet.Request.Comment;
     list->VoiceChat = packet.Request.VoiceChat;
-    list->HonorLevel = packet.Request.HonorLevel;
+    list->minChallange = packet.Request.minChallange;
+    list->PrivateGroup = packet.Request.PrivateGroup;
+    list->Queued = packet.Request.Queued;
+    list->LimitToFaction = packet.Request.LimitToFaction;
+    list->AutoAccept = packet.Request.AutoAccept;
     if (packet.Request.QuestID)
         list->QuestID = *packet.Request.QuestID;
     list->ApplicationGroup = nullptr;
-    list->PrivateGroup = packet.Request.PrivateGroup;
+    list->MinMyticPlusRating = packet.Request.MinMyticPlusRating;
     sLFGListMgr->Insert(list, GetPlayer());
 }
 
@@ -186,17 +190,22 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     if (!entry || !entry->ApplicationGroup->IsLeader(_player->GetGUID()))
         return;
 
+    entry->ActivityID = packet.UpdateRequest.ActivityID;
+    entry->LimitToFaction = packet.UpdateRequest.LimitToFaction;
+    entry->minChallange = packet.UpdateRequest.minChallange;
     entry->AutoAccept = packet.UpdateRequest.AutoAccept;
     entry->GroupName = packet.UpdateRequest.GroupName;
     entry->Comment = packet.UpdateRequest.Comment;
     entry->VoiceChat = packet.UpdateRequest.VoiceChat;
     entry->HonorLevel = packet.UpdateRequest.HonorLevel;
-    if (packet.UpdateRequest.QuestID)
+    if (packet.UpdateRequest.QuestID.has_value())
         entry->QuestID = *packet.UpdateRequest.QuestID;
 
     if (packet.UpdateRequest.RequiredItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))
         entry->ItemLevel = packet.UpdateRequest.RequiredItemLevel;
     entry->PrivateGroup = packet.UpdateRequest.PrivateGroup;
+    entry->MinMyticPlusRating = packet.UpdateRequest.MinMyticPlusRating;
+    entry->Queued = packet.UpdateRequest.Queued;
 
     sLFGListMgr->AutoInviteApplicantsIfPossible(entry);
     sLFGListMgr->SendLFGListStatusUpdate(entry);

@@ -279,6 +279,17 @@ namespace WorldPackets
             uint32 PetNumber = 0;
             uint8 DestSlot = 0;
         };
+
+        class GossipQuestUpdate final : public ServerPacket
+        {
+        public:
+            GossipQuestUpdate() : ServerPacket(SMSG_GOSSIP_QUEST_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GossipGUID;
+            std::vector<NPC::ClientGossipText> QuestDataText;
+        };
     }
 }
 

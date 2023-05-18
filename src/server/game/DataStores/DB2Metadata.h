@@ -7076,6 +7076,18 @@ struct LFGDungeonsMeta
     static constexpr DB2Meta Instance{ 1361033, -1, 29, 29, 0x5314B0A9, Fields, -1 };
 };
 
+struct LFGDungeonsGroupingMapMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_SHORT, 1, false },
+        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 1339818 , -1, 3, 2, 0x3538AE33, Fields, 2 };
+};
+
 struct LFGRoleRequirementMeta
 {
     static constexpr DB2MetaField Fields[3] =

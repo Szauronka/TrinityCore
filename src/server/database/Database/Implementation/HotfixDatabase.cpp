@@ -1128,6 +1128,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_LFG_DUNGEONS, "SELECT ID, Name_lang, Description_lang FROM lfg_dungeons_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
 
+    // LfgDungeonsGroupingMap.db2
+    PrepareStatement(HOTFIX_SEL_LFG_DUNGEONS_GROUPING_MAP, "SELECT ID, RandomLfgDungeonsID, GroupID, LfgDungeonsID FROM lfg_dungeons_grouping_map"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_LFG_DUNGEONS_GROUPING_MAP, "SELECT MAX(ID) + 1 FROM lfg_dungeons_grouping_map", CONNECTION_SYNCH);
+
     // Light.db2
     PrepareStatement(HOTFIX_SEL_LIGHT, "SELECT ID, GameCoordsX, GameCoordsY, GameCoordsZ, GameFalloffStart, GameFalloffEnd, ContinentID, "
         "LightParamsID1, LightParamsID2, LightParamsID3, LightParamsID4, LightParamsID5, LightParamsID6, LightParamsID7, LightParamsID8 FROM light"
