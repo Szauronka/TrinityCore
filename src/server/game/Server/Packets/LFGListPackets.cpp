@@ -40,9 +40,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
     data << join.ItemLevel;
     data << join.HonorLevel;
 
+    data << join.TypeActivity;
+
     data.WriteBits(join.GroupName.length(), 8);
-    data.WriteBits(join.Comment.length(), 11);
-    data.WriteBits(join.VoiceChat.length(), 8);
+    data.WriteBits(join.Comment.length(), 12);
+    data.WriteBits(join.VoiceChat.length(), 6);
+    data.WriteBit(join.minChallege);
     data.WriteBit(join.PrivateGroup);
     data.WriteBit(join.HasQuest);
     data.WriteBit(join.AutoAccept);
@@ -55,6 +58,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
     if (join.HasQuest && *join.QuestID != 0)
         data << *join.QuestID;
 
+    if (join.minChallege)
+        data << join.MinMyticPlusRating;
+
 
     return data;
 }
@@ -66,10 +72,11 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
     data >> join.ItemLevel;
     data >> join.HonorLevel;
 
-    //data.ResetBitReader();
+    data >> join.TypeActivity;
+
     uint32 NameLen = data.ReadBits(8);
-    uint32 CommenteLen = data.ReadBits(11);
-    uint32 VoiceChateLen = data.ReadBits(8);
+    uint32 CommenteLen = data.ReadBits(12);
+    uint32 VoiceChateLen = data.ReadBits(6);
     join.PrivateGroup = data.ReadBit();
     join.HasQuest = data.ReadBit();
     join.AutoAccept = data.ReadBit();
@@ -77,16 +84,19 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
     join.GroupName = data.ReadString(NameLen);
     join.Comment = data.ReadString(CommenteLen);
     join.VoiceChat = data.ReadString(VoiceChateLen);
+    join.minChallege = data.ReadBit();
 
     if (join.HasQuest)
         data >> *join.QuestID;
+
+    if (join.minChallege)
+        data >> join.MinMyticPlusRating;
 
     return data;
 }
 
 WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 {
-    _worldPacket << BlacklistCount;
     std::sort(Blacklist.begin(), Blacklist.end(), [](LFGListBlacklist const& a, LFGListBlacklist const& b) -> bool
     {
             return a.ActivityID < b.ActivityID;
@@ -95,7 +105,6 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
     _worldPacket << Blacklist.size();
     for (LFGListBlacklist const& blackList : Blacklist)
     {
-        _worldPacket << BlacklistCount;
         _worldPacket << blackList;
     }
 
@@ -186,11 +195,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListSearchResult
 {
     data << listSearch.ApplicationTicket;
     data << listSearch.ResultID;
-    data << listSearch.UnkGuid1;
-    data << listSearch.UnkGuid2;
-    data << listSearch.UnkGuid3;
-    data << listSearch.UnkGuid4;
-    data << listSearch.UnkGuid5;
+    data << listSearch.LastTouchedVoiceChat;
+    data << listSearch.PartyGUID;
+    data << listSearch.BNetFriends;
+    data << listSearch.CharacterFriends;
+    data << listSearch.GuildMates;
     data << listSearch.VirtualRealmAddress;
     data << uint32(listSearch.BNetFriendsGuids.size());
     data << uint32(listSearch.NumCharFriendsGuids.size());
@@ -200,7 +209,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListSearchResult
     data << listSearch.Age;
     data << listSearch.ApplicationStatus;
 
-    data << listSearch.UnkGuid5;
+    data << listSearch.GuildMates;
 
     for (ObjectGuid const& v : listSearch.BNetFriendsGuids)
         data << v;
@@ -414,4 +423,9 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateExpiration::Write()
     _worldPacket << Status;
 
     return &_worldPacket;
+}
+
+void WorldPackets::LfgList::LfgListJoin::Read()
+{
+    _worldPacket >> Request;
 }

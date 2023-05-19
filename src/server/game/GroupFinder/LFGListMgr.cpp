@@ -148,7 +148,9 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
     status.Request.ItemLevel = lfgEntry->ItemLevel;
     status.Request.HonorLevel = lfgEntry->HonorLevel;
+    status.Request.minChallege = lfgEntry->minChallege;
     status.Request.AutoAccept = lfgEntry->AutoAccept;
+    status.Request.TypeActivity = lfgEntry->TypeActivity;
     status.Request.PrivateGroup = lfgEntry->PrivateGroup;
     status.Request.HasQuest = lfgEntry->HasQuest;
     status.Request.GroupName = lfgEntry->GroupName;
@@ -156,6 +158,9 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     status.Request.VoiceChat = lfgEntry->VoiceChat;
     if(status.Request.HasQuest)
         status.Request.QuestID = lfgEntry->QuestID;
+
+    if (status.Request.minChallege)
+        status.Request.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
 
     if (worldSession)
     {
@@ -557,10 +562,10 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
     responce.SearchResult.ApplicationTicket.Id = group->GetGUID().GetCounter();
     responce.SearchResult.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     responce.SearchResult.ApplicationTicket.Time = lfgEntry->CreationTime;
-    responce.SearchResult.UnkGuid1 = group->GetLeaderGUID();
-    responce.SearchResult.UnkGuid2 = group->GetLeaderGUID();
-    responce.SearchResult.UnkGuid3 = group->GetLeaderGUID();
-    responce.SearchResult.UnkGuid4 = group->GetLeaderGUID();
+    responce.SearchResult.LastTouchedVoiceChat = group->GetLeaderGUID();
+    responce.SearchResult.PartyGUID = group->GetLeaderGUID();
+    responce.SearchResult.BNetFriends = group->GetLeaderGUID();
+    responce.SearchResult.GuildMates = group->GetLeaderGUID();
     responce.SearchResult.VirtualRealmAddress = GetVirtualRealmAddress();
     responce.SearchResult.CompletedEncounters = 0;
     responce.SearchResult.ResultID = 3;

@@ -137,14 +137,17 @@ struct LFGListEntry
     uint32 Timeout = 0;
     uint32 CreationTime = 0;
 
+    Optional<uint32> QuestID;
     int32 ActivityID = 0;
-    uint32 HonorLevel = 0;
-    uint32 QuestID = 0;
     float ItemLevel = 0.0f;
+    uint32 HonorLevel = 0;
     std::string GroupName;
     std::string Comment;
     std::string VoiceChat;
+    bool minChallege = false;
+    bool PrivateGroup = false;
     bool HasQuest = false;
     bool AutoAccept = false;
-    bool PrivateGroup = false;
+    float TypeActivity = 0.0f;
+    uint32 MinMyticPlusRating = 0;
 };

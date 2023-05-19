@@ -53,9 +53,12 @@ namespace WorldPackets
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
+            bool minChallege = false;
             bool PrivateGroup = false;
             bool HasQuest = false;
             bool AutoAccept = false;
+            float TypeActivity = 0.0f;
+            uint32 MinMyticPlusRating = 0;
         };
 
         struct MemberInfo
@@ -75,11 +78,11 @@ namespace WorldPackets
             GuidList BNetFriendsGuids;
             GuidList NumCharFriendsGuids;
             GuidList NumGuildMateGuids;
-            ObjectGuid UnkGuid1;
-            ObjectGuid UnkGuid2;
-            ObjectGuid UnkGuid3;
-            ObjectGuid UnkGuid4;
-            ObjectGuid UnkGuid5;
+            ObjectGuid LastTouchedVoiceChat;
+            ObjectGuid PartyGUID;
+            ObjectGuid BNetFriends;
+            ObjectGuid CharacterFriends;
+            ObjectGuid GuildMates;
             uint32 VirtualRealmAddress = 0;
             uint32 CompletedEncounters = 0;
             uint32 Age = 0;
@@ -216,7 +219,7 @@ namespace WorldPackets
         public:
             LfgListJoin(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_JOIN, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
 
             ListRequest Request;
         };
