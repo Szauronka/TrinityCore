@@ -18,6 +18,8 @@
 #pragma once
 
 #include "Common.h"
+#include "Group.h"
+#include "Player.h"
 #include "DB2Structure.h"
 
 static uint16 const LFG_LIST_APPLY_FOR_GROUP_TIMEOUT = 300;
@@ -132,21 +134,17 @@ struct LFGListEntry
     GroupFinderActivityEntry const* GroupFinderActivityData;
     Group* ApplicationGroup;
 
-    uint32 Timeout;
-    uint32 CreationTime;
-    uint32 HonorLevel;
-    uint32 QuestID;
-    uint32 ActivityID = 0;
-    float ItemLevel;
+    uint32 Timeout = 0;
+    uint32 CreationTime = 0;
+
+    int32 ActivityID = 0;
+    uint32 HonorLevel = 0;
+    uint32 QuestID = 0;
+    float ItemLevel = 0.0f;
     std::string GroupName;
     std::string Comment;
     std::string VoiceChat;
-    bool AutoAccept;
-    bool PrivateGroup = false;
-    bool minChallange = false;
-    float TypeActivity = 0.0f;
     bool HasQuest = false;
-    bool LimitToFaction = false;
-    bool Queued = false;
-    uint32 MinMyticPlusRating = 0;
+    bool AutoAccept = false;
+    bool PrivateGroup = false;
 };

@@ -473,7 +473,7 @@ public:
     std::vector<JournalEncounterEntry const*> const* GetJournalEncounterByJournalInstanceId(uint32 instanceId);
     JournalTierEntry const* GetJournalTier(uint32 index) const;
     double GetChallngeWeight(uint32 mapID);
-    static GroupFinderActivityEntry const* GetActivityID(uint32 activityID, Difficulty difficulty);
+    static GroupFinderActivityEntry const* GetActivityID(uint32 activityID);
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);

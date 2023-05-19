@@ -2875,10 +2875,10 @@ double DB2Manager::GetChallngeWeight(uint32 mapID)
     return 0.0;
 }
 
-GroupFinderActivityEntry const* DB2Manager::GetActivityID(uint32 activityID, Difficulty difficulty)
+GroupFinderActivityEntry const* DB2Manager::GetActivityID(uint32 activityID)
 {
     for (GroupFinderActivityEntry const* activity : sGroupFinderActivityStore)
-        if (activity->ID == uint32(activityID) && Difficulty(activity->DifficultyID) == difficulty)
+        if (activity->ID == uint32(activityID))
             return activity;
 
     return nullptr;

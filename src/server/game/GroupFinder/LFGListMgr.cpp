@@ -83,11 +83,6 @@ bool LFGListMgr::Insert(LFGListEntry* lfgEntry, Player* requester)
     if (!CanInsert(lfgEntry, requester, true)) {
         return false;
     }
-    if (!IsEligibleForQueue(requester))
-    {
-        SendLfgListJoinResult(lfgEntry, LFGListStatus::LFG_LIST_STATUS_ERR_ALREADY_USING_LFG_LIST_LIST, requester);
-        return false;
-    }
 
     auto group = requester->GetGroup();
     if (group && group->isBGGroup())
@@ -145,26 +140,22 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
         status.ApplicationTicket.Time = lfgEntry->CreationTime;
     }
 
-    status.ExpirationTime = lfgEntry->Timeout;
-    //status.Status = AsUnderlyingType(debugStatus != LFGListStatus::None ? debugStatus : LFGListStatus::Joined);
+
+    status.RemainingTime = lfgEntry->Timeout;
+    status.ResultId = AsUnderlyingType(debugStatus != LFGListStatus::None ? debugStatus : LFGListStatus::Joined);
     status.Listed = listed;
 
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
-    status.Request.RequiredItemLevel = lfgEntry->ItemLevel;
+    status.Request.ItemLevel = lfgEntry->ItemLevel;
     status.Request.HonorLevel = lfgEntry->HonorLevel;
     status.Request.AutoAccept = lfgEntry->AutoAccept;
-    status.Request.TypeActivity = lfgEntry->TypeActivity;
+    status.Request.PrivateGroup = lfgEntry->PrivateGroup;
     status.Request.HasQuest = lfgEntry->HasQuest;
     status.Request.GroupName = lfgEntry->GroupName;
     status.Request.Comment = lfgEntry->Comment;
     status.Request.VoiceChat = lfgEntry->VoiceChat;
-    status.Request.minChallange = lfgEntry->minChallange;
-    status.Request.PrivateGroup = lfgEntry->PrivateGroup;
-    status.Request.LimitToFaction = lfgEntry->LimitToFaction;
-    status.Request.Queued =lfgEntry->Queued;
-    status.Request.HonorLevel = lfgEntry->HonorLevel;
-    status.Request.QuestID = lfgEntry->QuestID;
-    status.Request.MinMyticPlusRating = lfgEntry->MinMyticPlusRating;
+    if(status.Request.HasQuest)
+        status.Request.QuestID = lfgEntry->QuestID;
 
     if (worldSession)
     {
@@ -576,7 +567,7 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
     responce.SearchResult.Age = lfgEntry->CreationTime;
     responce.SearchResult.ApplicationStatus = AsUnderlyingType(LFGListApplicationStatus::None);
     responce.SearchResult.JoinRequest.ActivityID = activityID;
-    responce.SearchResult.JoinRequest.RequiredItemLevel = lfgEntry->ItemLevel;
+    responce.SearchResult.JoinRequest.ItemLevel = lfgEntry->ItemLevel;
     responce.SearchResult.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
     responce.SearchResult.JoinRequest.GroupName = lfgEntry->GroupName;
     responce.SearchResult.JoinRequest.Comment = lfgEntry->Comment;

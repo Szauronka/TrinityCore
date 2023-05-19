@@ -16,6 +16,7 @@
  */
 
 #include "LfgListPackets.h"
+#include "Optional.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist const& blackList)
 {
@@ -35,30 +36,25 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest const& join)
 {
     data << join.ActivityID;
-    data << join.RequiredItemLevel;
+
+    data << join.ItemLevel;
     data << join.HonorLevel;
-    data << join.TypeActivity;
-    data << join.MinMyticPlusRating;
 
     data.WriteBits(join.GroupName.length(), 8);
-    data.WriteBits(join.Comment.length(), 12);
+    data.WriteBits(join.Comment.length(), 11);
     data.WriteBits(join.VoiceChat.length(), 8);
-    data.WriteBit(join.AutoAccept);
     data.WriteBit(join.PrivateGroup);
-    data.WriteBit(join.minChallange);
-    data.WriteBit(join.LimitToFaction);
-    data.WriteBit(join.QuestID.has_value() && *join.QuestID != 0);
+    data.WriteBit(join.HasQuest);
+    data.WriteBit(join.AutoAccept);
     data.FlushBits();
 
     data.WriteString(join.GroupName);
     data.WriteString(join.Comment);
     data.WriteString(join.VoiceChat);
 
-    if (join.QuestID.has_value() && *join.QuestID != 0)
+    if (join.HasQuest && *join.QuestID != 0)
         data << *join.QuestID;
 
-    if (join.minChallange && join.MinMyticPlusRating != 0)
-        data << join.MinMyticPlusRating;
 
     return data;
 }
@@ -66,42 +62,42 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& join)
 {
     data >> join.ActivityID;
-    data >> join.RequiredItemLevel;
-    data >> join.HonorLevel;
-    data >> join.TypeActivity;
 
-    bool HasQuest = data.ReadBit();
+    data >> join.ItemLevel;
+    data >> join.HonorLevel;
+
+    //data.ResetBitReader();
     uint32 NameLen = data.ReadBits(8);
-    uint32 CommenteLen = data.ReadBits(12);
+    uint32 CommenteLen = data.ReadBits(11);
     uint32 VoiceChateLen = data.ReadBits(8);
-    bool minChallenge = data.ReadBit();
     join.PrivateGroup = data.ReadBit();
-    join.LimitToFaction = data.ReadBit();
-    join.Queued = data.ReadBit();
+    join.HasQuest = data.ReadBit();
+    join.AutoAccept = data.ReadBit();
 
     join.GroupName = data.ReadString(NameLen);
     join.Comment = data.ReadString(CommenteLen);
     join.VoiceChat = data.ReadString(VoiceChateLen);
 
-    if (HasQuest)
+    if (join.HasQuest)
         data >> *join.QuestID;
-
-    if (minChallenge)
-        data >> join.MinMyticPlusRating;
 
     return data;
 }
 
 WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 {
+    _worldPacket << BlacklistCount;
     std::sort(Blacklist.begin(), Blacklist.end(), [](LFGListBlacklist const& a, LFGListBlacklist const& b) -> bool
-        {
+    {
             return a.ActivityID < b.ActivityID;
-        });
+    });
 
-    _worldPacket << static_cast<uint32>(Blacklist.size());
-    for (auto const& map : Blacklist)
-        _worldPacket << map;
+    _worldPacket << Blacklist.size();
+    for (LFGListBlacklist const& blackList : Blacklist)
+    {
+        _worldPacket << BlacklistCount;
+        _worldPacket << blackList;
+    }
 
     return &_worldPacket;
 }
@@ -109,8 +105,8 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
 {
     _worldPacket << ApplicationTicket;
-    _worldPacket << ExpirationTime;
-    _worldPacket << ResultID;
+    _worldPacket << RemainingTime;
+    _worldPacket << ResultId;
     _worldPacket << Request;
     _worldPacket.WriteBit(Listed);
     _worldPacket.FlushBits();

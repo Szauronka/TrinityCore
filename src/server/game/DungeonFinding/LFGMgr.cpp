@@ -204,25 +204,12 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 
         switch (dungeon->TypeID)
         {
-            case LFG_TYPE_DUNGEON:
-            case LFG_TYPE_RAID:
-                LfgDungeonStore.insert(LFGDungeonContainer::value_type(dungeon->ID, LFGDungeonData(dungeon)));
-                break;
-            case LFG_TYPE_RANDOM:
-                LfgDungeonStore.insert(LFGDungeonContainer::value_type(dungeon->ID, LFGDungeonData(dungeon)));
-                ShortageRoleMaskStore[dungeon->ID] = 0;
-                break;
-        }
-
-        switch (dungeon->RequiredPlayerConditionId)
-        {
-            case LFG_TYPE_DUNGEON:
-            case LFG_TYPE_RAID:
-                LfgDungeonStore.insert(LFGDungeonContainer::value_type(dungeon->RequiredPlayerConditionId, LFGDungeonData(dungeon)));
-            case LFG_TYPE_RANDOM:
-                LfgDungeonStore.insert(LFGDungeonContainer::value_type(dungeon->RequiredPlayerConditionId, LFGDungeonData(dungeon)));
-                ShortageRoleMaskStore[dungeon->ID] = 0;
-                break;
+        case LFG_TYPE_DUNGEON:
+        case LFG_TYPE_RAID:
+        case LFG_TYPE_RANDOM:
+            LfgDungeonStore[dungeon->ID] = LFGDungeonData(dungeon);
+            ShortageRoleMaskStore[dungeon->ID] = 0;
+            break;
         }
     }
 
@@ -1779,7 +1766,7 @@ uint32 LFGMgr::GetSelectedRandomDungeon(ObjectGuid guid)
         if (!dungeons.empty())
         {
             LFGDungeonData const* dungeon = GetLFGDungeon(*dungeons.begin());
-            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+            if (dungeon && (dungeon->type == LFG_TYPE_RANDOM || dungeon->seasonal))
                 return *dungeons.begin();
         }
     }
@@ -1819,8 +1806,8 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return LFG_LOCKSTATUS_NOT_IN_SEASON;
             if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
                 return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (sInstanceLockMgr.FindActiveInstanceLock(guid, { dungeon->map, Difficulty(dungeon->difficulty) }))
-                return LFG_LOCKSTATUS_RAID_LOCKED;
+            /*if (sInstanceLockMgr.FindActiveInstanceLock(guid, {dungeon->map, Difficulty(dungeon->difficulty)}))
+                return LFG_LOCKSTATUS_RAID_LOCKED;*/
             if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
             {
                 if (levels->MinLevel > level)

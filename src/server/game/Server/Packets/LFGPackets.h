@@ -18,12 +18,12 @@
 #ifndef LFGPackets_h__
 #define LFGPackets_h__
 
-#include "Battleground.h"
 #include "Packet.h"
 #include "PacketUtilities.h"
 #include "ItemPacketsCommon.h"
 #include "LFGPacketsCommon.h"
 #include "Optional.h"
+#include "Battleground.h"
 
 namespace lfg
 {
@@ -289,8 +289,6 @@ namespace WorldPackets
             RideTicket Ticket;
             uint8 Result = 0;
             uint8 ResultDetail = 0;
-            uint32 BlackListCount = 0;
-            uint32 BlackListNamesCount = 0;
             std::vector<LFGBlackList> BlackList;
             std::vector<std::string const*> BlackListNames;
         };
@@ -345,7 +343,6 @@ namespace WorldPackets
             uint32 ActualSlot = 0;
             int32 RewardMoney = 0;
             int32 AddedXP = 0;
-            uint32 RewardsCount = 0;
             std::vector<LFGPlayerRewards> Rewards;
         };
 
@@ -518,7 +515,6 @@ namespace WorldPackets
 
             bool Set = false;
         };
-
     }
 }
 

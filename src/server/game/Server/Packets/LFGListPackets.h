@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "LFGPacketsCommon.h"
 #include "LFGPackets.h"
+#include "Optional.h"
 
 
 namespace WorldPackets
@@ -43,21 +44,18 @@ namespace WorldPackets
 
         struct ListRequest
         {
-            uint32 ActivityID = 0;
-            float RequiredItemLevel = 0.0f;
-            uint32 HonorLevel;
-            bool AutoAccept = false;
-            float TypeActivity = 0.0f;
-            bool HasQuest = false;
-            bool LimitToFaction = false;
+            ListRequest() { }
+
+            Optional<uint32> QuestID;
+            int32 ActivityID = 0;
+            float ItemLevel = 0.0f;
+            uint32 HonorLevel = 0;
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
-            bool minChallange = false;
             bool PrivateGroup = false;
-            bool Queued = false;
-            Optional<uint32> QuestID;
-            uint32 MinMyticPlusRating = 0; 
+            bool HasQuest = false;
+            bool AutoAccept = false;
         };
 
         struct MemberInfo
@@ -113,7 +111,7 @@ namespace WorldPackets
             uint32 VirtualRealmAddress = 0;
             uint32 Level = 0;
             uint32 HonorLevel = 0;
-            float ItemLevel = 0.0f;
+            uint16 ItemLevel = 0;
             uint8 PossibleRoleMask = 0;
             uint8 SelectedRoleMask = 0;
         };
@@ -254,7 +252,7 @@ namespace WorldPackets
         public:
             RequestLfgListBlacklist(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_LFG_LIST_BLACKLIST, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override  { }
 
 
         };
@@ -329,6 +327,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint32 BlacklistCount = 0;
             std::vector<LFGListBlacklist> Blacklist;
         };
 
@@ -340,8 +339,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             LFG::RideTicket ApplicationTicket;
-            uint32 ExpirationTime = 0;
-            uint8 ResultID = 0;
+            uint32 RemainingTime = 0;
+            uint8 ResultId = 0;
             ListRequest Request;
             bool Listed = false;
         };

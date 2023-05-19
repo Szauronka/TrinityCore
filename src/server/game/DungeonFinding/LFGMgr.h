@@ -82,6 +82,17 @@ enum LfgType
     LFG_TYPE_RANDOM                              = 6
 };
 
+enum LfgSubType
+{
+    LFG_SUB_TYPE_DUNGEON            = 1,
+    LFG_SUB_TYPE_LFR                = 2,
+    LFG_SUB_TYPE_SCENARIO           = 3,
+    LFG_SUB_TYPE_TIMEWALKING_RAID   = 4,
+    LFG_SUB_TYPE_BATTLEFIELD        = 5,
+    LFG_SUB_TYPE_BATTLEGROUND       = 6
+
+};
+
 /// Proposal states
 enum LfgProposalState
 {
@@ -278,6 +289,7 @@ struct LfgRoleCheck
     LfgRoleCheckState state;                               /// State of the rolecheck
     LfgDungeonSet dungeons;                                /// Dungeons group is applying for (expanded random dungeons)
     uint32 rDungeonId;                                     /// Random Dungeon Id.
+    uint32 queueId;                                        ///< Queue Id.
     ObjectGuid leader;                                     /// Leader of the group
 };
 

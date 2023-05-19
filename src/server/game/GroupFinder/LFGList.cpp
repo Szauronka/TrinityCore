@@ -17,12 +17,15 @@
 
 #include "LFGListMgr.h"
 #include "Containers.h"
+#include "DB2Structure.h"
 #include "GroupMgr.h"
 #include "Group.h"
+#include "Player.h"
 #include "ObjectMgr.h"
 #include "LFGPackets.h"
 #include "LFGListPackets.h"
 #include "LFGList.h"
+
 
 LFGListEntry::LFGListApplicationEntry::LFGListApplicationEntry(ObjectGuid::LowType playerGuid, LFGListEntry* owner)
 {

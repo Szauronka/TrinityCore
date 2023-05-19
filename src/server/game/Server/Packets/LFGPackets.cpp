@@ -16,7 +16,7 @@
  */
 
 #include "LFGPackets.h"
-#include "Player.h"
+#include "Battleground.h"
 
 void WorldPackets::LFG::DFJoin::Read()
 {
@@ -239,24 +239,48 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMe
     return data;
 }
 
+WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
+{
+    _worldPacket << uint8(PartyIndex);
+    _worldPacket << uint8(RoleCheckStatus);
+    _worldPacket << uint32(JoinSlots.size());
+    _worldPacket << uint32(BgQueueIDs.size());
+    _worldPacket << int32(GroupFinderActivityID);
+    _worldPacket << uint32(Members.size());
+
+    for (uint32 slot : JoinSlots)
+        _worldPacket << uint32(slot);
+
+    for (uint64 bgQueueID : BgQueueIDs)
+        _worldPacket << uint64(bgQueueID);
+
+    _worldPacket.WriteBit(IsBeginning);
+    _worldPacket.WriteBit(IsRequeue);
+    _worldPacket.FlushBits();
+
+    for (LFGRoleCheckUpdateMember const& member : Members)
+        _worldPacket << member;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
 {
+    _worldPacket << Ticket;
     _worldPacket << uint8(Result);
     _worldPacket << uint8(ResultDetail);
-    _worldPacket << BlackListCount;
-    _worldPacket << BlackListNamesCount;
+    _worldPacket << uint32(BlackList.size());
     _worldPacket << uint32(BlackListNames.size());
 
-    for (uint32 i = 0; i < BlackListCount; ++i)
-        _worldPacket << uint32(BlackList.size());
+    for (LFGBlackList const& blackList : BlackList)
+        _worldPacket << blackList;
 
-    for(uint32 i = 0; i < BlackListNamesCount; ++i)
-        for (std::string const* str : BlackListNames)
-            _worldPacket.WriteBits(str->length() + 1, 24);
+    for (std::string const* str : BlackListNames)
+        _worldPacket.WriteBits(str->length() + 1, 24);
 
-        for (std::string const* str : BlackListNames)
-         if (!str->empty())
-                _worldPacket << *str;
+    for (std::string const* str : BlackListNames)
+        if (!str->empty())
+            _worldPacket << *str;
 
     return &_worldPacket;
 }
@@ -299,10 +323,10 @@ WorldPacket const* WorldPackets::LFG::LFGPlayerReward::Write()
     _worldPacket << uint32(ActualSlot);
     _worldPacket << int32(RewardMoney);
     _worldPacket << int32(AddedXP);
-    _worldPacket << RewardsCount;
+    _worldPacket << uint32(Rewards.size());
 
-    for (uint32 i = 0; i < RewardsCount; ++i)
-        _worldPacket << Rewards.size(),i;
+    for (LFGPlayerRewards const& reward : Rewards)
+        _worldPacket << reward;
 
     return &_worldPacket;
 }
@@ -417,31 +441,6 @@ WorldPacket const* WorldPackets::LFG::ReadyCheckUpdate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
-{
-    _worldPacket << uint8(PartyIndex);
-    _worldPacket << uint8(RoleCheckStatus);
-    _worldPacket << uint32(JoinSlots.size());
-    _worldPacket << uint32(BgQueueIDs.size());
-    _worldPacket << int32(GroupFinderActivityID);
-    _worldPacket << uint32(Members.size());
-
-    for (uint32 slot : JoinSlots)
-        _worldPacket << uint32(slot);
-
-    for (uint64 bgQueueID : BgQueueIDs)
-        _worldPacket << uint64(bgQueueID);
-
-    _worldPacket.WriteBit(IsBeginning);
-    _worldPacket.WriteBit(IsRequeue);
-    _worldPacket.FlushBits();
-
-    for (LFGRoleCheckUpdateMember const& member : Members)
-        _worldPacket << member;
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::LFG::SlotInvalid::Write()
 {
     _worldPacket << Reason;
@@ -453,29 +452,29 @@ WorldPacket const* WorldPackets::LFG::SlotInvalid::Write()
 
 WorldPacket const* WorldPackets::LFG::RequestPVPRewardsResponse::Write()
 {
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::RandomBattleground];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::RandomBattleground];
 
-	_worldPacket.WriteBit(HasWon10vs10);
-	_worldPacket.WriteBit(HasWonSkirmish);
-	_worldPacket.WriteBit(HasWon2vs2);
-	_worldPacket.WriteBit(HasWon3vs3);
-	_worldPacket.FlushBits();
+    _worldPacket.WriteBit(HasWon10vs10);
+    _worldPacket.WriteBit(HasWonSkirmish);
+    _worldPacket.WriteBit(HasWon2vs2);
+    _worldPacket.WriteBit(HasWon3vs3);
+    _worldPacket.FlushBits();
 
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::Battleground10v10];
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::ArenaSkirmish];
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::Arena2v2];
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::Arena3v3];
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::BattlegroundBraw];
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::ArenaBraw];
-	_worldPacket << Rewards[(uint8)BattlegroundBracketType::EpicBattleground];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::Battleground10v10];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::ArenaSkirmish];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::Arena2v2];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::Arena3v3];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::BattlegroundBraw];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::ArenaBraw];
+    _worldPacket << Rewards[(uint8)BattlegroundBracketType::EpicBattleground];
 
-	return &_worldPacket;
+    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::LFG::SetFastLaunchResult::Write()
 {
-	_worldPacket.WriteBit(Set);
-	_worldPacket.FlushBits();
+    _worldPacket.WriteBit(Set);
+    _worldPacket.FlushBits();
 
-	return &_worldPacket;
+    return &_worldPacket;
 }
