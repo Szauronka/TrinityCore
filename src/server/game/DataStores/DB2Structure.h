@@ -643,6 +643,18 @@ struct Cfg_RegionsEntry
     uint32 ChallengeOrigin;
 };
 
+struct ChallengeModeItemBonusOverrideEntry
+{
+    uint32 ID;
+    int32 ItemBonusTreeGroupID;
+    int32 DstItemBonusTreeID;
+    int8 Type;
+    int32 Value;
+    int32 MythicPlusSeasonID;
+    int32 PvPSeasonID;
+    uint32 SrcItemBonusTreeID;
+};
+
 struct CharTitlesEntry
 {
     uint32 ID;
@@ -946,6 +958,15 @@ struct CinematicSequencesEntry
     std::array<uint16, 8> Camera;
 };
 
+struct ConditionalContentTuningEntry
+{
+    uint32 ID;
+    int32 OrderIndex;
+    int32 RedirectContentTuningID;
+    int32 RedirectFlag;
+    uint32 ParentContentTuningID;
+};
+
 struct ContentTuningEntry
 {
     uint32 ID;
@@ -988,9 +1009,9 @@ struct ContentTuningXExpectedEntry
 
 struct ContentTuningXLabelEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 LabelID;
-    int32 ContentTuningID;
+    uint32 ContentTuningID;
 };
 
 struct ConversationLineEntry
@@ -2200,18 +2221,18 @@ struct ItemBonusEntry
 };
 
 // new item upgrade system
-//struct ItemBonusListGroupEntryEntry
-//{
-//    uint32 ID;
-//    int32 ItemBonusListGroupID;
-//    int32 ItemBonusListID;
-//    int32 ItemLevelSelectorID;
-//    int32 SequenceValue;
-//    int32 ItemExtendedCostID;
-//    int32 PlayerConditionID;
-//    int32 Flags;
-//    int32 ItemLogicalCostGroupID;
-//};
+struct ItemBonusListGroupEntryEntry
+{
+    uint32 ID;
+    int32 ItemBonusListGroupID;
+    int32 ItemBonusListID;
+    int32 ItemLevelSelectorID;
+    int32 SequenceValue;
+    int32 ItemExtendedCostID;
+    int32 PlayerConditionID;
+    int32 Flags;
+    int32 ItemLogicalCostGroupID;
+};
 
 struct ItemBonusListLevelDeltaEntry
 {
@@ -2226,6 +2247,13 @@ struct ItemBonusListLevelDeltaEntry
 //    int32 ItemID;
 //};
 
+struct ItemBonusTreeEntry
+{
+    uint32 ID;
+    int32 Flags;
+    int32 InventoryTypeSlotMask;
+};
+
 struct ItemBonusTreeNodeEntry
 {
     uint32 ID;
@@ -2235,8 +2263,8 @@ struct ItemBonusTreeNodeEntry
     uint16 ChildItemLevelSelectorID;
     int32 ChildItemBonusListGroupID;
     int32 IblGroupPointsModSetID;
-    int32 Unknown1010_1;
-    int32 Unknown1010_2;
+    int32 MinMythicPlusLevel;
+    int32 MaxMythicPlusLevel;
     uint32 ParentItemBonusTreeID;
 };
 
@@ -2255,6 +2283,18 @@ struct ItemClassEntry
     int8 ClassID;
     float PriceModifier;
     uint8 Flags;
+};
+
+struct ItemContextPickerEntryEntry
+{
+    uint32 ID;
+    uint8 ItemCreationContext;
+    uint8 OrderIndex;
+    int32 PVal;
+    int32 LabelID;
+    uint32 Flags;
+    uint32 PlayerConditionID;
+    uint32 ItemContextPickerID;
 };
 
 struct ItemCurrencyCostEntry
@@ -2970,6 +3010,14 @@ struct MovieEntry
     int32 SubtitleFileFormat;
 };
 
+struct MythicPlusSeasonEntry
+{
+    uint32 ID;
+    int32 MilestoneSeason;
+    int32 ExpansionLevel;
+    int32 HeroicLFGDungeonMinGear;
+};
+
 struct NameGenEntry
 {
     uint32 ID;
@@ -3186,6 +3234,14 @@ struct PVPItemEntry
     uint32 ID;
     int32 ItemID;
     uint8 ItemLevelDelta;
+};
+
+struct PvpSeasonEntry
+{
+    uint32 ID;
+    int32 MilestoneSeason;
+    int32 AllianceAchievementID;
+    int32 HordeAchievementID;
 };
 
 struct PvpTalentEntry
