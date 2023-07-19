@@ -584,6 +584,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual.SpellXSpellVisualID = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_triggeredByAuraSpell  = nullptr;
+    m_procChainLength = caster->IsUnit() ? caster->ToUnit()->GetProcChainLength() : 0;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 
@@ -883,7 +884,7 @@ void Spell::UpdateDelayMomentForUnitTarget(Unit* unit, uint64 hitDelay)
         // if new hit delay is greater than old delay for this target we must check all other spell targets to see if m_delayMoment can be increased
         auto minDelayTargetItr = std::min_element(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [](Spell::TargetInfo const& itr, Spell::TargetInfo const& smallest)
         {
-            return itr.TimeDelay < smallest.TimeDelay;
+            return itr.TimeDelay && itr.TimeDelay < smallest.TimeDelay;
         });
 
         m_delayMoment = minDelayTargetItr->TimeDelay;
@@ -5690,7 +5691,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             if (m_spellInfo->ExcludeCasterAuraType && unitCaster->HasAuraType(m_spellInfo->ExcludeCasterAuraType))
                 return SPELL_FAILED_CASTER_AURASTATE;
 
-            if (reqCombat && unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat())
+            if (reqCombat && unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat(unitCaster))
                 return SPELL_FAILED_AFFECTING_COMBAT;
         }
 

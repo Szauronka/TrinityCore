@@ -27,7 +27,7 @@ typedef std::unordered_map<uint8, CriteriaProgressMap> StepCriteriaProgressMap;
 class TC_GAME_API InstanceScenario : public Scenario
 {
     public:
-        InstanceScenario(InstanceMap const* map, ScenarioData const* scenarioData);
+        InstanceScenario(InstanceMap* map, ScenarioData const* scenarioData);
 
         void LoadInstanceData();
 
