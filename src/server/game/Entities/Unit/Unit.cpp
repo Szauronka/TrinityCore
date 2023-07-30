@@ -864,6 +864,13 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     else if (victim->IsCreature() && damageTaken >= health && victim->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_UNKILLABLE))
     {
         damageTaken = health - 1;
+
+        // If we had damage (aka health was not 1 already) trigger OnHealthDepleted
+        if (damageTaken > 0)
+        {
+            if (CreatureAI* victimAI = victim->ToCreature()->AI())
+                victimAI->OnHealthDepleted(attacker, false);
+        }
     }
     else if (victim->IsVehicle() && damageTaken >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER)
     {
@@ -10916,7 +10923,10 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
         // Call creature just died function
         if (CreatureAI* ai = creature->AI())
+        {
+            ai->OnHealthDepleted(attacker, true);
             ai->JustDied(attacker);
+        }
 
         if (TempSummon * summon = creature->ToTempSummon())
         {
@@ -11948,7 +11958,7 @@ void Unit::KnockbackFrom(Position const& origin, float speedXY, float speedZ, Mo
         GetMotionMaster()->MoveKnockbackFrom(origin, speedXY, speedZ, spellEffectExtraData);
     else
     {
-        float o = GetPosition() == origin ? GetOrientation() + M_PI : origin.GetRelativeAngle(this);
+        float o = GetPosition() == origin ? GetOrientation() + M_PI : origin.GetAbsoluteAngle(this);
         if (speedXY < 0)
         {
             speedXY = -speedXY;
