@@ -85,10 +85,6 @@ public:
     void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
     void SaveToDB(CharacterDatabaseTransaction trans);
 
-    void ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete = false);
-
-    void ResetCriteriaID(CriteriaType type, uint32 id);
-
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
 
@@ -107,7 +103,6 @@ protected:
 
     std::string GetOwnerInfo() const override;
     CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const override;
-    CriteriaList const& GetCriteriaByType(CriteriaType type) const;
 
 private:
     Player* _owner;
