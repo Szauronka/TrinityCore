@@ -819,21 +819,6 @@ WorldPacket const* WorldPackets::Misc::SetMaxWeeklyQuantity::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Misc::UpdateTaskProgress::Write()
-{
-    _worldPacket << static_cast<uint32>(Progress.size());
-    for (auto const& x : Progress)
-    {
-        _worldPacket << x.Counts[20];
-        _worldPacket << x.FailureTime;
-        _worldPacket << x.Flags;
-        _worldPacket << x.TaskID;
-        _worldPacket << x.Unk;
-    }
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Misc::StopElapsedTimer::Write()
 {
 	_worldPacket << TimerID;

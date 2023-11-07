@@ -332,8 +332,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsMythicPlus() const;
         bool IsHeroicOrHigher() const;
         bool Is25ManRaid() const;
-        bool IsMythic() const;
-        bool IsTimeWalking() const;
+        bool IsTimewalking() const;
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;

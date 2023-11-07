@@ -21,6 +21,7 @@
 #include "DB2LoadInfo.h"
 #include "Hash.h"
 #include "ItemTemplate.h"
+#include "ItemBonusMgr.h"
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Random.h"
@@ -2580,17 +2581,6 @@ ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) 
 ItemClassEntry const* DB2Manager::GetItemClassByOldEnum(uint32 itemClass) const
 {
     return _itemClassByOldEnum[itemClass];
-}
-
-std::vector<int32> DB2Manager::GetItemBonusTreeVector(uint32 itemId, ItemContext itemContext) const
-{
-    std::set<uint32> bonusListIDs = GetDefaultItemBonusTree(itemId, itemContext);
-    std::vector<int32> vectorBonusListIDs;
-
-    for (uint32 bonusList : bonusListIDs)
-        vectorBonusListIDs.push_back(bonusList);
-
-    return vectorBonusListIDs;
 }
 
 bool DB2Manager::HasItemCurrencyCost(uint32 itemId) const

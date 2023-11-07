@@ -3265,11 +3265,6 @@ bool Map::Is25ManRaid() const
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
 }
 
-bool Map::IsMythic() const
-{
-    return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
-}
-
 bool Map::IsTimewalking() const
 {
     return (IsDungeon() && i_spawnMode == DIFFICULTY_TIMEWALKING) || (IsRaid() && i_spawnMode == DIFFICULTY_TIMEWALKING_RAID);

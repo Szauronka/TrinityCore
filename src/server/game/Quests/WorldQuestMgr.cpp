@@ -18,6 +18,7 @@
 #include "WorldQuestMgr.h"
 #include "ObjectMgr.h"
 #include "AchievementMgr.h"
+#include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "QuestPackets.h"
 #include "QuestObjectiveCriteriaMgr.h"
@@ -26,6 +27,7 @@
 #include "RaceMask.h"
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
+#include <ItemBonusMgr.h>
 using namespace WorldPackets::Quest;
 
 WorldQuestMgr::WorldQuestMgr()
@@ -400,7 +402,7 @@ void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest, bool delete
             player->RemoveRewardedQuest(quest->GetQuestId(), true);
             for (auto criteria : GetCriteriasForQuest(quest->GetQuestId()))
             {
-                player->GetAchievementMgr()->ResetCriteriaID(CriteriaType::CompleteQuest, criteria->ID);
+                player->UpdateCriteria(CriteriaType::CompleteQuest, criteria->ID);
                 player->GetQuestObjectiveCriteriaMgr()->ResetCriteriaTree(criteria->ModifierTreeId);
             }
         }
@@ -615,7 +617,7 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
             itemReward.Item.ItemID = worldQuestReward->RewardId;
             itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonuses();
             itemReward.Item.ItemBonus->Context = (ItemContext)worldQuestReward->RewardContext;
-            itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, ItemContext(worldQuestReward->RewardContext));
+            itemReward.Item.ItemBonus->BonusListIDs = WorldPackets::Item::ItemBonuses().BonusListIDs;
             WorldPackets::Quest::QueryQuestRewardResponse itemRew;
             itemRew.Quantity = worldQuestReward->RewardCount;
             packet.ItemRewards.push_back(itemReward);

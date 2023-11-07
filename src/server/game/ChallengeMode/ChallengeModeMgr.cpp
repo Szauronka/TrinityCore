@@ -22,6 +22,7 @@
 #include "GameTables.h"
 #include "GameObject.h"
 #include "Item.h"
+#include "ItemBonusMgr.h"
 #include "LootPackets.h"
 #include "InstanceScript.h"
 #include "StringConvert.h"
@@ -660,7 +661,7 @@ std::vector<int32> ChallengeModeMgr::GetBonusListIdsForRewards(uint32 baseItemIl
 
     const uint32 baseMythicIlevel = 885;
     std::pair<int32, uint32> bonusAndDeltaPair = bonusDescriptionByChallengeLevel[challengeLevel < 15 ? (challengeLevel - 2): 13];
-    return { bonusAndDeltaPair.first, (int32)sDB2Manager.GetItemBonusListForItemLevelDelta(baseMythicIlevel - baseItemIlevel + bonusAndDeltaPair.second) };
+    return { bonusAndDeltaPair.first, (int32)ItemBonusMgr::GetItemBonusListForItemLevelDelta(baseMythicIlevel - baseItemIlevel + bonusAndDeltaPair.second)};
 }
 
 void ChallengeModeMgr::Reward(Player* player, uint8 challengeLevel)
@@ -712,7 +713,7 @@ void ChallengeModeMgr::Reward(Player* player, uint8 challengeLevel)
     }
 
     std::vector<int32> bonusListIds = GetBonusListIdsForRewards(randomStuffItem->GetBaseItemLevel(), challengeLevel);
-    Item* pItem = player->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), ItemContext::NONE, bonusListIds);
+    Item* pItem = player->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), ItemContext::NONE, &bonusListIds);
     player->SendNewItem(pItem, 1, true, false, true);
 
     player->SendDisplayToast(itemId, DisplayToastType::NewItem, false, 1, DisplayToastMethod::Default, 0, pItem);

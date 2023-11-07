@@ -923,8 +923,8 @@ enum DifficultyFlags
     DIFFICULTY_FLAG_LFG_ONLY                = 0x10,
     DIFFICULTY_FLAG_LEGACY                  = 0x20,
     DIFFICULTY_FLAG_DISPLAY_HEROIC          = 0x40, // Controls icon displayed on minimap when inside the instance
-    DIFFICULTY_FLAG_DISPLAY_MYTHIC          = 0x80  // Controls icon displayed on minimap when inside the instance
-	DIFFICULTY_FLAG_UNK             		= 0x100 // Pvp and teeming island use
+    DIFFICULTY_FLAG_DISPLAY_MYTHIC          = 0x80, // Controls icon displayed on minimap when inside the instance
+	DIFFICULTY_FLAG_PVP_AND_TEAMING_ISLAND  = 0x100 // Pvp and teeming island use
 };
 
 enum class ExpectedStatType : uint8

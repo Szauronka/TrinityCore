@@ -45,6 +45,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "LFGPackets.h"
 #include "WorldStateMgr.h"
 #include <cstdarg>
 
@@ -699,6 +700,8 @@ void InstanceScript::AfterChallengeModeStarted()
 
 void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1, uint8 affix2, uint8 affix3, uint8 affix4)
 {
+    WorldPackets::LFG::LfgPlayerInfo lfgPlayerInfo;
+    WorldPackets::LFG::LfgPlayerDungeonInfo& playerDungeonInfo = lfgPlayerInfo.Dungeon.back();
     _challengeModeId = modeid;
     MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntryByModeId(GetChallengeModeId());
     if (!mapChallengeModeEntry)
@@ -707,7 +710,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     if (IsChallengeModeStarted())
         return;
 
-    if (GetCompletedEncounterMask() != 0)
+    if (playerDungeonInfo.EncounterMask != 0)
         return;
 
     if (instance->GetDifficultyID() != DIFFICULTY_MYTHIC)
@@ -1112,7 +1115,7 @@ void InstanceScript::CompleteChallengeMode()
 
     ChallengeMember member;
     member.guid = player->GetGUID();
-    member.specId = player->GetSpecializationId();// > GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+    member.specId = (uint16)player->GetPrimarySpecialization();// > GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
     member.Date = time(nullptr);
     member.ChallengeLevel = _challengeModeLevel;
     //chest id

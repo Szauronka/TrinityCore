@@ -1026,16 +1026,6 @@ namespace WorldPackets
             std::vector<uint16> Counts;
         };
 
-        class UpdateTaskProgress final : public ServerPacket
-        {
-        public:
-            UpdateTaskProgress() : ServerPacket(SMSG_UPDATE_TASK_PROGRESS, 4) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<TaskProgress> Progress;
-        };
-
         class StopElapsedTimer final : public ServerPacket
         {
         public:

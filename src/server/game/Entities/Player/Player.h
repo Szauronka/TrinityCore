@@ -1912,7 +1912,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
         static uint32 GetRoleBySpecializationId(uint32 specializationId);
-        TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetPrimarySpecialization(); }
         ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
 
 
@@ -2782,7 +2781,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
-        PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
         QuestObjectiveCriteriaMgr* GetQuestObjectiveCriteriaMgr() const { return m_questObjectiveCriteriaMgr.get(); }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         SceneMgr const& GetSceneMgr() const { return m_sceneMgr; }
