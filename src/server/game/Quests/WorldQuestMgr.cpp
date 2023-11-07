@@ -141,7 +141,7 @@ void WorldQuestMgr::LoadWorldQuestTemplates()
 {
     CleanWorldQuestTemplates();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, duration, variable, value FROM world_quest");
+    QueryResult result = WorldDatabase.PQuery("SELECT id, duration, variable, value FROM world_quest");
     if (!result)
         return;
 

@@ -6264,7 +6264,7 @@ void ObjectMgr::LoadQuestTasks()
 {
     for (std::pair<uint32, Quest> questContainer : _questTemplates)
     {
-        Quest quest = questContainer.second;
+        Quest& quest = questContainer.second;
 
         /* Need Test maybe it's not needed at all..
         CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(quest.GetQuestId());

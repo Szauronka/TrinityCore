@@ -30407,7 +30407,7 @@ void Player::_LoadChallengesAffix()
     if (sConfigMgr->GetIntDefault("KeyStoneAffix.Status", 0) == 0)
     {
         //                                                 0      1         2       3
-        QueryResult result = WorldDatabase.Query("SELECT affix1, affix2, affix3, affix4 FROM challenge_affix");
+        QueryResult result = WorldDatabase.PQuery("SELECT affix1, affix2, affix3, affix4 FROM challenge_affix");
 
         if (!result)
         {
