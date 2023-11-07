@@ -2128,9 +2128,9 @@ struct GroupFinderCategoryEntry
 
 struct GroupFinderActivityXPvpBracketEntry
 {
-    int32 ID;
-    int32 GroupFinderActivityID;
-    int32 PVPBracketTypeID;
+    uint32 ID;
+    uint32 GroupFinderActivityID;
+    uint8 PVPBracketTypeID;
 };
 
 struct HeirloomEntry
@@ -4551,15 +4551,17 @@ struct UIChromieTimeExpansionInfoEntry
     int32 ID;
     LocalizedString Name;
     LocalizedString Description;
-    LocalizedString DescriptionAlliance;
-    LocalizedString DescriptionHorde;
+    LocalizedString AllianceOverrideDesc;
+    LocalizedString HordeOverrideDesc;
     int32 SpellID;
-    int32 UiTextureAtlasElementLarge;
-    int32 UiTextureAtlasElementSmall;
-    int32 AlreadyOn;
-    int32 ExpansionLevelMask;
+    int32 MapAtlasElement;
+    int32 PreviewAtlasElement;
+    int32 ShowPlayerConditionID;
+    int32 ExpansionMask;
     int32 ContentTuningID;
-    int32 Completed;
+    int32 CompletedPlayerConditionID;
+    int32 SortPriority;
+    int32 RecommendPlayerConditionID;
 };
 
 struct UiMapEntry

@@ -894,7 +894,7 @@ struct CampaignLoadInfo
         { true, FT_INT, "Completed" },
         { true, FT_INT, "OnlyStallIf" },
         { true, FT_INT, "UiQuestDetailsThemeID" },
-        { false, FT_INT, "Flags" },
+        { true, FT_INT, "Flags" },
         { true, FT_INT, "DisplayPriority" },
         { true, FT_INT, "Field100245779012" },
         { true, FT_INT, "Field100246144013" },
@@ -2607,7 +2607,7 @@ struct GroupFinderActivityXPvpBracketLoadInfo
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "GroupFinderActivityID" },
-        { true, FT_INT, "PVPBracketTypeID" },
+        { true, FT_BYTE, "PVPBracketTypeID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 3, &GroupFinderActivityXPvpBracketMeta::Instance, HOTFIX_SEL_GROUP_FINDER_ACTIVITY_X_PVP_BRACKET };
@@ -6389,23 +6389,25 @@ struct TransportRotationLoadInfo
 
 struct UiChromieTimeExpansionInfoLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[14] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
-        { false, FT_STRING, "DescriptionAlliance" },
-        { false, FT_STRING, "DescriptionHorde" },
+        { false, FT_STRING, "AllianceOverrideDesc" },
+        { false, FT_STRING, "HordeOverrideDesc" },
         { true, FT_INT, "SpellID" },
-        { true, FT_INT, "UiTextureAtlasElementLarge" },
-        { true, FT_INT, "UiTextureAtlasElementSmall" },
-        { true, FT_INT, "AlreadyOn" },
-        { true, FT_INT, "ExpansionLevelMask" },
+        { true, FT_INT, "MapAtlasElement" },
+        { true, FT_INT, "PreviewAtlasElement" },
+        { true, FT_INT, "ShowPlayerConditionID" },
+        { true, FT_INT, "ExpansionMask" },
         { true, FT_INT, "ContentTuningID" },
-        { true, FT_INT, "Completed" },
+        { true, FT_INT, "CompletedPlayerConditionID" },
+        { true, FT_INT, "SortPriority" },
+        { true, FT_INT, "RecommendPlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &UIChromieTimeExpansionInfoMeta::Instance, HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO };
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &UIChromieTimeExpansionInfoMeta::Instance, HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO };
 };
 
 struct UiMapLoadInfo

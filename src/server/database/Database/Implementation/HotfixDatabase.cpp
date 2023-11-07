@@ -313,7 +313,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_BOUNTY_SET, "SELECT MAX(ID) + 1 FROM bounty_set", CONNECTION_SYNCH);
 
     // Campaign.db2
-    PrepareStatement(HOTFIX_SEL_CAMPAIGN, "SELECT ID, Title, InternalTitle, Description, UiTextureKitID, RewardQuestID, Prerequisite, "
+    PrepareStatement(HOTFIX_SEL_CAMPAIGN, "SELECT ID, Title, Description, UiTextureKitID, RewardQuestID, Prerequisite, "
         "Field90135755007, Completed, OnlyStallIf, UiQuestDetailsThemeID, Flags, DisplayPriority, Field100245779012, Field100246144013 FROM campaign"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CAMPAIGN, "SELECT MAX(ID) + 1 FROM campaign", CONNECTION_SYNCH);
@@ -1102,7 +1102,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_X_ITEM_EFFECT, "SELECT MAX(ID) + 1 FROM item_x_item_effect", CONNECTION_SYNCH);
 
     // JournalEncounter.db2
-    PrepareStatement(HOTFIX_SEL_JOURNAL_ENCOUNTER, "SELECT Name, Description, MapX, MapY, ID, JournalInstanceID, DungeonEncounterID, OrderIndex, "
+    PrepareStatement(HOTFIX_SEL_JOURNAL_ENCOUNTER, "SELECT Name, Description, Map1, Map2, ID, JournalInstanceID, DungeonEncounterID, OrderIndex, "
         "FirstSectionID, UiMapID, MapDisplayConditionID, Flags, DifficultyMask FROM journal_encounter WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_JOURNAL_ENCOUNTER, "SELECT MAX(ID) + 1 FROM journal_encounter", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_JOURNAL_ENCOUNTER, "SELECT ID, Name_lang, Description_lang FROM journal_encounter_locale"
@@ -1381,7 +1381,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PVP_TIER, "SELECT ID, Name_lang FROM pvp_tier_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // QuestPoiBlob.db2
-    PrepareStatement(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT ID, MapID, UiMapID, NumPoints, QuestID, ObjectiveIndex, ObjectiveID, PlayerConditionID, UNK_9_0_1 FROM quest_poi_blob WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT ID, MapID, UiMapID, NumPoints, QuestID, ObjectiveIndex, ObjectiveID, PlayerConditionID, NavigationPlayerConditionID FROM quest_poi_blob WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT MAX(ID) + 1 FROM quest_poi_blob", CONNECTION_SYNCH);
 
     // QuestFactionReward.db2
@@ -1957,12 +1957,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSPORT_ROTATION, "SELECT MAX(ID) + 1 FROM transport_rotation", CONNECTION_SYNCH);
 
     // UiChromieTimeExpansionInfo.db2
-    PrepareStatement(HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO, "SELECT ID, Name, Description, DescriptionAlliance, DescriptionHorde, SpellID, "
-        "UiTextureAtlasElementLarge, UiTextureAtlasElementSmall, AlreadyOn, ExpansionLevelMask, ContentTuningID, Completed"
-        " FROM ui_chromie_time_expansion_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO, "SELECT ID, Name, Description, AllianceOverrideDesc, HordeOverrideDesc, SpellID, "
+        "MapAtlasElement, PreviewAtlasElement, ShowPlayerConditionID, ExpansionMask, ContentTuningID, CompletedPlayerConditionID, SortPriority, "
+        "RecommendPlayerConditionID FROM ui_chromie_time_expansion_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO, "SELECT MAX(ID) + 1 FROM ui_chromie_time_expansion_info", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO, "SELECT ID, Name_lang, Description_lang, DescriptionAlliance_lang, "
-        "DescriptionHorde_lang FROM ui_chromie_time_expansion_info_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO, "SELECT ID, Name_lang, Description_lang, AllianceOverrideDesc_lang, "
+        "HordeOverrideDesc_lang FROM ui_chromie_time_expansion_info_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // UiMap.db2
     PrepareStatement(HOTFIX_SEL_UI_MAP, "SELECT Name, ID, ParentUiMapID, Flags, `System`, Type, BountySetID, BountyDisplayLocation, "

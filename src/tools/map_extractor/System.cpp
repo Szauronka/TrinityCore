@@ -1340,6 +1340,8 @@ void ExtractGameTables()
         { 4494528, "BaseProfessionRatings.txt" },
         { 1391665, "BattlePetTypeDamageMod.txt" },
         { 1391666, "BattlePetXP.txt" },
+        { 1391667, "ChallengeModeDamage.txt"},
+        { 1391668, "ChallengeModeHealth.txt"},
         { 1391669, "CombatRatings.txt" },
         { 1391670, "CombatRatingsMultByILvl.txt" },
         { 1391671, "HonorLevel.txt" },
