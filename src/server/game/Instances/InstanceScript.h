@@ -49,7 +49,7 @@ class Player;
 class Unit;
 struct DungeonEncounterEntry;
 struct InstanceSpawnGroupInfo;
-enum class CriteriaType : uint8;
+enum class CriteriaType : int16;
 enum class CriteriaStartEvent : uint8;
 enum Difficulty : uint8;
 enum EncounterCreditType : uint8;
