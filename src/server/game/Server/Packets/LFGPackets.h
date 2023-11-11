@@ -109,8 +109,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            Optional<uint8> PartyIndex;
             bool Player = false;
+            Optional<uint8> PartyIndex;
         };
 
         class DFGetJoinStatus final : public ClientPacket

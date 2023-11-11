@@ -69,7 +69,6 @@ namespace WorldPackets
             data << mythicPlusRun.StartDate;
             data << mythicPlusRun.CompletionDate;
             data << int32(mythicPlusRun.Season);
-            data.append(mythicPlusRun.KeystoneAffixIDs.data(), mythicPlusRun.KeystoneAffixIDs.size());
             data << uint32(mythicPlusRun.Members.size());
             data << float(mythicPlusRun.RunScore);
             for (MythicPlusMember const& member : mythicPlusRun.Members)
@@ -104,8 +103,6 @@ namespace WorldPackets
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSeasonData const& dungeonScoreSeasonData)
         {
             data << int32(dungeonScoreSeasonData.Season);
-            data << uint32(dungeonScoreSeasonData.SeasonMaps.size());
-            data << uint32(dungeonScoreSeasonData.LadderMaps.size());
             data << float(dungeonScoreSeasonData.SeasonScore);
             data << float(dungeonScoreSeasonData.LadderScore);
             for (DungeonScoreMapData const& map : dungeonScoreSeasonData.SeasonMaps)
@@ -119,8 +116,9 @@ namespace WorldPackets
 
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreData const& dungeonScoreData)
         {
-            data << uint32(dungeonScoreData.Seasons.size());
             data << int32(dungeonScoreData.TotalRuns);
+            data << uint32(dungeonScoreData.Seasons.size());
+    
             for (DungeonScoreSeasonData const& season : dungeonScoreData.Seasons)
                 data << season;
 
@@ -139,32 +137,20 @@ namespace WorldPackets
             _worldPacket << RewardCount;
             _worldPacket << Season;
             _worldPacket << Subseason;
-            _worldPacket << mythicPlusRuns.size();
-            _worldPacket << mythicPlusRewards.size();
-            _worldPacket.FlushBits();
 
-            for (MythicPlusReward mythicPlusReward : mythicPlusRewards)
+            for (uint32 i = 0; i < RunCount; ++i)
             {
-                _worldPacket << mythicPlusReward.Unk1;
-                _worldPacket << mythicPlusReward.Unk2;
-                _worldPacket << mythicPlusReward.Unk3;
-                _worldPacket << mythicPlusReward.Unk4;
-                _worldPacket << mythicPlusReward.Unk5;
-                _worldPacket << mythicPlusReward.UnknownBool;
+                _worldPacket << DungeonScoreSeasonDatas[i];
             }
 
-            for (MythicPlusRun mythicPlusRun : mythicPlusRuns)
+            for (uint32 i = 0; i < RewardCount; ++i)
             {
-                _worldPacket << mythicPlusRun.Completed;
-                _worldPacket << mythicPlusRun.CompletionDate;
-                _worldPacket << mythicPlusRun.DurationMs;
-                _worldPacket << mythicPlusRun.KeystoneAffixIDs.size();
-                _worldPacket << mythicPlusRun.Level;
-                _worldPacket << mythicPlusRun.MapChallengeModeID;
-                _worldPacket << mythicPlusRun.Members.size();
-                _worldPacket << mythicPlusRun.RunScore;
-                _worldPacket << mythicPlusRun.Season;
-                _worldPacket << mythicPlusRun.StartDate;
+                _worldPacket << Rewards[i].Unk1;
+                _worldPacket << Rewards[i].Unk2;
+                _worldPacket << Rewards[i].Unk3;
+                _worldPacket << Rewards[i].Unk4;
+                _worldPacket << Rewards[i].Unk5;
+                _worldPacket << Rewards[i].UnknownBool;
             }
 
             return &_worldPacket;
@@ -173,7 +159,6 @@ namespace WorldPackets
         WorldPacket const* MythicPlusCurrentAffixesResult::Write()
         {
             _worldPacket << Count;
-
             for (uint32 i = 0; i < Count; ++i)
             {
                 _worldPacket << uint32(Affixes[i]);

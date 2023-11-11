@@ -139,7 +139,7 @@ bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const /*diff*/)
     return Timeout > time(nullptr); ///< Bye bye
 }
 
-LFGListEntry::LFGListEntry() : GroupFinderActivityData(nullptr), ApplicationGroup(nullptr), ActivityID(0), HonorLevel(0), QuestID(0), ItemLevel(0), MinMyticPlusRating(0), TypeActivity(0), AutoAccept(false), PrivateGroup(false), HasQuest(false), minChallege(false), GroupName(""), Comment(""), VoiceChat("")
+LFGListEntry::LFGListEntry() : GroupFinderActivityData(nullptr), ApplicationGroup(nullptr), HonorLevel(0), QuestID(0), ItemLevel(0), AutoAccept(false)
 {
     CreationTime = uint32(time(nullptr));
     Timeout = CreationTime + LFG_LIST_GROUP_TIMEOUT;

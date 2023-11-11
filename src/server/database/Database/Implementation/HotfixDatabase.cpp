@@ -81,7 +81,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // AreaPoi.db2
     PrepareStatement(HOTFIX_SEL_AREA_POI, "SELECT Name, Description, ID, Pos1, Pos2, Pos3, PortLocID, PlayerConditionID, UiTextureAtlasMemberID, "
-        "Flags, WMOGroupID, PoiDataType, PoiData, Field91038783011, Field100045141012, ContinentID, AreaID, WorldStateID, UiWidgetSetID, "
+        "Flags, WMOGroupID, PoiDataType, PoiData, Field91038783011, ContinentID, AreaID, WorldStateID, Field100045141012, UiWidgetSetID, "
         "UiTextureKitID, Field91038783017, Importance, Icon FROM area_poi WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_AREA_POI, "SELECT MAX(ID) + 1 FROM area_poi", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AREA_POI, "SELECT ID, Name_lang, Description_lang FROM area_poi_locale WHERE (`VerifiedBuild` > 0) = ?"

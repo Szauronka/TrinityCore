@@ -846,7 +846,7 @@ namespace WorldPackets
             RequestWeeklyRewards(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WEEKLY_REWARDS, std::move(packet)) { }
 
             void Read() override { };
-		}
+        };
 		
         class SavePersonalEmblem final : public ClientPacket
         {

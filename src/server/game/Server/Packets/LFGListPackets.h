@@ -30,8 +30,8 @@ namespace WorldPackets
     {
         struct LFGListBlacklist
         {
-            uint32 ActivityID = 0;
-            uint32 Reason = 0;
+            int32 ActivityID = 0;
+            int32 Reason = 0;
         };
 
         struct ApplicationToGroup
@@ -53,12 +53,9 @@ namespace WorldPackets
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
-            bool minChallege = false;
             bool PrivateGroup = false;
             bool HasQuest = false;
             bool AutoAccept = false;
-            float TypeActivity = 0.0f;
-            uint32 MinMyticPlusRating = 0;
         };
 
         struct MemberInfo
@@ -68,26 +65,6 @@ namespace WorldPackets
 
             uint8 ClassID = CLASS_NONE;
             uint8 Role = 0;
-        };
-
-        struct ListSearchResult
-        {
-            LFG::RideTicket ApplicationTicket;
-            ListRequest JoinRequest;
-            std::vector<MemberInfo> Members;
-            GuidList BNetFriendsGuids;
-            GuidList NumCharFriendsGuids;
-            GuidList NumGuildMateGuids;
-            ObjectGuid LastTouchedVoiceChat;
-            ObjectGuid PartyGUID;
-            ObjectGuid BNetFriends;
-            ObjectGuid CharacterFriends;
-            ObjectGuid GuildMates;
-            uint32 VirtualRealmAddress = 0;
-            uint32 CompletedEncounters = 0;
-            uint32 Age = 0;
-            uint32 ResultID = 0;
-            uint8 ApplicationStatus = 0;
         };
 
         struct ApplicantStruct
@@ -127,6 +104,30 @@ namespace WorldPackets
             std::string Comment;
             uint8 ApplicationStatus = 0;
             bool Listed = false;
+        };
+
+        struct LfgListSearchResult
+        {
+            uint32 SequenceNum = 0;
+            ObjectGuid LeaderGuid;
+            ObjectGuid LastTouchedAny;
+            ObjectGuid LastTouchedName;
+            ObjectGuid LastTouchedComment;
+            ObjectGuid LastTouchedVoiceChat;
+            uint32 VirtualRealmAddress = 0;
+            Optional<uint32> BnetFriendCount = 0;
+            Optional<uint32> CharacterFriendCount = 0;
+            Optional<uint32> GuildMatesCount = 0;
+            Optional<uint32> MemberCount = 0;
+            uint32 CompletedEncounters = 0;
+            int32 CreationTime = 0;
+            uint8 ApplicationStatus = 0;
+            ObjectGuid PartyGUID;
+            ObjectGuid BNetFriends;
+            ObjectGuid CharacterFriends;
+            ObjectGuid GuildMates;
+            std::vector<MemberInfo> Members;
+            ListRequest JoinRequest;
         };
 
         class LfgListApplicantlistUpdate final : public ServerPacket
@@ -241,9 +242,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<LFGListBlacklist> Blacklist;
-            GuidVector Guids;
-            int32 CategoryID = 0;
+            ObjectGuid PartyGUID;
+            int32 GroupFinderCategoryId = 0;
+            int32 SubActivityGroupID = 0;
             int32 SearchTerms = 0;
             int32 Filter = 0;
             int32 PreferredFilters = 0;
@@ -279,7 +280,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ListSearchResult SearchResult;
+            LfgListSearchResult SearchResult;
             LFG::RideTicket ApplicantTicket;
             LFG::RideTicket ApplicationTicket;
             uint32 InviteExpireTimer = 0;
@@ -303,11 +304,11 @@ namespace WorldPackets
         class LfgListSearchResults final : public ServerPacket
         {
         public:
-            LfgListSearchResults() : ServerPacket(SMSG_LFG_LIST_SEARCH_RESULTS, 6) { }
+            LfgListSearchResults() : ServerPacket(SMSG_LFG_LIST_SEARCH_RESULTS) { }
 
             WorldPacket const* Write() override;
 
-            std::vector<ListSearchResult> SearchResults;
+            std::vector<LfgListSearchResult> SearchResults;
             uint16 AppicationsCount = 0;
         };
 
@@ -330,7 +331,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 BlacklistCount = 0;
+            uint32 BlacklistEntryCount = 0;
             std::vector<LFGListBlacklist> Blacklist;
         };
 
@@ -342,29 +343,10 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             LFG::RideTicket ApplicationTicket;
-            uint32 RemainingTime = 0;
+            int32 JoinDate = 0;
+            int32 ServerDate = 0;
             uint8 ResultId = 0;
             ListRequest Request;
-            bool Listed = false;
-        };
-
-        struct LfgListSearchResult
-        {
-            std::vector<MemberInfo> Members;
-            LFG::RideTicket ApplicationTicket;
-            ListRequest JoinRequest;
-            Optional<ObjectGuid> LeaderGuid;
-            Optional<ObjectGuid> UnkGuid;
-            Optional<ObjectGuid> UnkGuid2;
-            Optional<ObjectGuid> UnkGuid3;
-            Optional<uint32> VirtualRealmAddress;
-            Optional<uint32> UnkInt2;
-            uint32 UnkInt = 0;
-            bool UnkBIt = false;
-            bool UnkBIt2 = false;
-            bool UnkBIt3 = false;
-            bool UnkBIt4 = false;
-            bool UnkBit96 = false;
         };
 
         class LfgListSearchResultUpdate final : public ServerPacket
@@ -393,7 +375,7 @@ namespace WorldPackets
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist const& blackList);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist& blackList);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListSearchResult const& listSearch);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LfgListSearchResult const& listSearch);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::MemberInfo const& memberInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest const& join);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& join);

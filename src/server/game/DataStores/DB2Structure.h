@@ -131,15 +131,15 @@ struct AreaPOIEntry
     int32 PortLocID;
     uint32 PlayerConditionID;
     uint32 UiTextureAtlasMemberID;
-    uint32 Flags;
+    int32 Flags;
     int32 WMOGroupID;
     int32 PoiDataType;
     int32 PoiData;
     uint32 Field91038783011;
-    int32 Field100045141012;
     uint16 ContinentID;
     int16 AreaID;
     uint16 WorldStateID;
+    int16 Field100045141012;
     uint16 UiWidgetSetID;
     uint16 UiTextureKitID;
     uint16 Field91038783017;

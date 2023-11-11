@@ -144,10 +144,7 @@ struct LFGListEntry
     std::string GroupName;
     std::string Comment;
     std::string VoiceChat;
-    bool minChallege = false;
     bool PrivateGroup = false;
     bool HasQuest = false;
     bool AutoAccept = false;
-    float TypeActivity = 0.0f;
-    uint32 MinMyticPlusRating = 0;
 };

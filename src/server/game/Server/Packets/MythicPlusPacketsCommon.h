@@ -61,7 +61,6 @@ namespace WorldPackets
         struct MythicPlusRun
         {
             int32 MapChallengeModeID = 0;
-            bool Completed = false;
             uint32 Level = 0;
             int32 DurationMs = 0;
             Timestamp<> StartDate;
@@ -69,7 +68,7 @@ namespace WorldPackets
             int32 Season = 0;
             std::vector<MythicPlusMember> Members;
             float RunScore = 0.0f;
-            std::array<int32, 4> KeystoneAffixIDs;
+            bool Completed = false;
         };
 
         struct DungeonScoreBestRunForAffix
@@ -82,33 +81,34 @@ namespace WorldPackets
         struct DungeonScoreMapData
         {
             int32 MapChallengeModeID = 0;
-            std::vector<DungeonScoreBestRunForAffix> BestRuns;
+            uint32 BestRunCount = 0;
             float OverAllScore = 0.0f;
+            std::vector<DungeonScoreBestRunForAffix> BestRuns;
         };
 
         struct DungeonScoreSeasonData
         {
             int32 Season = 0;
-            std::vector<DungeonScoreMapData> SeasonMaps;
-            std::vector<DungeonScoreMapData> LadderMaps;
             float SeasonScore = 0.0f;
             float LadderScore = 0.0f;
+            std::vector<DungeonScoreMapData> SeasonMaps;
+            std::vector<DungeonScoreMapData> LadderMaps;
         };
 
         struct DungeonScoreData
         {
-            std::vector<DungeonScoreSeasonData> Seasons;
             int32 TotalRuns = 0;
+            std::vector<DungeonScoreSeasonData> Seasons;
         };
 
         struct MythicPlusReward
         {
-            uint32 Unk1;
-            uint32 Unk2;
-            uint64 Unk3;
-            uint64 Unk4;
-            uint64 Unk5;
-            bool UnknownBool;
+            uint32 Unk1 = 0;
+            uint32 Unk2 = 0;
+            uint64 Unk3 = 0;
+            uint64 Unk4 = 0;
+            uint64 Unk5 = 0;
+            bool UnknownBool = false;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSummary const& dungeonScoreSummary);
@@ -162,10 +162,11 @@ namespace WorldPackets
 
             uint32 RunCount = 0;
             uint32 RewardCount = 0;
+            uint32 DungeonScoreSeasonDataCount = 0;
             uint32 Season = 9;
             uint32 Subseason = 0;
-            std::vector<MythicPlusRun> mythicPlusRuns;
-            std::vector<MythicPlusReward> mythicPlusRewards;
+            std::vector<DungeonScoreSeasonData> DungeonScoreSeasonDatas;
+            std::vector<MythicPlusReward> Rewards;
         };
 
         class MythicPlusCurrentAffixesResult final : public ServerPacket
