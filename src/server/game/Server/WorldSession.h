@@ -491,6 +491,13 @@ namespace WorldPackets
         class LfgListSearch;
         class RequestLfgListBlacklist;
         struct ListRequest;
+        struct LfgListSearchResult;
+        struct LFGListBlacklist;
+        struct ApplicationToGroup;
+        struct MemberInfo;
+        struct ApplicantStruct;
+        struct ApplicantMember;
+        struct ApplicantInfo;
     }
 
     namespace Loot
