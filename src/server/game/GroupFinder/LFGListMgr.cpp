@@ -80,9 +80,9 @@ bool LFGListMgr::CanInsert(LFGListEntry const* lfgEntry, Player* requester, bool
 
 bool LFGListMgr::Insert(LFGListEntry* lfgEntry, Player* requester)
 {
-    if (!CanInsert(lfgEntry, requester, true)) {
+    /*if (!CanInsert(lfgEntry, requester, true)) {
         return false;
-    }
+    }*/
 
     auto group = requester->GetGroup();
     if (group && group->isBGGroup())
@@ -141,20 +141,17 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     }
 
 
-    status.JoinDate = lfgEntry->Timeout;
+    status.RemainingTime = lfgEntry->Timeout;
     status.ResultId = AsUnderlyingType(debugStatus != LFGListStatus::None ? debugStatus : LFGListStatus::Joined);
-
+    status.Listed = listed;
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
     status.Request.ItemLevel = lfgEntry->ItemLevel;
     status.Request.HonorLevel = lfgEntry->HonorLevel;
-    status.Request.AutoAccept = lfgEntry->AutoAccept;
-    status.Request.PrivateGroup = lfgEntry->PrivateGroup;
-    status.Request.HasQuest = lfgEntry->HasQuest;
     status.Request.GroupName = lfgEntry->GroupName;
     status.Request.Comment = lfgEntry->Comment;
     status.Request.VoiceChat = lfgEntry->VoiceChat;
-    if(status.Request.HasQuest)
-        status.Request.QuestID = lfgEntry->QuestID;
+    status.Request.AutoAccept = lfgEntry->AutoAccept;
+    status.Request.QuestID = lfgEntry->QuestID;
 
     if (worldSession)
     {
@@ -462,7 +459,7 @@ bool LFGListMgr::IsActivityDungeon(GroupFinderActivityEntry const* activity) con
     }
 }
 
-float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* /*activiti*/, Player* player) const
+float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* /*activity*/, Player* player) const
 {
     if (player == nullptr)
         return 0.0f;
@@ -552,13 +549,18 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
     responce.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     responce.ApplicationTicket.Time = lfgEntry->CreationTime;
 
+    responce.SearchResult.ApplicationTicket.RequesterGuid = group->GetGUID();
+    responce.SearchResult.ApplicationTicket.Id = group->GetGUID().GetCounter();
+    responce.SearchResult.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
+    responce.SearchResult.ApplicationTicket.Time = lfgEntry->CreationTime;
+    responce.SearchResult.LeaderGuid = group->GetLeaderGUID();
+    responce.SearchResult.LastTouchedAny = group->GetLeaderGUID();
+    responce.SearchResult.LastTouchedName = group->GetLeaderGUID();
+    responce.SearchResult.LastTouchedComment = group->GetLeaderGUID();
     responce.SearchResult.LastTouchedVoiceChat = group->GetLeaderGUID();
-    responce.SearchResult.PartyGUID = group->GetLeaderGUID();
-    responce.SearchResult.BNetFriends = group->GetLeaderGUID();
-    responce.SearchResult.GuildMates = group->GetLeaderGUID();
     responce.SearchResult.VirtualRealmAddress = GetVirtualRealmAddress();
     responce.SearchResult.CompletedEncounters = 0;
-    responce.SearchResult.SequenceNum = 3;
+    responce.SearchResult.ResultID = 3;
     responce.SearchResult.CreationTime = lfgEntry->CreationTime;
     responce.SearchResult.ApplicationStatus = AsUnderlyingType(LFGListApplicationStatus::None);
     responce.SearchResult.JoinRequest.ActivityID = activityID;

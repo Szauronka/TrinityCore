@@ -46,16 +46,20 @@ namespace WorldPackets
         {
             ListRequest() { }
 
-            Optional<uint32> QuestID;
+            Optional<uint32> QuestID = 0;;
+            Optional<uint32> MythicPlusRating = 0;
             int32 ActivityID = 0;
-            float ItemLevel = 0.0f;
             uint32 HonorLevel = 0;
+            uint32 PvPRating = 0;
+            uint32 ItemLevel = 0;
+            uint8 PlayStyle = 0; // LFG_PLAYSTYLE_PVP, LFG_PLAYSTYLE_PVE, LFG_PLAYSTYLE_PVE_MYTHICZERO
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
-            bool PrivateGroup = false;
-            bool HasQuest = false;
             bool AutoAccept = false;
+            bool PrivateGroup = false;
+            bool VoiceChatReq = false;
+            bool IsCrossFaction = false;
         };
 
         struct MemberInfo
@@ -106,6 +110,26 @@ namespace WorldPackets
             bool Listed = false;
         };
 
+        struct ListSearchResult
+        {
+            LFG::RideTicket ApplicationTicket;
+            ListRequest JoinRequest;
+            std::vector<MemberInfo> Members;
+            GuidList BNetFriendsGuids;
+            GuidList NumCharFriendsGuids;
+            GuidList NumGuildMateGuids;
+            ObjectGuid LeaderGuid;
+            ObjectGuid LastTouchedAny;
+            ObjectGuid LastTouchedName;
+            ObjectGuid LastTouchedComment;
+            ObjectGuid LastTouchedVoiceChat;
+            uint32 VirtualRealmAddress = 0;
+            uint32 CompletedEncounters = 0;
+            uint32 CreationTime = 0;
+            uint32 ResultID = 0;
+            uint8 ApplicationStatus = 0;
+        };
+
         struct LfgListSearchResult
         {
             uint32 SequenceNum = 0;
@@ -128,6 +152,11 @@ namespace WorldPackets
             ObjectGuid GuildMates;
             std::vector<MemberInfo> Members;
             ListRequest JoinRequest;
+            bool UnkBIt = false;
+            bool UnkBIt2 = false;
+            bool UnkBIt3 = false;
+            bool UnkBIt4 = false;
+            bool UnkBit96 = false;
         };
 
         class LfgListApplicantlistUpdate final : public ServerPacket
@@ -280,7 +309,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            LfgListSearchResult SearchResult;
+            ListSearchResult SearchResult;
             LFG::RideTicket ApplicantTicket;
             LFG::RideTicket ApplicationTicket;
             uint32 InviteExpireTimer = 0;
@@ -308,7 +337,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<LfgListSearchResult> SearchResults;
+            std::vector<ListSearchResult> SearchResults;
             uint16 AppicationsCount = 0;
         };
 
@@ -338,15 +367,15 @@ namespace WorldPackets
         class LfgListUpdateStatus final : public ServerPacket
         {
         public:
-            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS) { }
+            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS, 28 + 1 + 1 + 4 + 4 + 2 + 2 + 2) { }
 
             WorldPacket const* Write() override;
 
             LFG::RideTicket ApplicationTicket;
-            int32 JoinDate = 0;
-            int32 ServerDate = 0;
-            uint8 ResultId = 0;
             ListRequest Request;
+            uint32 RemainingTime = 0;
+            uint8 ResultId = 0;
+            bool Listed = false;
         };
 
         class LfgListSearchResultUpdate final : public ServerPacket
@@ -375,7 +404,7 @@ namespace WorldPackets
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist const& blackList);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist& blackList);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LfgListSearchResult const& listSearch);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListSearchResult const& listSearch);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::MemberInfo const& memberInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest const& join);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& join);

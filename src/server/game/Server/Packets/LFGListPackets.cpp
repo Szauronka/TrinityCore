@@ -39,22 +39,31 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
 
     data << join.ItemLevel;
     data << join.HonorLevel;
+    data << join.PlayStyle;
+    data << join.PvPRating;
 
     data.WriteBits(join.GroupName.length(), 8);
-    data.WriteBits(join.Comment.length(), 12);
-    data.WriteBits(join.VoiceChat.length(), 6);
-    data.WriteBit(join.PrivateGroup);
-    data.WriteBit(join.HasQuest);
+    data.WriteBits(join.Comment.length(), 11);
+    data.WriteBits(join.VoiceChat.length(), 8);
     data.WriteBit(join.AutoAccept);
+    data.WriteBit(join.PrivateGroup);
+    data.WriteBit(join.VoiceChatReq);
+    data.WriteBit(join.IsCrossFaction);
+    data.WriteBit(join.QuestID.has_value() && *join.QuestID != 0);
+    data.WriteBit(join.MythicPlusRating.has_value() && *join.MythicPlusRating != 0);
     data.FlushBits();
 
     data.WriteString(join.GroupName);
     data.WriteString(join.Comment);
-    data.WriteString(join.VoiceChat);
+    if (join.VoiceChatReq)
+        data.WriteString(join.VoiceChat);
+ 
 
-    if (join.HasQuest && *join.QuestID != 0)
+    if (join.QuestID.has_value() && *join.QuestID != 0)
         data << *join.QuestID;
 
+    if (join.MythicPlusRating.has_value() && *join.MythicPlusRating != 0)
+        data << *join.MythicPlusRating;
 
     return data;
 }
@@ -65,20 +74,28 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
 
     data >> join.ItemLevel;
     data >> join.HonorLevel;
+    data >> join.PlayStyle;
+    data >> join.PvPRating;
 
     uint32 NameLen = data.ReadBits(8);
-    uint32 CommenteLen = data.ReadBits(12);
-    uint32 VoiceChateLen = data.ReadBits(6);
-    join.PrivateGroup = data.ReadBit();
-    join.HasQuest = data.ReadBit();
+    uint32 CommenteLen = data.ReadBits(11);
+    uint32 VoiceChateLen = data.ReadBits(8);
     join.AutoAccept = data.ReadBit();
+    join.PrivateGroup = data.ReadBit();
+    join.VoiceChatReq = data.ReadBit();
+    join.IsCrossFaction = data.ReadBit();
+    bool isForQuest = data.ReadBit();
+    bool isMythicPlusActivity = data.ReadBit();
 
     join.GroupName = data.ReadString(NameLen);
     join.Comment = data.ReadString(CommenteLen);
-    join.VoiceChat = data.ReadString(VoiceChateLen);
+    if(join.VoiceChatReq)
+        join.VoiceChat = data.ReadString(VoiceChateLen);
 
-    if (join.HasQuest)
+    if (isForQuest)
         data >> *join.QuestID;
+    if (isMythicPlusActivity)
+        data >> *join.MythicPlusRating;
 
     return data;
 }
@@ -103,10 +120,10 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
 {
     _worldPacket << ApplicationTicket;
-    _worldPacket << JoinDate;
-    _worldPacket << ServerDate;
+    _worldPacket << RemainingTime;
     _worldPacket << ResultId;
     _worldPacket << Request;
+    _worldPacket.WriteBit(Listed);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -172,28 +189,37 @@ void WorldPackets::LfgList::LfgListSearch::Read()
 
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LfgListSearchResult const& listSearch)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListSearchResult const& listSearch)
 {
-    data << listSearch.SequenceNum;
+    data << listSearch.ApplicationTicket;
+    data << listSearch.ResultID;
     data << listSearch.LeaderGuid;
     data << listSearch.LastTouchedAny;
     data << listSearch.LastTouchedName;
     data << listSearch.LastTouchedComment;
     data << listSearch.LastTouchedVoiceChat;
     data << listSearch.VirtualRealmAddress;
-    data << listSearch.VirtualRealmAddress;
-    data << uint32(listSearch.BnetFriendCount.has_value());
-    data << uint32(listSearch.CharacterFriendCount.has_value());
-    data << uint32(listSearch.GuildMatesCount.has_value());
-    data << uint32(listSearch.MemberCount.has_value());
+    data << static_cast<uint32>(listSearch.BNetFriendsGuids.size());
+    data << static_cast<uint32>(listSearch.NumCharFriendsGuids.size());
+    data << static_cast<uint32>(listSearch.NumGuildMateGuids.size());
+    data << static_cast<uint32>(listSearch.Members.size());
     data << listSearch.CompletedEncounters;
     data << listSearch.CreationTime;
     data << listSearch.ApplicationStatus;
-    data << listSearch.PartyGUID;
-    data << listSearch.BNetFriends;
-    data << listSearch.CharacterFriends;
-    data << listSearch.GuildMates;
-    data << listSearch.Members.size();
+
+
+    for (ObjectGuid const& v : listSearch.BNetFriendsGuids)
+        data << v;
+
+    for (ObjectGuid const& v : listSearch.NumCharFriendsGuids)
+        data << v;
+
+    for (ObjectGuid const& v : listSearch.NumGuildMateGuids)
+        data << v;
+
+    for (auto const& v : listSearch.Members)
+        data << v;
+
     data << listSearch.JoinRequest;
 
     return data;
@@ -308,6 +334,9 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
     _worldPacket << ResultUpdate.size();
     for (auto const& update : ResultUpdate)
     {
+        _worldPacket << static_cast<uint32>(update.Members.size());
+        for (auto const& member : update.Members)
+            _worldPacket << member;
         _worldPacket << update.SequenceNum;
         _worldPacket << update.LeaderGuid;
         _worldPacket << update.LastTouchedAny.GetGUIDLow();
@@ -315,6 +344,7 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
         _worldPacket << update.LastTouchedComment;
         _worldPacket << update.LastTouchedVoiceChat;
         _worldPacket << update.VirtualRealmAddress;
+        _worldPacket.WriteBit(update.UnkBit96);
         _worldPacket << *update.BnetFriendCount;
         _worldPacket << *update.CharacterFriendCount;
         _worldPacket << *update.GuildMatesCount;
@@ -325,10 +355,11 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
         _worldPacket << update.PartyGUID;
         _worldPacket << update.BNetFriends;
         _worldPacket << update.CharacterFriends;
-        _worldPacket << update.Members.size();
-        for (auto const& member : update.Members)
-            _worldPacket << member;
         _worldPacket << update.JoinRequest;
+        _worldPacket.WriteBit(update.UnkBIt);
+        _worldPacket.WriteBit(update.UnkBIt2);
+        _worldPacket.WriteBit(update.UnkBIt3);
+        _worldPacket.WriteBit(update.UnkBIt4);
 
     }
 

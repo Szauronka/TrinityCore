@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "Chat.h"
 #include "ObjectAccessor.h"
+#include "GameTime.h"
 
 void WorldSession::HandleRequestLfgListBlackList(WorldPackets::LfgList::RequestLfgListBlacklist& /*packet*/)
 {
@@ -45,7 +46,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
 
     for (auto& lfgEntry : list)
     {
-        WorldPackets::LfgList::LfgListSearchResult result;
+        WorldPackets::LfgList::ListSearchResult result;
         auto group = lfgEntry->ApplicationGroup;
         if (!group)
             continue;
@@ -59,16 +60,20 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
                 continue;
 
         auto activityID = lfgEntry->GroupFinderActivityData->ID;
-        result.SequenceNum = 3;
+
+        result.ApplicationTicket.RequesterGuid = group->GetGUID();
+        result.ApplicationTicket.Id = group->GetGUID().GetCounter();
+        result.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
+        result.ApplicationTicket.Time = lfgEntry->CreationTime;
         result.LeaderGuid = group->GetLeaderGUID();
-        result.PartyGUID = group->GetLeaderGUID();
-        result.BNetFriends = group->GetLeaderGUID();
-        result.CharacterFriends = group->GetLeaderGUID();
-        result.GuildMates = group->GetLeaderGUID();
+        result.LastTouchedAny = group->GetLeaderGUID();
+        result.LastTouchedName = group->GetLeaderGUID();
+        result.LastTouchedComment = group->GetLeaderGUID();
+        result.LastTouchedVoiceChat = group->GetLeaderGUID();
         result.VirtualRealmAddress = GetVirtualRealmAddress();
         result.CompletedEncounters = 0;
         result.CreationTime = lfgEntry->CreationTime;
-        
+        result.ResultID = 3; 
         result.ApplicationStatus = AsUnderlyingType(LFGListApplicationStatus::None);
 
         for (auto const& member : group->GetMemberSlots())
@@ -101,15 +106,21 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
     auto list = new LFGListEntry;
     list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
     list->ItemLevel = packet.Request.ItemLevel;
+    list->PlayStyle = packet.Request.PlayStyle;
+    list->PvPRating = packet.Request.PvPRating;
     list->AutoAccept = packet.Request.AutoAccept;
     list->GroupName = packet.Request.GroupName;
     list->Comment = packet.Request.Comment;
-    list->VoiceChat = packet.Request.VoiceChat;
+    if(packet.Request.VoiceChatReq)
+        list->VoiceChat = packet.Request.VoiceChat;
     list->HonorLevel = packet.Request.HonorLevel;
-    if (packet.Request.QuestID)
+    if (packet.Request.QuestID.has_value())
         list->QuestID = *packet.Request.QuestID;
+    if (packet.Request.MythicPlusRating.has_value())
+        list->MythicPlusRating = *packet.Request.MythicPlusRating;
     list->ApplicationGroup = nullptr;
     list->PrivateGroup = packet.Request.PrivateGroup;
+    list->IsCrossFaction = packet.Request.IsCrossFaction;
     ChatHandler(GetPlayer()->GetSession()).PSendSysMessage("GroupFinder Join");
     sLFGListMgr->Insert(list, GetPlayer());
 }

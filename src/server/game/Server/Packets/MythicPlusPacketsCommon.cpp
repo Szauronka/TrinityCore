@@ -16,6 +16,7 @@
  */
 
 #include "MythicPlusPacketsCommon.h"
+#include "WowTime.h"
 
 namespace WorldPackets
 {
@@ -241,8 +242,8 @@ namespace WorldPackets
         {
             _worldPacket << GuildLeadersCount;
             _worldPacket << RealmLeadersCount;
-            _worldPacket.AppendPackedTime(LastGuildUpdate);
-            _worldPacket.AppendPackedTime(LastRealmUpdate);
+            _worldPacket << LastGuildUpdate;
+            _worldPacket << LastRealmUpdate;
             _worldPacket << MapID;
             _worldPacket << ChallengeID;
 
@@ -272,7 +273,7 @@ namespace WorldPackets
             data << modeAttempt.InstanceRealmAddress;
             data << modeAttempt.AttemptID;
             data << modeAttempt.CompletionTime;
-            data.AppendPackedTime(modeAttempt.CompletionDate);
+            data << modeAttempt.CompletionDate;
             data << modeAttempt.MedalEarned;
             data << static_cast<uint32>(modeAttempt.Members.size());
             for (auto const& map : modeAttempt.Members)

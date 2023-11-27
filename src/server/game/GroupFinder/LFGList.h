@@ -137,14 +137,18 @@ struct LFGListEntry
     uint32 Timeout = 0;
     uint32 CreationTime = 0;
 
-    Optional<uint32> QuestID;
+    Optional<uint32> QuestID = 0;;
+    Optional<uint32> MythicPlusRating = 0;
     int32 ActivityID = 0;
-    float ItemLevel = 0.0f;
     uint32 HonorLevel = 0;
+    uint32 PvPRating = 0;
+    uint32 ItemLevel = 0;
+    uint8 PlayStyle = 0; // LFG_PLAYSTYLE_PVP, LFG_PLAYSTYLE_PVE, LFG_PLAYSTYLE_PVE_MYTHICZERO
     std::string GroupName;
     std::string Comment;
     std::string VoiceChat;
-    bool PrivateGroup = false;
-    bool HasQuest = false;
     bool AutoAccept = false;
+    bool PrivateGroup = false;
+    bool VoiceChatReq = false;
+    bool IsCrossFaction = false;
 };

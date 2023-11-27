@@ -25,6 +25,7 @@
 #include "LFGPackets.h"
 #include "LFGListPackets.h"
 #include "LFGList.h"
+#include "GameTime.h"
 
 
 LFGListEntry::LFGListApplicationEntry::LFGListApplicationEntry(ObjectGuid::LowType playerGuid, LFGListEntry* owner)
@@ -139,9 +140,9 @@ bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const /*diff*/)
     return Timeout > time(nullptr); ///< Bye bye
 }
 
-LFGListEntry::LFGListEntry() : GroupFinderActivityData(nullptr), ApplicationGroup(nullptr), HonorLevel(0), QuestID(0), ItemLevel(0), AutoAccept(false)
+LFGListEntry::LFGListEntry() : GroupFinderActivityData(nullptr), ApplicationGroup(nullptr), ActivityID(0), ItemLevel(0), AutoAccept(false), PrivateGroup(false), MythicPlusRating(0), PvPRating(0), PlayStyle(0), IsCrossFaction(false)
 {
-    CreationTime = uint32(time(nullptr));
+    CreationTime = GameTime::GetGameTimeMS();
     Timeout = CreationTime + LFG_LIST_GROUP_TIMEOUT;
 }
 
