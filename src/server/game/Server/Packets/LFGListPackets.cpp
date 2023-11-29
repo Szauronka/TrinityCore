@@ -63,16 +63,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
 
     data << join.ItemLevel;
     data << join.HonorLevel;
-    data << join.PlayStyle;
     data << join.PvPRating;
+    data << join.PlayStyle;
 
     data.WriteBits(join.GroupName.length(), 8);
     data.WriteBits(join.Comment.length(), 11);
     data.WriteBits(join.VoiceChat.length(), 8);
     data.WriteBit(join.AutoAccept);
     data.WriteBit(join.PrivateGroup);
-    data.WriteBit(join.VoiceChatReq);
-    data.WriteBit(join.IsCrossFaction);
     data.WriteBit(join.QuestID.has_value() && *join.QuestID != 0);
     data.WriteBit(join.MythicPlusRating.has_value() && *join.MythicPlusRating != 0);
     data.FlushBits();
@@ -89,6 +87,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest cons
     if (join.MythicPlusRating.has_value() && *join.MythicPlusRating != 0)
         data << *join.MythicPlusRating;
 
+    if (join.IsCrossFaction)
+        data << *join.IsCrossFaction;
+
     return data;
 }
 
@@ -98,28 +99,31 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::ListRequest& joi
 
     data >> join.ItemLevel;
     data >> join.HonorLevel;
-    data >> join.PlayStyle;
     data >> join.PvPRating;
+    data >> join.PlayStyle;
 
     uint32 NameLen = data.ReadBits(8);
     uint32 CommenteLen = data.ReadBits(11);
     uint32 VoiceChateLen = data.ReadBits(8);
     join.AutoAccept = data.ReadBit();
     join.PrivateGroup = data.ReadBit();
-    join.VoiceChatReq = data.ReadBit();
-    join.IsCrossFaction = data.ReadBit();
     bool isForQuest = data.ReadBit();
     bool isMythicPlusActivity = data.ReadBit();
+    bool isVoiceChatRequired = data.ReadBit();
+    bool isCrossFaction = data.ReadBit();
 
     join.GroupName = data.ReadString(NameLen);
     join.Comment = data.ReadString(CommenteLen);
-    if(join.VoiceChatReq)
+    if(isVoiceChatRequired)
         join.VoiceChat = data.ReadString(VoiceChateLen);
 
     if (isForQuest)
         data >> *join.QuestID;
     if (isMythicPlusActivity)
         data >> *join.MythicPlusRating;
+    if (isCrossFaction)
+        data >> *join.IsCrossFaction;
+
 
     return data;
 }
@@ -147,8 +151,8 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
     _worldPacket << RemainingTime;
     _worldPacket << ResultId;
     _worldPacket << Request;
-    _worldPacket.WriteBit(Listed);
     _worldPacket.FlushBits();
+    _worldPacket.WriteBit(Listed);
 
     return &_worldPacket;
 }

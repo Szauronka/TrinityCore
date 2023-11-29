@@ -72,16 +72,16 @@ namespace WorldPackets
             Optional<uint32> MythicPlusRating = 0;
             int32 ActivityID = 0;
             uint32 HonorLevel = 0;
-            uint32 PvPRating = 0;
             uint32 ItemLevel = 0;
+            uint32 PvPRating = 0;
             uint8 PlayStyle = 0; // LFG_PLAYSTYLE_PVP, LFG_PLAYSTYLE_PVE, LFG_PLAYSTYLE_PVE_MYTHICZERO
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
             bool AutoAccept = false;
             bool PrivateGroup = false;
-            bool VoiceChatReq = false;
-            bool IsCrossFaction = false;
+            Optional<bool> VoiceChatReq = false;
+            Optional<bool> IsCrossFaction = false;
         };
 
         struct MemberInfo
@@ -391,14 +391,14 @@ namespace WorldPackets
         class LfgListUpdateStatus final : public ServerPacket
         {
         public:
-            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS, 28 + 1 + 1 + 4 + 4 + 2 + 2 + 2) { }
+            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS) { }
 
             WorldPacket const* Write() override;
 
             LFG::RideTicket ApplicationTicket;
-            ListRequest Request;
             uint32 RemainingTime = 0;
             uint8 ResultId = 0;
+            ListRequest Request;
             bool Listed = false;
         };
 

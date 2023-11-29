@@ -147,10 +147,13 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* lfgEntry, WorldSession* w
     status.Request.ActivityID = lfgEntry->GroupFinderActivityData->ID;
     status.Request.ItemLevel = lfgEntry->ItemLevel;
     status.Request.HonorLevel = lfgEntry->HonorLevel;
+    status.Request.PvPRating = lfgEntry->PvPRating;
     status.Request.GroupName = lfgEntry->GroupName;
     status.Request.Comment = lfgEntry->Comment;
-    status.Request.VoiceChat = lfgEntry->VoiceChat;
+    if(status.Request.VoiceChatReq)
+        status.Request.VoiceChat = lfgEntry->VoiceChat;
     status.Request.AutoAccept = lfgEntry->AutoAccept;
+    status.Request.IsCrossFaction = lfgEntry->IsCrossFaction;
     status.Request.QuestID = lfgEntry->QuestID;
 
     if (worldSession)
@@ -573,6 +576,7 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
     responce.SearchResult.JoinRequest.ActivityID = activityID;
     responce.SearchResult.JoinRequest.ItemLevel = lfgEntry->ItemLevel;
     responce.SearchResult.JoinRequest.HonorLevel = lfgEntry->HonorLevel;
+    responce.SearchResult.JoinRequest.PvPRating = lfgEntry->PvPRating;
     responce.SearchResult.JoinRequest.GroupName = lfgEntry->GroupName;
     responce.SearchResult.JoinRequest.Comment = lfgEntry->Comment;
     responce.SearchResult.JoinRequest.VoiceChat = lfgEntry->VoiceChat;

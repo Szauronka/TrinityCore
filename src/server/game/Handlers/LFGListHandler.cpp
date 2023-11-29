@@ -106,6 +106,7 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
     auto list = new LFGListEntry;
     list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
     list->ItemLevel = packet.Request.ItemLevel;
+    list->HonorLevel = packet.Request.HonorLevel;
     list->PlayStyle = packet.Request.PlayStyle;
     list->PvPRating = packet.Request.PvPRating;
     list->AutoAccept = packet.Request.AutoAccept;
@@ -120,7 +121,7 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
         list->MythicPlusRating = *packet.Request.MythicPlusRating;
     list->ApplicationGroup = nullptr;
     list->PrivateGroup = packet.Request.PrivateGroup;
-    list->IsCrossFaction = packet.Request.IsCrossFaction;
+    list->IsCrossFaction = *packet.Request.IsCrossFaction;
     ChatHandler(GetPlayer()->GetSession()).PSendSysMessage("GroupFinder Join");
     sLFGListMgr->Insert(list, GetPlayer());
 }
@@ -203,7 +204,7 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     if (packet.UpdateRequest.ItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))
         entry->ItemLevel = packet.UpdateRequest.ItemLevel;
     entry->PrivateGroup = packet.UpdateRequest.PrivateGroup;
-    entry->IsCrossFaction = packet.UpdateRequest.IsCrossFaction;
+    entry->IsCrossFaction = *packet.UpdateRequest.IsCrossFaction;
 
     sLFGListMgr->AutoInviteApplicantsIfPossible(entry);
     sLFGListMgr->SendLFGListStatusUpdate(entry);
