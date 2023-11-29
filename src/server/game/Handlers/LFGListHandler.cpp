@@ -41,7 +41,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
         return;
     }
 
-    auto list = sLFGListMgr->GetFilteredList(packet.GroupFinderCategoryId, packet.SubActivityGroupID, packet.LanguageSearchFilter, GetPlayer());
+    auto list = sLFGListMgr->GetFilteredList(packet.GroupFinderCategoryId, packet.SubActivityGroupID, packet.LanguageFilter, GetPlayer());
     results.AppicationsCount = list.size();
 
     for (auto& lfgEntry : list)
@@ -191,14 +191,19 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     entry->AutoAccept = packet.UpdateRequest.AutoAccept;
     entry->GroupName = packet.UpdateRequest.GroupName;
     entry->Comment = packet.UpdateRequest.Comment;
-    entry->VoiceChat = packet.UpdateRequest.VoiceChat;
+    if(entry->VoiceChatReq)
+        entry->VoiceChat = packet.UpdateRequest.VoiceChat;
     entry->HonorLevel = packet.UpdateRequest.HonorLevel;
+    entry->PvPRating = packet.UpdateRequest.PvPRating;
     if (packet.UpdateRequest.QuestID)
         entry->QuestID = *packet.UpdateRequest.QuestID;
+    if (packet.UpdateRequest.MythicPlusRating)
+        entry->MythicPlusRating = *packet.UpdateRequest.MythicPlusRating;
 
     if (packet.UpdateRequest.ItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))
         entry->ItemLevel = packet.UpdateRequest.ItemLevel;
     entry->PrivateGroup = packet.UpdateRequest.PrivateGroup;
+    entry->IsCrossFaction = packet.UpdateRequest.IsCrossFaction;
 
     sLFGListMgr->AutoInviteApplicantsIfPossible(entry);
     sLFGListMgr->SendLFGListStatusUpdate(entry);

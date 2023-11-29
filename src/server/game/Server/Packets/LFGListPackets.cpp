@@ -33,6 +33,30 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LfgListRideTicket& ticket)
+{
+    data >> ticket.RequesterGuid;
+    data >> ticket.Id;
+    ticket.Type = data.read<WorldPackets::LfgList::RideType>();
+    data >> ticket.Time;
+    ticket.Unknown925 = data.ReadBit();
+    data.ResetBitPos();
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LfgListRideTicket const& ticket)
+{
+    data << ticket.RequesterGuid;
+    data << uint32(ticket.Id);
+    data << uint32(ticket.Type);
+    data << ticket.Time;
+    data.WriteBit(ticket.Unknown925);
+    data.FlushBits();
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::ListRequest const& join)
 {
     data << join.ActivityID;
@@ -109,7 +133,7 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
 
     _worldPacket << BlacklistEntryCount;
     
-    for (int i = 0; i < BlacklistEntryCount; i++)
+    for (uint32 i = 0; i < BlacklistEntryCount; i++)
     {
         _worldPacket << Blacklist[i];
     }
@@ -167,7 +191,7 @@ void WorldPackets::LfgList::LfgListSearch::Read()
 
     if (count)
     {
-        for (int i = 0; i < count; i++)
+        for (uint32 i = 0; i < count; i++)
         {
             auto len = new uint32[3];
             for (int i = 0; i < 3; i++)
@@ -176,16 +200,25 @@ void WorldPackets::LfgList::LfgListSearch::Read()
             _worldPacket.FlushBits();
 
             for (int i = 0; i < 3; i++)
-                LanguageSearchFilter += " " + _worldPacket.ReadString(len[i]);
+                LanguageFilter += _worldPacket.ReadBits(len[i]);
         }
     }
 
     _worldPacket >> GroupFinderCategoryId;
     _worldPacket >> SubActivityGroupID;
-    _worldPacket >> SearchTerms;
-    _worldPacket >> Filter;
-    _worldPacket >> PreferredFilters;
-    _worldPacket << PartyGUID;
+    _worldPacket >> LFGListFilter;
+    _worldPacket >> LanguageFilter;
+    Blacklist.resize(_worldPacket.read<uint32>());
+    PartyGUID.resize(_worldPacket.read<uint32>());
+
+    for (auto& v : Blacklist)
+    {
+        _worldPacket >> v.ActivityID;
+        _worldPacket >> v.Reason;
+    }
+
+    for (auto& v : PartyGUID)
+        _worldPacket >> v;
 
 }
 
@@ -297,34 +330,12 @@ WorldPacket const* WorldPackets::LfgList::LfgListApplyToGroupResponce::Write()
 WorldPacket const* WorldPackets::LfgList::LfgListApplicationUpdate::Write()
 {
     _worldPacket << ApplicationTicket;
-    _worldPacket << Applicants.size();
+    _worldPacket << ListRideTicket;
     _worldPacket << UnkInt;
-    for (auto const& v : Applicants)
-    {
-        _worldPacket << v.ApplicantTicket;
-        _worldPacket << v.ApplicantPartyLeader;
-        _worldPacket << v.Member.size();
-        for (auto const& z : v.Member)
-        {
-            _worldPacket << z.PlayerGUID;
-            _worldPacket << z.VirtualRealmAddress;
-            _worldPacket << z.ItemLevel;
-            _worldPacket << z.Level;
-            _worldPacket << z.HonorLevel;
-            _worldPacket << z.PossibleRoleMask;
-            _worldPacket << z.SelectedRoleMask;
-            _worldPacket << z.AcStat.size();
-            for (auto const& x : z.AcStat)
-            {
-                _worldPacket << x.UnkInt4;
-                _worldPacket << x.UnkInt5;
-            }
-        }
-
-        _worldPacket.WriteBits(v.ApplicationStatus, 4);
-        _worldPacket.WriteBit(v.Listed);
-        _worldPacket << (v.Comment, 12);
-    }
+    _worldPacket << ResultId;
+    _worldPacket << Role;
+    _worldPacket << Status;
+    
 
     return &_worldPacket;
 }

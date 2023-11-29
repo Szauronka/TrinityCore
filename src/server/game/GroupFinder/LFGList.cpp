@@ -65,41 +65,12 @@ void LFGListEntry::BroadcastApplicantUpdate(LFGListApplicationEntry const* appli
     update.ApplicationTicket.Id = ApplicationGroup->GetGUID().GetCounter();
     update.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
     update.ApplicationTicket.Time = CreationTime;
+    update.ListRideTicket.RequesterGuid = ApplicationGroup->GetGUID();
+    update.ListRideTicket.Id = ApplicationGroup->GetGUID().GetCounter();
+    update.ListRideTicket.Type = WorldPackets::LfgList::RideType::LfgListApplication;
+    update.ListRideTicket.Time = CreationTime;
 
-    update.UnkInt = 6;
-
-    for (auto const& v : applicantList)
-    {
-        auto player = v->GetPlayer();
-
-        WorldPackets::LfgList::ApplicantInfo info;
-        info.ApplicantTicket.RequesterGuid = ObjectGuid::Create<HighGuid::Player>(v->PlayerGuid);
-        info.ApplicantTicket.Id = v->ID;
-        info.ApplicantTicket.Type = WorldPackets::LFG::RideType::LfgListApplicant;
-        info.ApplicantTicket.Time = v->ApplicationTime;
-
-        info.ApplicantPartyLeader = ObjectGuid::Create<HighGuid::Player>(v->PlayerGuid);
-        info.ApplicationStatus = AsUnderlyingType(v->ApplicationStatus);
-        info.Comment = v->Comment;
-        info.Listed = v->Listed;
-
-        if (player && v->Listed)
-        {
-            WorldPackets::LfgList::ApplicantMember member;
-            member.PlayerGUID = player->GetGUID();
-            member.VirtualRealmAddress = GetVirtualRealmAddress();
-            member.Level = player->GetLevel();
-            member.HonorLevel = player->GetHonorLevel();
-            member.ItemLevel = sLFGListMgr->GetPlayerItemLevelForActivity(GroupFinderActivityData, player);
-            member.PossibleRoleMask = v->RoleMask;
-            member.SelectedRoleMask = 0;
-
-            info.Member.emplace_back(member);
-        }
-
-        update.Applicants.emplace_back(info);
-    }
-
+    update.UnkInt = 6;  // Joined?
     ApplicationGroup->BroadcastPacket(update.Write(), false);
 }
 
@@ -140,9 +111,9 @@ bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const /*diff*/)
     return Timeout > time(nullptr); ///< Bye bye
 }
 
-LFGListEntry::LFGListEntry() : GroupFinderActivityData(nullptr), ApplicationGroup(nullptr), ActivityID(0), ItemLevel(0), AutoAccept(false), PrivateGroup(false), MythicPlusRating(0), PvPRating(0), PlayStyle(0), IsCrossFaction(false)
+LFGListEntry::LFGListEntry() : GroupFinderActivityData(nullptr), ApplicationGroup(nullptr)/*, ActivityID(0), ItemLevel(0), AutoAccept(false), PrivateGroup(false), MythicPlusRating(0), PvPRating(0), PlayStyle(0), IsCrossFaction(false)*/
 {
-    CreationTime = GameTime::GetGameTimeMS();
+    CreationTime = uint32(time(nullptr));
     Timeout = CreationTime + LFG_LIST_GROUP_TIMEOUT;
 }
 

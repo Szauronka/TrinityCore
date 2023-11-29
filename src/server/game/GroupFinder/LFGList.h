@@ -27,6 +27,30 @@ static uint8 const LFG_LIST_INVITE_TO_GROUP_TIMEOUT = 60;
 static uint16 const LFG_LIST_GROUP_TIMEOUT = 30 * MINUTE;
 static uint8 const LFG_LIST_MAX_APPLICATIONS = 5;
 
+enum LocaleConstantFlags : uint32
+{
+    enUS = (1 << 0),
+    koKR = (1 << 1),
+    frFR = (1 << 2),
+    deDE = (1 << 3),
+    zhCN = (1 << 4),
+    zhTW = (1 << 5),
+    esES = (1 << 6),
+    esMX = (1 << 7),
+    ruRU = (1 << 8),
+    none = (1 << 9),
+    ptBR = (1 << 10),
+    itIT = (1 << 11),
+};
+
+enum LfgListFilter
+{
+    Recommended = 1,
+    NotRecommended = 2,
+    PvE = 4,
+    PvP = 8,
+};
+
 enum class LFGListApplicationStatus : uint8
 {
     None = 0,
@@ -116,6 +140,8 @@ struct LFGListEntry
     };
 
     LFGListEntry();
+
+    uint32 LocaleFlags = 0;
 
     bool IsApplied(ObjectGuid::LowType guid) const;
     bool IsApplied(Player* player) const;

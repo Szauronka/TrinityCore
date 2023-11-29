@@ -203,9 +203,23 @@ void LFGListMgr::PlayerRemoveFromGroup(Player* /*player*/, Group* group)
     SendLFGListStatusUpdate(GetEntrybyGuid(group->GetGUID().GetCounter()), nullptr, false);
 }
 
-std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 activityCategory, uint32 /*activitySubCategory*/, std::string filterString, Player* player)
+std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 activityCategory, uint32 /*activitySubCategory*/, uint32 filteredFlags, Player* player)
 {
     std::list<LFGListEntry const*> lfgFiltered;
+
+
+    uint32 filterFlags = LocaleConstantFlags::enUS |
+        LocaleConstantFlags::koKR |
+        LocaleConstantFlags::frFR |
+        LocaleConstantFlags::deDE |
+        LocaleConstantFlags::zhCN |
+        LocaleConstantFlags::zhTW |
+        LocaleConstantFlags::esES |
+        LocaleConstantFlags::esMX |
+        LocaleConstantFlags::ruRU |
+        LocaleConstantFlags::none |
+        LocaleConstantFlags::ptBR |
+        LocaleConstantFlags::itIT;
 
     for (auto& itr : _lfgListQueue)
     {
@@ -213,15 +227,8 @@ std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 activityCatego
         if (listEntry->GroupFinderActivityData->GroupFinderCategoryID != activityCategory)
             continue;
 
-        if (filterString.length() && listEntry->GroupName.length())
-        {
-            auto& upperName = listEntry->GroupName;
-            std::transform(upperName.begin(), upperName.end(), upperName.begin(), toupper);
-            std::transform(filterString.begin(), filterString.end(), filterString.begin(), toupper);
-
-            if (upperName.find(filterString) == std::string::npos)
-                continue;
-        }
+        if (filteredFlags != 0 && (filterFlags & filteredFlags) == 0)
+            continue;
 
         if (CanQueueFor(itr.second, player, false) != LFGListStatus::None)
             continue;

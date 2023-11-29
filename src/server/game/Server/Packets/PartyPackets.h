@@ -366,6 +366,7 @@ namespace WorldPackets
 
             void Read() override;
 
+            uint8 unkUInt = 128;
             Optional<uint8> PartyIndex;
         };
 

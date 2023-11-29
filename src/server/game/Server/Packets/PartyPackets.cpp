@@ -359,6 +359,7 @@ void WorldPackets::Party::ConvertRaid::Read()
 
 void WorldPackets::Party::RequestPartyJoinUpdates::Read()
 {
+    _worldPacket >> unkUInt;
     if (_worldPacket.ReadBit())
         _worldPacket >> PartyIndex.emplace();
 }
