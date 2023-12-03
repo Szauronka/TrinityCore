@@ -109,7 +109,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            bool Player = false;
+            uint8 Player = 128;
             Optional<uint8> PartyIndex;
         };
 

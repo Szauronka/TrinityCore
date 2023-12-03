@@ -72,7 +72,7 @@ namespace WorldPackets
             Optional<uint32> MythicPlusRating = 0;
             int32 ActivityID = 0;
             uint32 HonorLevel = 0;
-            uint32 ItemLevel = 0;
+            float ItemLevel = 0.0f;
             uint32 PvPRating = 0;
             uint8 PlayStyle = 0; // LFG_PLAYSTYLE_PVP, LFG_PLAYSTYLE_PVE, LFG_PLAYSTYLE_PVE_MYTHICZERO
             std::string GroupName;
@@ -174,11 +174,11 @@ namespace WorldPackets
             ObjectGuid GuildMates;
             std::vector<MemberInfo> Members;
             ListRequest JoinRequest;
-            bool UnkBIt = false;
-            bool UnkBIt2 = false;
-            bool UnkBIt3 = false;
-            bool UnkBIt4 = false;
-            bool UnkBit96 = false;
+            bool Delisted = false;
+            bool ChangeTitle = false;
+            bool ChangeAutoAccept = false;
+            bool ChangeHonorLevel = false;
+            bool ChangePrivate = false;
         };
 
         class LfgListApplicantlistUpdate final : public ServerPacket
@@ -314,7 +314,7 @@ namespace WorldPackets
         class LfgListApplicationUpdate final : public ServerPacket
         {
         public:
-            LfgListApplicationUpdate() : ServerPacket(SMSG_LFG_LIST_APPLICATION_STATUS_UPDATE, 4 + 4 + 4) { }
+            LfgListApplicationUpdate() : ServerPacket(SMSG_LFG_LIST_APPLICATION_STATUS_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -329,7 +329,7 @@ namespace WorldPackets
         class LfgListApplyToGroupResponce final : public ServerPacket
         {
         public:
-            LfgListApplyToGroupResponce() : ServerPacket(SMSG_LFG_LIST_APPLY_TO_GROUP_RESULT, 28 + 28 + 4 + 4 + 1 + 1 + 150) { }
+            LfgListApplyToGroupResponce() : ServerPacket(SMSG_LFG_LIST_APPLY_TO_GROUP_RESULT) { }
 
             WorldPacket const* Write() override;
 

@@ -168,7 +168,7 @@ struct LFGListEntry
     int32 ActivityID = 0;
     uint32 HonorLevel = 0;
     uint32 PvPRating = 0;
-    uint32 ItemLevel = 0;
+    float ItemLevel = 0.0f;
     uint8 PlayStyle = 0; // LFG_PLAYSTYLE_PVP, LFG_PLAYSTYLE_PVE, LFG_PLAYSTYLE_PVE_MYTHICZERO
     std::string GroupName;
     std::string Comment;
