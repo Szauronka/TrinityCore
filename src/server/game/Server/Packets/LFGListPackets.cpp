@@ -359,7 +359,7 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
         _worldPacket << update.LastTouchedComment;
         _worldPacket << update.LastTouchedVoiceChat;
         _worldPacket << update.VirtualRealmAddress;
-        _worldPacket.WriteBit(update.UnkBit96);
+        _worldPacket.WriteBit(update.Delisted);
         _worldPacket << *update.BnetFriendCount;
         _worldPacket << *update.CharacterFriendCount;
         _worldPacket << *update.GuildMatesCount;
@@ -371,10 +371,10 @@ WorldPacket const* WorldPackets::LfgList::LfgListSearchResultUpdate::Write()
         _worldPacket << update.BNetFriends;
         _worldPacket << update.CharacterFriends;
         _worldPacket << update.JoinRequest;
-        _worldPacket.WriteBit(update.UnkBIt);
-        _worldPacket.WriteBit(update.UnkBIt2);
-        _worldPacket.WriteBit(update.UnkBIt3);
-        _worldPacket.WriteBit(update.UnkBIt4);
+        _worldPacket.WriteBit(update.ChangeTitle);
+        _worldPacket.WriteBit(update.ChangeAutoAccept);
+        _worldPacket.WriteBit(update.ChangeHonorLevel);
+        _worldPacket.WriteBit(update.ChangePrivate);
 
     }
 
