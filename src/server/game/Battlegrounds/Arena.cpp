@@ -17,6 +17,8 @@
 
 #include "Arena.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundPackets.h"
+#include "BattlegroundScore.h"
 #include "GuildMgr.h"
 #include "Guild.h"
 #include "Log.h"
@@ -42,10 +44,7 @@ Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(ba
 
 void Arena::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
 
     if (player->GetBGTeam() == ALLIANCE)        // gold
     {
