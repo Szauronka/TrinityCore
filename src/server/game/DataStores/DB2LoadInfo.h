@@ -26,7 +26,7 @@
 
 struct AchievementLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[17] =
+    static constexpr DB2FieldMeta Fields[19] =
     {
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "Title" },
@@ -34,7 +34,7 @@ struct AchievementLoadInfo
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "InstanceID" },
         { true, FT_BYTE, "Faction" },
-        { true, FT_SHORT, "Supercedes" },
+        { true, FT_INT, "Supercedes" },
         { true, FT_SHORT, "Category" },
         { true, FT_BYTE, "MinimumCriteria" },
         { true, FT_BYTE, "Points" },
@@ -45,9 +45,11 @@ struct AchievementLoadInfo
         { false, FT_INT, "CriteriaTree" },
         { true, FT_SHORT, "SharesCriteria" },
         { true, FT_INT, "CovenantID" },
+        { true, FT_INT, "HiddenBeforeDisplaySeason" },
+        { true, FT_INT, "LegacyAfterTimeEvent" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 17, &AchievementMeta::Instance, HOTFIX_SEL_ACHIEVEMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 19, &AchievementMeta::Instance, HOTFIX_SEL_ACHIEVEMENT };
 };
 
 struct AchievementCategoryLoadInfo
@@ -65,7 +67,7 @@ struct AchievementCategoryLoadInfo
 
 struct AdventureJournalLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[25] =
+    static constexpr DB2FieldMeta Fields[23] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -83,8 +85,6 @@ struct AdventureJournalLoadInfo
         { false, FT_SHORT, "BattleMasterListID" },
         { false, FT_BYTE, "PriorityMin" },
         { false, FT_BYTE, "PriorityMax" },
-        { true, FT_INT, "ItemID" },
-        { false, FT_INT, "ItemQuantity" },
         { false, FT_SHORT, "CurrencyType" },
         { false, FT_INT, "CurrencyQuantity" },
         { false, FT_SHORT, "UiMapID" },
@@ -94,7 +94,7 @@ struct AdventureJournalLoadInfo
         { false, FT_BYTE, "BonusValue2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 25, &AdventureJournalMeta::Instance, HOTFIX_SEL_ADVENTURE_JOURNAL };
+    static constexpr DB2LoadInfo Instance{ Fields, 23, &AdventureJournalMeta::Instance, HOTFIX_SEL_ADVENTURE_JOURNAL };
 };
 
 struct AdventureMapPoiLoadInfo
@@ -268,6 +268,17 @@ struct AreaTriggerLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 17, &AreaTriggerMeta::Instance, HOTFIX_SEL_AREA_TRIGGER };
+};
+
+struct AreaTriggerActionSetLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[2] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &AreaTriggerActionSetMeta::Instance, HOTFIX_SEL_AREA_TRIGGER_ACTION_SET };
 };
 
 struct ArmorLocationLoadInfo
@@ -979,6 +990,19 @@ struct ChallengeModeItemBonusOverrideLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 8, &ChallengeModeItemBonusOverrideMeta::Instance, HOTFIX_SEL_CHALLENGE_MODE_ITEM_BONUS_OVERRIDE };
 };
 
+struct CharBaseInfoLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_BYTE, "RaceID" },
+        { true, FT_BYTE, "ClassID" },
+        { true, FT_INT, "OtherFactionRaceID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &CharBaseInfoMeta::Instance, HOTFIX_SEL_CHAR_BASE_INFO };
+};
+
 struct CharTitlesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[5] =
@@ -1397,8 +1421,8 @@ struct ConditionalChrModelLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
     {
-        { true, FT_INT, "ID" },
-        { false, FT_INT, "ChrModelID" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "ChrModelID" },
         { true, FT_INT, "ChrCustomizationReqID" },
         { true, FT_INT, "PlayerConditionID" },
         { true, FT_INT, "Flags" },
@@ -1424,11 +1448,13 @@ struct ConditionalContentTuningLoadInfo
 
 struct ContentTuningLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[15] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "ExpansionID" },
+        { true, FT_INT, "HealthItemLevelCurveID" },
+        { true, FT_INT, "DamageItemLevelCurveID" },
         { true, FT_INT, "MinLevel" },
         { true, FT_INT, "MaxLevel" },
         { true, FT_INT, "MinLevelType" },
@@ -1441,7 +1467,7 @@ struct ContentTuningLoadInfo
         { false, FT_FLOAT, "QuestXpMultiplier" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &ContentTuningMeta::Instance, HOTFIX_SEL_CONTENT_TUNING };
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &ContentTuningMeta::Instance, HOTFIX_SEL_CONTENT_TUNING };
 };
 
 struct ContentTuningXExpectedLoadInfo
@@ -3214,7 +3240,7 @@ struct ItemLimitCategoryConditionLoadInfo
 
 struct ItemModifiedAppearanceLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[6] =
+    static constexpr DB2FieldMeta Fields[7] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "ItemID" },
@@ -3222,9 +3248,10 @@ struct ItemModifiedAppearanceLoadInfo
         { true, FT_INT, "ItemAppearanceID" },
         { true, FT_INT, "OrderIndex" },
         { false, FT_BYTE, "TransmogSourceTypeEnum" },
+        { true, FT_INT, "Flags" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemModifiedAppearanceMeta::Instance, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE };
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ItemModifiedAppearanceMeta::Instance, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE };
 };
 
 struct ItemModifiedAppearanceExtraLoadInfo
@@ -3814,6 +3841,22 @@ struct LiquidTypeLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 56, &LiquidTypeMeta::Instance, HOTFIX_SEL_LIQUID_TYPE };
 };
 
+struct LocationLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_FLOAT, "PosX" },
+        { false, FT_FLOAT, "PosY" },
+        { false, FT_FLOAT, "PosZ" },
+        { false, FT_FLOAT, "Rot1" },
+        { false, FT_FLOAT, "Rot2" },
+        { false, FT_FLOAT, "Rot3" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &LocationMeta::Instance, HOTFIX_SEL_LOCATION };
+};
+
 struct LockLoadInfo
 {
     static constexpr DB2FieldMeta Fields[34] =
@@ -4175,6 +4218,49 @@ struct ParagonReputationLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &ParagonReputationMeta::Instance, HOTFIX_SEL_PARAGON_REPUTATION };
+};
+
+struct PathLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_BYTE, "Type" },
+        { false, FT_BYTE, "SplineType" },
+        { false, FT_BYTE, "Red" },
+        { false, FT_BYTE, "Green" },
+        { false, FT_BYTE, "Blue" },
+        { false, FT_BYTE, "Alpha" },
+        { false, FT_BYTE, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &PathMeta::Instance, HOTFIX_SEL_PATH };
+};
+
+struct PathNodeLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "PathID" },
+        { true, FT_SHORT, "Sequence" },
+        { true, FT_INT, "LocationID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &PathNodeMeta::Instance, HOTFIX_SEL_PATH_NODE };
+};
+
+struct PathPropertyLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "PathID" },
+        { false, FT_BYTE, "PropertyIndex" },
+        { true, FT_INT, "Value" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &PathPropertyMeta::Instance, HOTFIX_SEL_PATH_PROPERTY };
 };
 
 struct PhaseLoadInfo
@@ -5241,6 +5327,31 @@ struct SpellEffectLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 36, &SpellEffectMeta::Instance, HOTFIX_SEL_SPELL_EFFECT };
+};
+
+struct SpellEmpowerLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "SpellID" },
+        { true, FT_INT, "Unused1000" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &SpellEmpowerMeta::Instance, HOTFIX_SEL_SPELL_EMPOWER };
+};
+
+struct SpellEmpowerStageLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Stage" },
+        { true, FT_INT, "DurationMs" },
+        { false, FT_INT, "SpellEmpowerID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &SpellEmpowerStageMeta::Instance, HOTFIX_SEL_SPELL_EMPOWER_STAGE };
 };
 
 struct SpellEquippedItemsLoadInfo
@@ -6722,6 +6833,26 @@ struct VehicleSeatLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 66, &VehicleSeatMeta::Instance, HOTFIX_SEL_VEHICLE_SEAT };
+};
+
+struct VignetteLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[11] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_INT, "PlayerConditionID" },
+        { false, FT_INT, "VisibleTrackingQuestID" },
+        { false, FT_INT, "QuestFeedbackEffectID" },
+        { true, FT_INT, "Flags" },
+        { false, FT_FLOAT, "MaxHeight" },
+        { false, FT_FLOAT, "MinHeight" },
+        { true, FT_BYTE, "VignetteType" },
+        { true, FT_INT, "RewardQuestID" },
+        { true, FT_INT, "UiWidgetSetID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &VignetteMeta::Instance, HOTFIX_SEL_VIGNETTE };
 };
 
 struct WmoAreaTableLoadInfo

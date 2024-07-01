@@ -1810,6 +1810,7 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
         throw DB2FileLoadException("Failed to read header");
 
     EndianConvert(_header.Signature);
+    EndianConvert(_header.Version);
     EndianConvert(_header.RecordCount);
     EndianConvert(_header.FieldCount);
     EndianConvert(_header.RecordSize);
@@ -1829,9 +1830,13 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     EndianConvert(_header.PalletDataSize);
     EndianConvert(_header.SectionCount);
 
-    if (_header.Signature != 0x34434457)                        //'WDC4'
-        throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDC4', got {}{}{}{}", source->GetFileName(),
+    if (_header.Signature != 0x35434457)                        //'WDC5'
+        throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDC5', got {}{}{}{}", source->GetFileName(),
             char(_header.Signature & 0xFF), char((_header.Signature >> 8) & 0xFF), char((_header.Signature >> 16) & 0xFF), char((_header.Signature >> 24) & 0xFF)));
+
+    if (_header.Version != 5)
+        throw DB2FileLoadException(Trinity::StringFormat("Incorrect version in {}, expected 5, got {} (possibly wrong client version)",
+            source->GetFileName(), _header.Version));
 
     if (loadInfo && _header.LayoutHash != loadInfo->Meta->LayoutHash)
         throw DB2FileLoadException(Trinity::StringFormat("Incorrect layout hash in {}, expected 0x{:08X}, got 0x{:08X} (possibly wrong client version)",
@@ -2071,19 +2076,23 @@ void DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     if (loadInfo)
     {
         uint32 fieldIndex = 0;
+        std::string signValidationResult;
         if (!loadInfo->Meta->HasIndexFieldInData())
         {
-            ASSERT(!loadInfo->Fields[0].IsSigned, "ID must be unsigned in %s", source->GetFileName());
+            if (loadInfo->Fields[0].IsSigned)
+                signValidationResult += Trinity::StringFormat("ID must be unsigned in {}", source->GetFileName());
             ++fieldIndex;
         }
         for (uint32 f = 0; f < loadInfo->Meta->FieldCount; ++f)
         {
-            ASSERT(loadInfo->Fields[fieldIndex].IsSigned == _impl->IsSignedField(f),
-                "Field %s in %s must be %s%s", loadInfo->Fields[fieldIndex].Name, source->GetFileName(), _impl->IsSignedField(f) ? "signed" : "unsigned",
-                _impl->GetExpectedSignMismatchReason(f));
+            if (loadInfo->Fields[fieldIndex].IsSigned != _impl->IsSignedField(f))
+                signValidationResult += Trinity::StringFormat("Field {} in {} must be {}{}", loadInfo->Fields[fieldIndex].Name,
+                    source->GetFileName(), _impl->IsSignedField(f) ? "signed" : "unsigned", _impl->GetExpectedSignMismatchReason(f));
 
             fieldIndex += loadInfo->Meta->Fields[f].ArraySize;
         }
+        if (!signValidationResult.empty())
+            throw DB2FileLoadException(std::move(signValidationResult));
     }
 }
 

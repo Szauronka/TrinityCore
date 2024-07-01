@@ -245,6 +245,8 @@ void Arena::EndBattleground(Team winner)
                 if (!player)
                     continue;
 
+                player->UpdateCriteria(CriteriaType::ParticipateInArena, GetMapId());
+
                 // per player calculation
                 if (team == winner)
                 {

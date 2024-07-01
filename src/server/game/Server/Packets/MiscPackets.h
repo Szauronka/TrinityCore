@@ -32,6 +32,7 @@
 #include <array>
 #include <map>
 
+enum class CountdownTimerType : int32;
 enum UnitStandStateType : uint8;
 enum WeatherState : uint32;
 
@@ -653,10 +654,9 @@ namespace WorldPackets
             int32 BroadcastTextID = 0;
         };
 
-        class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
+        class PlaySpeakerbotSound final : public ServerPacket
         {
         public:
-            PlaySpeakerbotSound() : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20) { }
             PlaySpeakerbotSound(ObjectGuid const& sourceObjectGUID, int32 soundKitID)
                 : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
 
@@ -664,6 +664,17 @@ namespace WorldPackets
 
             ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
+        };
+
+        class StopSpeakerbotSound final : public ServerPacket
+        {
+        public:
+            StopSpeakerbotSound(ObjectGuid const& sourceObjectGUID)
+                : ServerPacket(SMSG_STOP_SPEAKERBOT_SOUND, 16), SourceObjectGUID(sourceObjectGUID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
         };
 
         class CompleteCinematic final : public ClientPacket
@@ -926,6 +937,19 @@ namespace WorldPackets
             ObjectGuid SourceGuid;
         };
 
+        class StartTimer final : public ServerPacket
+        {
+        public:
+            StartTimer() : ServerPacket(SMSG_START_TIMER, 8 + 4 + 8 + 1 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            Duration<Seconds> TotalTime;
+            Duration<Seconds> TimeLeft;
+            CountdownTimerType Type = {};
+            Optional<ObjectGuid> PlayerGuid;
+        };
+
         class QueryCountdownTimer final : public ClientPacket
         {
         public:
@@ -933,20 +957,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            TimerType Type;
-        };
-
-        class StartTimer final : public ServerPacket
-        {
-        public:
-
-            StartTimer() : ServerPacket(SMSG_START_TIMER) { }
-
-            WorldPacket const* Write() override;
-
-            Duration<Seconds> TotalTime;
-            Duration<Seconds> TimeLeft;
-            TimerType Type;
+            CountdownTimerType TimerType = {};
         };
 
         class ConversationLineStarted final : public ClientPacket

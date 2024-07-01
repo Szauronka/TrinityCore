@@ -20,12 +20,14 @@
 
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "Duration.h"
 #include "ModelIgnoreFlags.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <memory>
 
 namespace WorldPackets::Spells
@@ -67,10 +69,20 @@ enum SpellValueMod : uint8;
 enum TriggerCastFlags : uint32;
 enum WeaponAttackType : uint8;
 
+namespace Trinity
+{
+enum class WorldObjectSpellAreaTargetSearchReason;
+
+template <class Check>
+struct WorldObjectListSearcher;
+}
+
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 #define MAX_SPELL_RANGE_TOLERANCE 3.0f
 #define TRAJECTORY_MISSILE_SIZE 3.0f
 #define AOE_DAMAGE_TARGET_CAP SI64LIT(20)
+#define SPELL_EMPOWER_HOLD_TIME_AT_MAX (1 * IN_MILLISECONDS)
+#define SPELL_EMPOWER_HARDCODED_GCD 359115u
 
 enum SpellCastFlags : uint32
 {
@@ -456,8 +468,11 @@ class TC_GAME_API Spell
         template<class SEARCHER> static void SearchTargets(SEARCHER& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);
 
         WorldObject* SearchNearbyTarget(SpellEffectInfo const& spellEffectInfo, float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList = nullptr);
-        void SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo const& spellEffectInfo, float range, Position const* position, WorldObject* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList);
-        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo const& spellEffectInfo, bool isChainHeal);
+        void SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo const& spellEffectInfo, float range, Position const* position, WorldObject* referer,
+            SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList,
+            Trinity::WorldObjectSpellAreaTargetSearchReason searchReason);
+        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType,
+            SpellTargetCheckTypes selectType, SpellEffectInfo const& spellEffectInfo, bool isChainHeal);
 
         GameObject* SearchSpellFocus();
 
@@ -467,8 +482,10 @@ class TC_GAME_API Spell
         void cast(bool skipCheck = false);
         void finish(SpellCastResult result = SPELL_CAST_OK);
         void TakePower();
+        void RefundPower();
 
         void TakeRunePower(bool didHit);
+        void RefundRunePower();
         void TakeReagents();
         void TakeCastItem();
 
@@ -544,7 +561,7 @@ class TC_GAME_API Spell
         void ExecuteLogEffectResurrect(SpellEffectName effect, Unit* target);
         void SendSpellInterruptLog(Unit* victim, uint32 spellId);
         void SendInterrupted(uint8 result);
-        void SendChannelUpdate(uint32 time);
+        void SendChannelUpdate(uint32 time, Optional<SpellCastResult> result = {});
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
 
@@ -601,6 +618,9 @@ class TC_GAME_API Spell
 
         UsedSpellMods m_appliedMods;
 
+        Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> m_scriptResult;
+        bool m_scriptWaitsForSpellHit = false;
+
         int32 GetCastTime() const { return m_casttime; }
         int32 GetRemainingCastTime() const { return m_timer; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
@@ -613,6 +633,10 @@ class TC_GAME_API Spell
         bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
         bool IsPositive() const;
+
+        bool IsEmpowerSpell() const { return m_empower != nullptr; }
+        void SetEmpowerReleasedByClient(bool release);
+        bool CanReleaseEmpowerSpell() const;
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
@@ -663,10 +687,14 @@ class TC_GAME_API Spell
         int64 GetCorpseTargetCountForEffect(SpellEffIndex effect) const;
 
         std::string GetDebugInfo() const;
+
+        Trinity::unique_weak_ptr<Spell> GetWeakPtr() const;
+
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
         bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
         bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
+        void MovePosition(Position& pos, WorldObject const* from, float dist, float angle) const;
 
     protected:
         bool HasGlobalCooldown() const;
@@ -694,6 +722,16 @@ class TC_GAME_API Spell
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
         uint8 m_runesState;
+
+        struct EmpowerData
+        {
+            Milliseconds MinHoldTime = 0ms;
+            std::vector<Milliseconds> StageDurations;
+            int32 CompletedStages = 0;
+            bool IsReleasedByClient = false;
+            bool IsReleased = false;
+        };
+        std::unique_ptr<EmpowerData> m_empower;
 
         uint8 m_delayAtDamageCount;
         bool IsDelayableNoMore()
@@ -871,6 +909,8 @@ class TC_GAME_API Spell
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void CallScriptEmpowerStageCompletedHandlers(int32 completedStagesCount);
+        void CallScriptEmpowerCompletedHandlers(int32 completedStagesCount);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
         std::vector<SpellScript*> m_loadedScripts;
 
@@ -951,12 +991,20 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
+    enum class WorldObjectSpellAreaTargetSearchReason
+    {
+        Area,
+        Chain
+    };
+
     struct TC_GAME_API WorldObjectSpellAreaTargetCheck : public WorldObjectSpellTargetCheck
     {
         float _range;
         Position const* _position;
+        WorldObjectSpellAreaTargetSearchReason _searchReason;
         WorldObjectSpellAreaTargetCheck(float range, Position const* position, WorldObject* caster,
-            WorldObject* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType);
+            WorldObject* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType,
+            WorldObjectSpellAreaTargetSearchReason searchReason = WorldObjectSpellAreaTargetSearchReason::Area);
 
         bool operator()(WorldObject* target) const;
     };
@@ -994,6 +1042,8 @@ namespace Trinity
 
     TC_GAME_API void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf = nullptr);
 }
+
+extern template void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);
 
 using SpellEffectHandlerFn = void(Spell::*)();
 

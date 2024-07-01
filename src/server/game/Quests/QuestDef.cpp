@@ -151,8 +151,11 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 
     if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition ({}) set for quest {} and spell {}. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
-        playerConditionId = 0;
+        if (!sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_PLAYER_CONDITION, playerConditionId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has serverside PlayerCondition ({}) set for quest {} and spell {} without conditions. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
+            playerConditionId = 0;
+        }
     }
 
     if (type >= AsUnderlyingType(QuestCompleteSpellType::Max))
@@ -306,6 +309,9 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
 void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_description_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -326,6 +332,9 @@ void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
 void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_request_items_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -346,6 +355,9 @@ void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
 void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -366,6 +378,9 @@ void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
 void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_completion_log_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -484,9 +499,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     auto displaySpellItr = rewards.SpellCompletionDisplayID.begin();
     for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
     {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(displaySpell.PlayerConditionId))
-            if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
-                continue;
+        if (!ConditionMgr::IsPlayerMeetingCondition(player, displaySpell.PlayerConditionId))
+            continue;
 
         *displaySpellItr = displaySpell.SpellId;
         if (++displaySpellItr == rewards.SpellCompletionDisplayID.end())
@@ -602,7 +616,12 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 void Quest::InitializeQueryData()
 {
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && loc != DEFAULT_LOCALE)
+            continue;
+
         QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc), nullptr);
+    }
 }
 
 WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const

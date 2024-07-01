@@ -231,8 +231,9 @@ struct SpellEffectInfo::ImmunityInfo
     uint32 SchoolImmuneMask = 0;
     uint32 ApplyHarmfulAuraImmuneMask = 0;
     uint64 MechanicImmuneMask = 0;
-    uint32 DispelImmune = 0;
+    uint32 DispelImmuneMask = 0;
     uint32 DamageSchoolMask = 0;
+    uint8 OtherImmuneMask = 0;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
     Trinity::Containers::FlatSet<SpellEffectName> SpellEffectImmune;
@@ -362,8 +363,8 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,  TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 119 TARGET_CORPSE_SRC_AREA_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_SUMMONED, TARGET_DIR_NONE},        // 120 TARGET_UNIT_SELF_AND_SUMMONS
     {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,   TARGET_DIR_NONE},        // 121 TARGET_CORPSE_TARGET_ALLY
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_THREAT,   TARGET_DIR_NONE},        // 122 TARGET_UNIT_AREA_THREAT_LIST
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_TAP,      TARGET_DIR_NONE},        // 123 TARGET_UNIT_AREA_TAP_LIST
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 122 TARGET_UNIT_AREA_THREAT_LIST
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 123 TARGET_UNIT_AREA_TAP_LIST
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 124 TARGET_UNIT_TARGET_TAP_LIST
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 125 TARGET_DEST_CASTER_GROUND_2
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 126 TARGET_UNIT_CASTER_AREA_ENEMY_CLUMP
@@ -1289,6 +1290,9 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         CooldownAuraSpellId = _cooldowns->AuraSpellID;
     }
 
+    // SpellEmpowerStageEntry
+    std::ranges::transform(data.EmpowerStages, std::back_inserter(EmpowerStageThresholds), [](SpellEmpowerStageEntry const* stage) { return Milliseconds(stage->DurationMs); });
+
     // SpellEquippedItemsEntry
     if (SpellEquippedItemsEntry const* _equipped = data.EquippedItems)
     {
@@ -1602,6 +1606,11 @@ bool SpellInfo::IsAutocastable() const
     return true;
 }
 
+bool SpellInfo::IsAutocastEnabledByDefault() const
+{
+    return !HasAttribute(SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT);
+}
+
 bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
@@ -1742,6 +1751,11 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return HasAttribute(SPELL_ATTR2_AUTO_REPEAT);
 }
 
+bool SpellInfo::IsEmpowerSpell() const
+{
+    return !EmpowerStageThresholds.empty();
+}
+
 bool SpellInfo::HasInitialAggro() const
 {
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT) || HasAttribute(SPELL_ATTR4_NO_HARMFUL_THREAT));
@@ -1839,24 +1853,6 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
 
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
 {
-    // aura can't be pierced
-    if (!auraSpellInfo || auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return false;
-
-    // these spells pierce all available spells (Resurrection Sickness for example)
-    if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return true;
-
-    // these spells (Cyclone for example) can pierce all...
-    if (HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
-    {
-        // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-        if (auraSpellInfo->Mechanic != MECHANIC_IMMUNE_SHIELD &&
-               auraSpellInfo->Mechanic != MECHANIC_INVULNERABILITY &&
-               (auraSpellInfo->Mechanic != MECHANIC_BANISH || (IsRankOf(auraSpellInfo) && auraSpellInfo->Dispel != DISPEL_NONE))) // Banish shouldn't be immune to itself, but Cyclone should
-            return true;
-    }
-
     // Dispels other auras on immunity, check if this spell makes the unit immune to aura
     if (HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT) && CanSpellProvideImmunityAgainstAura(auraSpellInfo))
         return true;
@@ -1868,15 +1864,6 @@ bool SpellInfo::CanDispelAura(SpellInfo const* auraSpellInfo) const
 {
     // These auras (like Divine Shield) can't be dispelled
     if (auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return false;
-
-    // These spells (like Mass Dispel) can dispel all auras
-    if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return true;
-
-    // These auras (Cyclone for example) are not dispelable
-    if ((auraSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && auraSpellInfo->Mechanic != MECHANIC_NONE)
-        || auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
         return false;
 
     return true;
@@ -2026,19 +2013,8 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         if (!(mountFlags.HasFlag(AreaMountFlags::AllowFlyingMounts)))
             return SPELL_FAILED_INCORRECT_AREA;
 
-        if (player)
-        {
-            uint32 mapToCheck = map_id;
-            if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
-                mapToCheck = mapEntry->CosmeticParentMapID;
-
-            if ((mapToCheck == 1116 || mapToCheck == 1464) && !player->HasSpell(191645)) // Draenor Pathfinder
-                return SPELL_FAILED_INCORRECT_AREA;
-            else if (mapToCheck == 1220 && !player->HasSpell(233368)) // Broken Isles Pathfinder
-                return SPELL_FAILED_INCORRECT_AREA;
-            else if ((mapToCheck == 1642 || mapToCheck == 1643) && !player->HasSpell(278833)) // Battle for Azeroth Pathfinder
-                return SPELL_FAILED_INCORRECT_AREA;
-        }
+        if (player && !ConditionMgr::IsPlayerMeetingCondition(player, 72968)) // Hardcoded PlayerCondition id for attribute check in client
+            return SPELL_FAILED_INCORRECT_AREA;
     }
 
     // raid instance limitation
@@ -2250,6 +2226,15 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         if (HasAttribute(SPELL_ATTR8_ONLY_TARGET_OWN_SUMMONS))
             if (!unitTarget->IsSummon() || unitTarget->ToTempSummon()->GetSummonerGUID() != caster->GetGUID())
                 return SPELL_FAILED_BAD_TARGETS;
+
+        if (HasAttribute(SPELL_ATTR3_NOT_ON_AOE_IMMUNE))
+            if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
+                return SPELL_FAILED_BAD_TARGETS;
+
+        if (HasAttribute(SPELL_ATTR9_TARGET_MUST_BE_GROUNDED) &&
+            (unitTarget->HasUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING | MOVEMENTFLAG_HOVER) ||
+                unitTarget->HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING)))
+            return SPELL_FAILED_TARGET_NOT_GROUNDED;
     }
     // corpse specific target checks
     else if (Corpse const* corpseTarget = target->ToCorpse())
@@ -2611,6 +2596,9 @@ void SpellInfo::_LoadAuraState()
             default:
                 break;
         }
+
+        if (Mechanic == MECHANIC_BANISH)
+            return AURA_STATE_BANISHED;
 
         return AURA_STATE_NONE;
     }();
@@ -3309,11 +3297,11 @@ void SpellInfo::_LoadImmunityInfo()
         uint32 schoolImmunityMask = 0;
         uint32 applyHarmfulAuraImmunityMask = 0;
         uint64 mechanicImmunityMask = 0;
-        uint32 dispelImmunity = 0;
+        uint32 dispelImmunityMask = 0;
         uint32 damageImmunityMask = 0;
+        uint8 otherImmunityMask = 0;
 
         int32 miscVal = effect.MiscValue;
-        int32 amount = effect.CalcValue();
 
         SpellEffectInfo::ImmunityInfo& immuneInfo = *workBuffer;
 
@@ -3321,167 +3309,16 @@ void SpellInfo::_LoadImmunityInfo()
         {
             case SPELL_AURA_MECHANIC_IMMUNITY_MASK:
             {
-                switch (miscVal)
+                if (CreatureImmunities const* creatureImmunities = SpellMgr::GetCreatureImmunities(miscVal))
                 {
-                    case 96:   // Free Friend, Uncontrollable Frenzy, Warlord's Presence
-                    {
-                        mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                        break;
-                    }
-                    case 1615: // Incite Rage, Wolf Spirit, Overload, Lightning Tendrils
-                    {
-                        switch (Id)
-                        {
-                            case 43292: // Incite Rage
-                            case 49172: // Wolf Spirit
-                                mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-
-                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                                [[fallthrough]];
-                            case 61869: // Overload
-                            case 63481:
-                            case 61887: // Lightning Tendrils
-                            case 63486:
-                                mechanicImmunityMask |= (1 << MECHANIC_INTERRUPT) | (1 << MECHANIC_SILENCE);
-
-                                immuneInfo.SpellEffectImmune.insert(SPELL_EFFECT_KNOCK_BACK);
-                                immuneInfo.SpellEffectImmune.insert(SPELL_EFFECT_KNOCK_BACK_DEST);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    case 679:  // Mind Control, Avenging Fury
-                    {
-                        if (Id == 57742) // Avenging Fury
-                        {
-                            mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                        }
-                        break;
-                    }
-                    case 1557: // Startling Roar, Warlord Roar, Break Bonds, Stormshield
-                    {
-                        if (Id == 64187) // Stormshield
-                        {
-                            mechanicImmunityMask |= (1 << MECHANIC_STUN);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                        }
-                        else
-                        {
-                            mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                        }
-                        break;
-                    }
-                    case 1614: // Fixate
-                    case 1694: // Fixated, Lightning Tendrils
-                    {
-                        immuneInfo.SpellEffectImmune.insert(SPELL_EFFECT_ATTACK_ME);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_TAUNT);
-                        break;
-                    }
-                    case 1630: // Fervor, Berserk
-                    {
-                        if (Id == 64112) // Berserk
-                        {
-                            immuneInfo.SpellEffectImmune.insert(SPELL_EFFECT_ATTACK_ME);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_TAUNT);
-                        }
-                        else
-                        {
-                            mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                        }
-                        break;
-                    }
-                    case 477:  // Bladestorm
-                    case 1733: // Bladestorm, Killing Spree
-                    {
-                        if (!amount)
-                        {
-                            mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-
-                            immuneInfo.SpellEffectImmune.insert(SPELL_EFFECT_KNOCK_BACK);
-                            immuneInfo.SpellEffectImmune.insert(SPELL_EFFECT_KNOCK_BACK_DEST);
-
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                        }
-                        break;
-                    }
-                    case 878: // Whirlwind, Fog of Corruption, Determination
-                    {
-                        if (Id == 66092) // Determination
-                        {
-                            mechanicImmunityMask |= (1 << MECHANIC_SNARE) | (1 << MECHANIC_STUN)
-                                | (1 << MECHANIC_DISORIENTED) | (1 << MECHANIC_FREEZE);
-
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                        }
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                if (immuneInfo.AuraTypeImmune.empty())
-                {
-                    if (miscVal & (1 << 10))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                    if (miscVal & (1 << 1))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_TRANSFORM);
-
-                    // These flag can be recognized wrong:
-                    if (miscVal & (1 << 6))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                    if (miscVal & (1 << 0))
-                    {
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                    }
-                    if (miscVal & (1 << 2))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                    if (miscVal & (1 << 9))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                    if (miscVal & (1 << 7))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DISARM);
+                    schoolImmunityMask |= creatureImmunities->School.to_ulong();
+                    dispelImmunityMask |= creatureImmunities->DispelType.to_ulong();
+                    mechanicImmunityMask |= creatureImmunities->Mechanic.to_ullong();
+                    otherImmunityMask |= creatureImmunities->Other.AsUnderlyingType();
+                    for (SpellEffectName effectType : creatureImmunities->Effect)
+                        immuneInfo.SpellEffectImmune.insert(effectType);
+                    for (AuraType aura : creatureImmunities->Aura)
+                        immuneInfo.AuraTypeImmune.insert(aura);
                 }
                 break;
             }
@@ -3544,7 +3381,7 @@ void SpellInfo::_LoadImmunityInfo()
             }
             case SPELL_AURA_DISPEL_IMMUNITY:
             {
-                dispelImmunity = uint32(miscVal);
+                dispelImmunityMask = 1u << miscVal;
                 break;
             }
             default:
@@ -3554,8 +3391,9 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.SchoolImmuneMask = schoolImmunityMask;
         immuneInfo.ApplyHarmfulAuraImmuneMask = applyHarmfulAuraImmunityMask;
         immuneInfo.MechanicImmuneMask = mechanicImmunityMask;
-        immuneInfo.DispelImmune = dispelImmunity;
+        immuneInfo.DispelImmuneMask = dispelImmunityMask;
         immuneInfo.DamageSchoolMask = damageImmunityMask;
+        immuneInfo.OtherImmuneMask = otherImmunityMask;
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
@@ -3563,8 +3401,9 @@ void SpellInfo::_LoadImmunityInfo()
         if (immuneInfo.SchoolImmuneMask
             || immuneInfo.ApplyHarmfulAuraImmuneMask
             || immuneInfo.MechanicImmuneMask
-            || immuneInfo.DispelImmune
+            || immuneInfo.DispelImmuneMask
             || immuneInfo.DamageSchoolMask
+            || immuneInfo.OtherImmuneMask
             || !immuneInfo.AuraTypeImmune.empty()
             || !immuneInfo.SpellEffectImmune.empty())
         {
@@ -3660,14 +3499,24 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
 
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
-            target->RemoveAppliedAuras([this, schoolImmunity](AuraApplication const* aurApp) -> bool
+            target->RemoveAppliedAuras([this, target, schoolImmunity](AuraApplication const* aurApp) -> bool
             {
                 SpellInfo const* auraSpellInfo = aurApp->GetBase()->GetSpellInfo();
-                return ((auraSpellInfo->GetSchoolMask() & schoolImmunity) != 0 && // Check for school mask
-                    CanDispelAura(auraSpellInfo) &&
-                    (IsPositive() != aurApp->IsPositive()) &&                     // Check spell vs aura possitivity
-                    !auraSpellInfo->IsPassive() &&                                // Don't remove passive auras
-                    auraSpellInfo->Id != Id);                                     // Don't remove self
+                if (auraSpellInfo->Id == Id)                                      // Don't remove self
+                    return false;
+                if (auraSpellInfo->IsPassive())                                   // Don't remove passive auras
+                    return false;
+                if (!(auraSpellInfo->GetSchoolMask() & schoolImmunity))           // Check for school mask
+                    return false;
+                if (!CanDispelAura(auraSpellInfo))
+                    return false;
+                if (!HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS))
+                {
+                    WorldObject const* existingAuraCaster = aurApp->GetBase()->GetWorldObjectCaster();
+                    if (existingAuraCaster && existingAuraCaster->IsFriendlyTo(target)) // Check spell vs aura possitivity
+                        return false;
+                }
+                return true;
             });
         }
 
@@ -3704,16 +3553,19 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         }
     }
 
-    if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+    if (uint32 dispelImmunity = immuneInfo->DispelImmuneMask)
     {
-        target->ApplySpellImmune(Id, IMMUNITY_DISPEL, dispelImmunity, apply);
+        for (uint32 i = 0; i < DISPEL_MAX; ++i)
+            if (dispelImmunity & (1 << i))
+                target->ApplySpellImmune(Id, IMMUNITY_DISPEL, i, apply);
 
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
             target->RemoveAppliedAuras([dispelImmunity](AuraApplication const* aurApp) -> bool
             {
                 SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
-                if (spellInfo->Dispel == dispelImmunity)
+                uint32 dispelMask = spellInfo->GetDispelMask();
+                if ((dispelMask & dispelImmunity) == dispelMask)
                     return true;
 
                 return false;
@@ -3733,15 +3585,17 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
-            target->RemoveAurasByType(auraType, [](AuraApplication const* aurApp) -> bool
+            target->RemoveAurasByType(auraType, [this](AuraApplication const* aurApp) -> bool
             {
-                // if the aura has SPELL_ATTR0_NO_IMMUNITIES, then it cannot be removed by immunity
-                return !aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES);
+                return CanDispelAura(aurApp->GetBase()->GetSpellInfo());
             });
     }
 
     for (SpellEffectName effectType : immuneInfo->SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
+
+    if (uint8 otherImmuneMask = immuneInfo->OtherImmuneMask)
+        target->ApplySpellImmune(Id, IMMUNITY_OTHER, otherImmuneMask, apply);
 }
 
 bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const
@@ -3758,71 +3612,81 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
         if (!immuneInfo)
             continue;
 
-        if (!auraSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
-        {
+        if (!auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
             if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
                 if ((auraSpellInfo->SchoolMask & schoolImmunity) != 0)
                     return true;
-        }
 
         if (uint64 mechanicImmunity = immuneInfo->MechanicImmuneMask)
             if ((mechanicImmunity & (UI64LIT(1) << auraSpellInfo->Mechanic)) != 0)
                 return true;
 
-        if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+        if (uint32 dispelImmunity = immuneInfo->DispelImmuneMask)
             if (auraSpellInfo->Dispel == dispelImmunity)
                 return true;
 
         bool immuneToAllEffects = true;
         for (SpellEffectInfo const& auraSpellEffectInfo : auraSpellInfo->GetEffects())
         {
-            if (!auraSpellEffectInfo.IsEffect())
+            if (!auraSpellEffectInfo.IsAura())
                 continue;
 
-            auto spellImmuneItr = immuneInfo->SpellEffectImmune.find(auraSpellEffectInfo.Effect);
-            if (spellImmuneItr == immuneInfo->SpellEffectImmune.end())
+            if (uint64 mechanicImmunity = immuneInfo->MechanicImmuneMask)
+                if ((mechanicImmunity & (UI64LIT(1) << auraSpellEffectInfo.Mechanic)) != 0)
+                    continue;
+
+            if (AuraType auraName = auraSpellEffectInfo.ApplyAuraName)
             {
-                immuneToAllEffects = false;
-                break;
+                if (immuneInfo->AuraTypeImmune.find(auraName) != immuneInfo->AuraTypeImmune.end())
+                    continue;
+
+                if (!auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES) && !auraSpellInfo->IsPositiveEffect(auraSpellEffectInfo.EffectIndex))
+                    if (uint32 applyHarmfulAuraImmunityMask = immuneInfo->ApplyHarmfulAuraImmuneMask)
+                        if ((auraSpellInfo->GetSchoolMask() & applyHarmfulAuraImmunityMask) != 0)
+                            continue;
             }
 
-            if (uint32 mechanic = auraSpellEffectInfo.Mechanic)
-            {
-                if (!(immuneInfo->MechanicImmuneMask & (UI64LIT(1) << mechanic)))
-                {
-                    immuneToAllEffects = false;
-                    break;
-                }
-            }
-
-            if (!auraSpellInfo->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))
-            {
-                if (AuraType auraName = auraSpellEffectInfo.ApplyAuraName)
-                {
-                    bool isImmuneToAuraEffectApply = false;
-                    auto auraImmuneItr = immuneInfo->AuraTypeImmune.find(auraName);
-                    if (auraImmuneItr != immuneInfo->AuraTypeImmune.end())
-                        isImmuneToAuraEffectApply = true;
-
-                    if (!isImmuneToAuraEffectApply && !auraSpellInfo->IsPositiveEffect(auraSpellEffectInfo.EffectIndex) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
-                    {
-                        if (uint32 applyHarmfulAuraImmunityMask = immuneInfo->ApplyHarmfulAuraImmuneMask)
-                            if ((auraSpellInfo->GetSchoolMask() & applyHarmfulAuraImmunityMask) != 0)
-                                isImmuneToAuraEffectApply = true;
-                    }
-
-                    if (!isImmuneToAuraEffectApply)
-                    {
-                        immuneToAllEffects = false;
-                        break;
-                    }
-                }
-            }
+            immuneToAllEffects = false;
         }
 
         if (immuneToAllEffects)
             return true;
     }
+
+    return false;
+}
+
+bool SpellInfo::CanSpellEffectProvideImmunityAgainstAuraEffect(SpellEffectInfo const& immunityEffectInfo, SpellInfo const* auraSpellInfo, SpellEffectInfo const& auraEffectInfo) const
+{
+    SpellEffectInfo::ImmunityInfo const* immuneInfo = immunityEffectInfo.GetImmunityInfo();
+    if (!immuneInfo)
+        return false;
+
+    if (!auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+    {
+        if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
+            if ((auraSpellInfo->SchoolMask & schoolImmunity) != 0)
+                return true;
+
+        if (uint32 applyHarmfulAuraImmunityMask = immuneInfo->ApplyHarmfulAuraImmuneMask)
+            if ((auraSpellInfo->GetSchoolMask() & applyHarmfulAuraImmunityMask) != 0)
+                return true;
+    }
+
+    if (uint64 mechanicImmunity = immuneInfo->MechanicImmuneMask)
+    {
+        if ((mechanicImmunity & (UI64LIT(1) << auraSpellInfo->Mechanic)) != 0)
+            return true;
+        if ((mechanicImmunity & (UI64LIT(1) << auraEffectInfo.Mechanic)) != 0)
+            return true;
+    }
+
+    if (uint32 dispelImmunity = immuneInfo->DispelImmuneMask)
+        if (auraSpellInfo->Dispel == dispelImmunity)
+            return true;
+
+    if (immuneInfo->AuraTypeImmune.find(auraEffectInfo.ApplyAuraName) != immuneInfo->AuraTypeImmune.end())
+        return true;
 
     return false;
 }
@@ -3836,40 +3700,12 @@ bool SpellInfo::SpellCancelsAuraEffect(AuraEffect const* aurEff) const
     if (aurEff->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return false;
 
+    if (aurEff->GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes::NoImmunity))
+        return false;
+
     for (SpellEffectInfo const& effect : GetEffects())
-    {
-        if (!effect.IsEffect(SPELL_EFFECT_APPLY_AURA))
-            continue;
-
-        uint32 const miscValue = static_cast<uint32>(effect.MiscValue);
-        switch (effect.ApplyAuraName)
-        {
-            case SPELL_AURA_STATE_IMMUNITY:
-                if (miscValue != aurEff->GetAuraType())
-                    continue;
-                break;
-            case SPELL_AURA_SCHOOL_IMMUNITY:
-            case SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL:
-                if (aurEff->GetSpellInfo()->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES) || !(aurEff->GetSpellInfo()->SchoolMask & miscValue))
-                    continue;
-                break;
-            case SPELL_AURA_DISPEL_IMMUNITY:
-                if (miscValue != aurEff->GetSpellInfo()->Dispel)
-                    continue;
-                break;
-            case SPELL_AURA_MECHANIC_IMMUNITY:
-                if (miscValue != aurEff->GetSpellInfo()->Mechanic)
-                {
-                    if (miscValue != aurEff->GetSpellEffectInfo().Mechanic)
-                        continue;
-                }
-                break;
-            default:
-                continue;
-        }
-
-        return true;
-    }
+        if (CanSpellEffectProvideImmunityAgainstAuraEffect(effect, aurEff->GetSpellInfo(), aurEff->GetSpellEffectInfo()))
+            return true;
 
     return false;
 }
@@ -3952,7 +3788,7 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
     if (spell)
         spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
 
-    if (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_AIMED_SHOT))
+    if (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON))
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
@@ -4502,8 +4338,8 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
 {
     for (SpellXSpellVisualEntry const* visual : _visuals)
     {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->CasterPlayerConditionID))
-            if (!caster || !caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition))
+        if (visual->CasterPlayerConditionID)
+            if (!caster || !caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), visual->CasterPlayerConditionID))
                 continue;
 
         if (UnitConditionEntry const* unitCondition = sUnitConditionStore.LookupEntry(visual->CasterUnitConditionID))
@@ -5068,8 +4904,7 @@ bool SpellInfo::MeetsFutureSpellPlayerCondition(Player const* player) const
     if (ShowFutureSpellPlayerConditionID == 0)
         return false;
 
-    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ShowFutureSpellPlayerConditionID);
-    return !playerCondition || ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+    return ConditionMgr::IsPlayerMeetingCondition(player, ShowFutureSpellPlayerConditionID);
 }
 
 bool SpellInfo::HasLabel(uint32 labelId) const

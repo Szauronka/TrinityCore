@@ -525,6 +525,13 @@ WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::StopSpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Misc::FarSight::Read()
 {
     Enable = _worldPacket.ReadBit();
@@ -754,10 +761,20 @@ void WorldPackets::Misc::CloseInteraction::Read()
 WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 {
     _worldPacket << TotalTime;
+    _worldPacket << int32(Type);
     _worldPacket << TimeLeft;
-    _worldPacket << Type;
+    _worldPacket.WriteBit(PlayerGuid.has_value());
+    _worldPacket.FlushBits();
+
+    if (PlayerGuid)
+        _worldPacket << *PlayerGuid;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Misc::QueryCountdownTimer::Read()
+{
+    TimerType = _worldPacket.read<CountdownTimerType, int32>();
 }
 
 void WorldPackets::Misc::ConversationLineStarted::Read()
