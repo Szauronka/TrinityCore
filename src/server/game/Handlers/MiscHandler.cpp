@@ -351,13 +351,6 @@ void WorldSession::HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet)
     _player->SetWarModeDesired(packet.Enable);
 }
 
-void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& packet)
-{
-    Player* player = GetPlayer();
-    if (Battleground* bg = player->GetBattleground())
-        bg->SendStartTimer(packet.Type);
-}
-
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
 {
     if (GetPlayer()->IsAlive() || !GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_GHOST))

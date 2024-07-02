@@ -106,6 +106,13 @@ namespace WorldPackets
                 uint32 Unknown1007 = 0;
             };
 
+            struct AddonChatThrottleParams
+            {
+                int32 MaxTries = 0;
+                int32 TriesRestoredPerSecond = 0;
+                int32 UsedTriesPerMessage = 0;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
 
             WorldPacket const* Write() override;

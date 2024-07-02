@@ -4557,9 +4557,6 @@ void ObjectMgr::LoadQuests()
         Field* fields = result->Fetch();
 
         uint32 questId = fields[0].GetUInt32();
-        auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields)).first;
-        if (itr->second.IsAutoPush())
-            _questTemplatesAutoPush.push_back(&itr->second);
 
         Quest* newQuest = new Quest(fields);
 
@@ -6259,9 +6256,9 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID) const
 
 void ObjectMgr::LoadQuestTasks()
 {
-    for (std::pair<uint32, Quest> questContainer : _questTemplates)
+    for (const auto& questContainer : _questTemplates)
     {
-        Quest& quest = questContainer.second;
+        Quest& quest = *(questContainer.second.get());
 
         /* Need Test maybe it's not needed at all..
         CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(quest.GetQuestId());

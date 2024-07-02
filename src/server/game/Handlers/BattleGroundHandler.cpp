@@ -726,13 +726,3 @@ void WorldSession::HandleRequestScheduledPVPInfo(WorldPackets::Battleground::Req
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleRequestConquestFormulaConstants(WorldPackets::Battleground::RequestConquestFormulaConstants& /*requestConquestFormulaConstants*/)
-{
-    WorldPackets::Battleground::ConquestFormulaConstants packet;
-    packet.PvpMinCPPerWeek = uint32(g_PvpMinCPPerWeek);
-    packet.PvpMaxCPPerWeek = uint32(g_PvpMaxCPPerWeek);
-    packet.PvpCPBaseCoefficient = float(g_PvpCPNumerator);
-    packet.PvpCPExpCoefficient = float(g_PvpCPBaseCoefficient);
-    packet.PvpCPNumerator = float(g_PvpCPExpCoefficient);
-    SendPacket(packet.Write());
-}

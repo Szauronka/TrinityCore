@@ -770,7 +770,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     //instance->SendToPlayers(WorldPackets::MythicPlus::ResetChallengeMode(instance->GetId()).Write());
 
     WorldPackets::Misc::StartTimer startTimer;
-    startTimer.Type == TimerType(ChallengeMode);
+    startTimer.Type = CountdownTimerType::ChallengeMode;
     startTimer.TotalTime = Seconds(10);
     startTimer.TimeLeft = Seconds(10);
     instance->SendToPlayers(startTimer.Write());

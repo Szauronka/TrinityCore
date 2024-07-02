@@ -683,20 +683,6 @@ namespace WorldPackets
             std::vector<SpecialEventInfo> specialEventInfo;
         };
 
-        class ConquestFormulaConstants final : public ServerPacket
-        {
-        public:
-            ConquestFormulaConstants() : ServerPacket(SMSG_CONQUEST_FORMULA_CONSTANTS, 20) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 PvpMinCPPerWeek = 0;
-            uint32 PvpMaxCPPerWeek = 0;
-            float PvpCPBaseCoefficient = 0.0f;
-            float PvpCPExpCoefficient = 0.0f;
-            float PvpCPNumerator = 0.0f;
-        };
-
         class JoinRatedBattleground final : public ClientPacket
         {
         public:
@@ -709,14 +695,6 @@ namespace WorldPackets
         {
         public:
             RequestScheduledPVPInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_SCHEDULED_PVP_INFO, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class RequestConquestFormulaConstants final : public ClientPacket
-        {
-        public:
-            RequestConquestFormulaConstants(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS, std::move(packet)) { }
 
             void Read() override { }
         };

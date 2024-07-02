@@ -1350,8 +1350,6 @@ class TC_GAME_API WorldSession
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
         void HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet);
-        void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& packet);
-
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);

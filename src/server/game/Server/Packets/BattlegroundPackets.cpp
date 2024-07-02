@@ -520,14 +520,3 @@ WorldPacket const* WorldPackets::Battleground::SendRequestScheduledPVPInfoRespon
 
 	return &_worldPacket;
 }
-
-WorldPacket const* WorldPackets::Battleground::ConquestFormulaConstants::Write()
-{
-	_worldPacket << uint32(PvpMinCPPerWeek);
-	_worldPacket << uint32(PvpMaxCPPerWeek);
-	_worldPacket << uint32(PvpCPBaseCoefficient);
-	_worldPacket << float(PvpCPExpCoefficient);
-	_worldPacket << float(PvpCPNumerator);
-
-	return &_worldPacket;
-}

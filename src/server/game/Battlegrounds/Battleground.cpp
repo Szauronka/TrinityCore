@@ -335,23 +335,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 player->ResetAllPowers();
     }
 
-    // Send packet every 10 seconds until the 2nd field reach 0
-    if (m_CountdownTimer >= 10000)
-    {
-        Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
-
-        WorldPackets::Misc::StartTimer startTimer;
-        startTimer.Type         == (TimerType(Pvp));
-        startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
-        startTimer.TotalTime    = countdownMaxForBGType;
-
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->SendDirectMessage(startTimer.Write());
-
-        m_CountdownTimer = 0;
-    }
-
     if (!(m_Events & BG_STARTING_EVENT_1))
     {
         m_Events |= BG_STARTING_EVENT_1;
@@ -1069,11 +1052,10 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
             Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
 
             WorldPackets::Misc::StartTimer startTimer;
-            startTimer.Type         = (TimerType(Pvp));
+            startTimer.Type         = (CountdownTimerType::Pvp);
             startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
             startTimer.TotalTime    = countdownMaxForBGType;
             player->SendDirectMessage(startTimer.Write());
-        }
 
         if (bp.Mercenary)
         {
@@ -1091,12 +1073,6 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
             player->SetPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
         }
     }
-
-    // setup BG group membership
-    PlayerAddedToBGCheckIfBGIsRunning(player);
-    AddOrSetPlayerToCorrectBgGroup(player, team);
-
-    GetBgMap()->GetBattlegroundScript()->OnPlayerJoined(player, isInBattleground);
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1174,25 +1150,6 @@ void Battleground::EventPlayerLoggedOut(Player* player)
             if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
                 EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
-}
-
-void Battleground::SendStartTimer(TimerType type)
-{
-	if (type != (TimerType(Pvp)))
-		return;
-
-    Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
-
-	if (Milliseconds(GetElapsedTime()) >= countdownMaxForBGType)
-		return;
-
-	m_PrematureCountDownTimer = 0;
-
-	WorldPackets::Misc::StartTimer startTimer;
-	startTimer.Type == (TimerType(Pvp));
-	startTimer.TimeLeft = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime() / 1000));
-	startTimer.TotalTime = countdownMaxForBGType;
-	SendPacketToAll(startTimer.Write());
 }
 
 // This method should be called only once ... it adds pointer to queue

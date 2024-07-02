@@ -820,11 +820,6 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Misc::QueryCountdownTimer::Read()
-{
-	_worldPacket.read<uint32>(Type);
-}
-
 WorldPacket const* WorldPackets::Misc::OpenContainer::Write()
 {
     _worldPacket << Guid;
