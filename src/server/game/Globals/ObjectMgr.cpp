@@ -11718,6 +11718,107 @@ void ObjectMgr::LoadPlayerChoicesLocale()
     }
 }
 
+void ObjectMgr::LoadUiMapQuestLines()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _uiMapQuestLinesStore.clear();
+
+    //                                               0        1
+    QueryResult result = WorldDatabase.Query("SELECT UiMapId, QuestLineId FROM ui_map_quest_lines");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 questlines for UIMaps. DB table `ui_map_quest_lines` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 uiMapId = fields[0].GetUInt32();
+        uint32 questLineId = fields[1].GetUInt32();
+
+        if (!sUiMapStore.HasRecord(uiMapId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_lines` references non-existing UIMap {}, skipped", uiMapId);
+            continue;
+        }
+
+        if (!sDB2Manager.GetQuestsForQuestLine(questLineId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_lines` references empty or non-existing questline {}, skipped", questLineId);
+            continue;
+        }
+
+        _uiMapQuestLinesStore[uiMapId].push_back(questLineId);
+        ++count;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} UiMap questlines definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::vector<uint32> const* ObjectMgr::GetUiMapQuestLinesList(uint32 uiMapId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_uiMapQuestLinesStore, uiMapId);
+}
+
+void ObjectMgr::LoadUiMapQuests()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _uiMapQuestsStore.clear();
+
+    //                                               0        1
+    QueryResult result = WorldDatabase.Query("SELECT UiMapId, QuestId FROM ui_map_quests");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 quests for UIMaps. DB table `ui_map_quests` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 uiMapId = fields[0].GetUInt32();
+        uint32 questId = fields[1].GetUInt32();
+
+        if (!sUiMapStore.HasRecord(uiMapId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quests` references non-existing UIMap {}, skipped", uiMapId);
+            continue;
+        }
+
+        if (!GetQuestTemplate(questId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quests` references non-existing quest {}, skipped", questId);
+            continue;
+        }
+
+        _uiMapQuestsStore[uiMapId].push_back(questId);
+        ++count;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} UiMap quests definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::vector<uint32> const* ObjectMgr::GetUiMapQuestsList(uint32 uiMapId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_uiMapQuestsStore, uiMapId);
+}
+
+
 void ObjectMgr::LoadJumpChargeParams()
 {
     uint32 oldMSTime = getMSTime();

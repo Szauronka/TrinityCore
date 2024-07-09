@@ -881,9 +881,13 @@ void UiMapQuestLinesRequest::Read()
 WorldPacket const* UiMapQuestLinesResponse::Write()
 {
     _worldPacket << int32(UiMapID);
-    _worldPacket << uint32(QuestLineXQuestID.size());
+    _worldPacket << uint32(QuestLineXQuestIDs.size());
+    _worldPacket << uint32(QuestIDs.size());
 
-    for (uint32 const& questID : QuestLineXQuestID)
+    for (uint32 const& questLineQuestID : QuestLineXQuestIDs)
+        _worldPacket << uint32(questLineQuestID);
+
+    for (uint32 const& questID : QuestIDs)
         _worldPacket << uint32(questID);
 
     return &_worldPacket;

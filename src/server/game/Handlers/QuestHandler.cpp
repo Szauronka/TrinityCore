@@ -911,55 +911,40 @@ void WorldSession::HandleQueryAdventureMapPOI(WorldPackets::Quest::QueryAdventur
     SendPacket(result.Write());
 }
 
-void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& packet)
+void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest)
 {
-    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(packet.UiMapID);
+    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapQuestLinesRequest.UiMapID);
     if (!uiMap)
         return;
 
     WorldPackets::Quest::UiMapQuestLinesResponse response;
     response.UiMapID = uiMap->ID;
 
-    for (QuestPOIBlobEntry const* questPOIBlob : sQuestPOIBlobStore)
+    if (std::vector<uint32> const* questLines = sObjectMgr->GetUiMapQuestLinesList(uiMap->ID))
     {
-        if (int32(uiMap->ID) != questPOIBlob->UiMapID)
-            continue;
-
-            if (!_player->MeetPlayerCondition(questPOIBlob->PlayerConditionID))
-                continue;
-
-        for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
+        for (uint32 questLineId : *questLines)
         {
-            if (questPOIBlob->QuestID != questLineXQuest->QuestID)
+            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(questLineId);
+            if (!questLineQuests)
                 continue;
 
-            std::vector<QuestLineXQuestEntry const*> const* questLines = sDB2Manager.GetQuestsOrderForQuestLine(questLineXQuest->QuestLineID);
-            if (!questLines)
-                continue;
-
-            for (QuestLineXQuestEntry const* questLineQuest : *questLines)
-            {
-                Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID);
-                if (!quest)
-                    continue;
-
-                if (!_player->CanTakeQuest(quest, false))
-                    continue;
-
-                ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(quest->GetContentTuningId());
-                if (!contentTuning)
-                    continue;
-
-                if (_player->GetLevel() < contentTuning->MinLevel)
-                    continue;
-
-                response.QuestLineXQuestID.push_back(questLineQuest->ID);
-                break;
-            }
+            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
+                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
+                    if (_player->CanTakeQuest(quest, false))
+                        response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
         }
     }
-}
 
+    if (std::vector<uint32> const* quests = sObjectMgr->GetUiMapQuestsList(uiMap->ID))
+    {
+        for (uint32 questId : *quests)
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+                if (_player->CanTakeQuest(quest, false))
+                    response.QuestIDs.push_back(questId);
+    }
+
+    SendPacket(response.Write());
+}
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)
 {
     WorldPackets::Quest::QueryQuestRewardResponse response;

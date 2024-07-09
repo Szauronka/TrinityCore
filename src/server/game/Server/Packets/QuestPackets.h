@@ -846,12 +846,13 @@ namespace WorldPackets
         class UiMapQuestLinesResponse final : public ServerPacket
         {
         public:
-            UiMapQuestLinesResponse() : ServerPacket(SMSG_UI_MAP_QUEST_LINES_RESPONSE, 8) { }
+            UiMapQuestLinesResponse() : ServerPacket(SMSG_UI_MAP_QUEST_LINES_RESPONSE, 4) { }
 
             WorldPacket const* Write() override;
 
             int32 UiMapID = 0;
-            std::vector<uint32> QuestLineXQuestID;
+            std::vector<uint32> QuestLineXQuestIDs;
+            std::vector<uint32> QuestIDs;
         };
 
         class QueryTreasurePicker final : public ClientPacket
