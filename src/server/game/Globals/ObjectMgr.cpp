@@ -4602,8 +4602,10 @@ void ObjectMgr::LoadQuests()
         { "ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, BreadcrumbForQuestId, RewardMailTemplateID, RewardMailDelay,"
         // 10              11                   12                     13                     14                   15                   16                 17
         " RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, SpecialFlags,"
-        // 18
-        " ScriptName",                                                                                                                                                    "quest_template_addon", "",                                       "template addons",     &Quest::LoadQuestTemplateAddon },
+        // 18                   19
+         " AcceptConversationID, RewardConversationID,"
+        // 20
+        " ScriptName",                                                                                                                                                     "quest_template_addon", "",                                       "template addons",     &Quest::LoadQuestTemplateAddon },
 
         // 0        1
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
