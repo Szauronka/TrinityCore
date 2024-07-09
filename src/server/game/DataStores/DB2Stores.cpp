@@ -2050,6 +2050,8 @@ std::vector<AreaPOIEntry const*>DB2Manager::GetAreaPoiID(uint32 areaId) const
     auto itr = _areaPoi.find(areaId);
     if (itr != _areaPoi.end())
         return itr->second;
+
+    return {};
 }
 
 ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* areaEntry)
