@@ -36,7 +36,7 @@ class LFGListMgr
         bool Remove(ObjectGuid::LowType Guid, Player* requester = nullptr, bool disband = true);
         void PlayerAddedToGroup(Player* player, Group* group);
         void PlayerRemoveFromGroup(Player* player, Group* group);
-        std::list<LFGListEntry const*> GetFilteredList(uint32 activityCategory, uint32 activitySubCategory, uint32 filterString, Player* player);
+        std::list<LFGListEntry const*> GetFilteredList(uint32 activityCategory, uint32 activitySubCategory, std::string filterString, Player* player);
         LFGListEntry* GetEntrybyGuid(ObjectGuid::LowType Guid);
         LFGListEntry* GetEntryByApplicant(WorldPackets::LFG::RideTicket applicant);
         void OnPlayerApplyForGroup(Player* player, WorldPackets::LFG::RideTicket const* applicationTicket, uint32 activityID, std::string comment, uint8 role);

@@ -30,8 +30,16 @@ namespace WorldPackets
     {
         struct LFGListBlacklist
         {
-            int32 ActivityID = 0;
-            int32 Reason = 0;
+            uint32 ActivityID = 0;
+            uint32 Reason = 0;
+        };
+
+        struct ApplicationToGroup
+        {
+            LFG::RideTicket ApplicationTicket;
+            uint32 ActivityID = 0;
+            std::string Comment;
+            uint8 Role = 0;
         };
 
         enum class RideType : uint32
@@ -54,48 +62,57 @@ namespace WorldPackets
             bool Unknown925 = false;
         };
 
-        struct ApplicationToGroup
-        {
-            LFG::RideTicket ApplicationTicket;
-            uint32 ActivityID = 0;
-            std::string Comment;
-            uint8 Role = 0;
-        };
-
         struct ListRequest
         {
-            ListRequest() = default;
-            ListRequest(Optional<uint32> questId, Optional<uint32> mythicRating, int32 activityId, uint32 honorLevel, uint32 pvpRating, uint32 itemLevel, uint8 playStyle, std::string groupName, std::string comment, std::string voiceChat, bool autoAccept, bool privateGroup, bool voiceChatReq, bool crossFaction) :
-                QuestID(questId),MythicPlusRating(mythicRating), ActivityID(activityId), HonorLevel(honorLevel), PvPRating(pvpRating), ItemLevel(itemLevel), PlayStyle(playStyle), GroupName(groupName), Comment(comment), VoiceChat(voiceChat), AutoAccept(autoAccept), PrivateGroup(privateGroup), VoiceChatReq(voiceChatReq), IsCrossFaction(crossFaction)  { }
+            ListRequest() { }
 
-            Optional<uint32> QuestID = 0;;
-            Optional<uint32> MythicPlusRating = 0;
+            Optional<uint32> QuestID;
             int32 ActivityID = 0;
-            uint32 HonorLevel = 0;
             float ItemLevel = 0.0f;
-            uint32 PvPRating = 0;
-            uint8 PlayStyle = 0; // LFG_PLAYSTYLE_PVP, LFG_PLAYSTYLE_PVE, LFG_PLAYSTYLE_PVE_MYTHICZERO
+            uint32 HonorLevel = 0;
             std::string GroupName;
             std::string Comment;
             std::string VoiceChat;
-            bool AutoAccept = false;
+            bool minChallege = false;
             bool PrivateGroup = false;
-            Optional<bool> VoiceChatReq = false;
-            Optional<bool> IsCrossFaction = false;
+            bool HasQuest = false;
+            bool AutoAccept = false;
+            float TypeActivity = 0.0f;
+            uint32 MinMyticPlusRating = 0;
         };
 
         struct MemberInfo
         {
-            MemberInfo() = default;
+            MemberInfo() { }
             MemberInfo(uint8 classID, uint8 role) : ClassID(classID), Role(role) { }
 
             uint8 ClassID = CLASS_NONE;
             uint8 Role = 0;
         };
 
+        struct ListSearchResult
+        {
+            LFG::RideTicket ApplicationTicket;
+            ListRequest JoinRequest;
+            std::vector<MemberInfo> Members;
+            GuidList BNetFriendsGuids;
+            GuidList NumCharFriendsGuids;
+            GuidList NumGuildMateGuids;
+            ObjectGuid LastTouchedVoiceChat;
+            ObjectGuid PartyGUID;
+            ObjectGuid BNetFriends;
+            ObjectGuid CharacterFriends;
+            ObjectGuid GuildMates;
+            uint32 VirtualRealmAddress = 0;
+            uint32 CompletedEncounters = 0;
+            uint32 Age = 0;
+            uint32 ResultID = 0;
+            uint8 ApplicationStatus = 0;
+        };
+
         struct ApplicantStruct
         {
-            ApplicantStruct() = default;
+            ApplicantStruct() { }
             ApplicantStruct(ObjectGuid playerGUID, uint8 role) : PlayerGUID(playerGUID), Role(role) { }
 
             ObjectGuid PlayerGUID;
@@ -117,7 +134,7 @@ namespace WorldPackets
             uint32 VirtualRealmAddress = 0;
             uint32 Level = 0;
             uint32 HonorLevel = 0;
-            uint16 ItemLevel = 0;
+            float ItemLevel = 0.0f;
             uint8 PossibleRoleMask = 0;
             uint8 SelectedRoleMask = 0;
         };
@@ -132,53 +149,15 @@ namespace WorldPackets
             bool Listed = false;
         };
 
-        struct ListSearchResult
-        {
-            LFG::RideTicket ApplicationTicket;
-            ListRequest JoinRequest;
-            std::vector<MemberInfo> Members;
-            GuidList BNetFriendsGuids;
-            GuidList NumCharFriendsGuids;
-            GuidList NumGuildMateGuids;
-            ObjectGuid LeaderGuid;
-            ObjectGuid LastTouchedAny;
-            ObjectGuid LastTouchedName;
-            ObjectGuid LastTouchedComment;
-            ObjectGuid LastTouchedVoiceChat;
-            uint32 VirtualRealmAddress = 0;
-            uint32 CompletedEncounters = 0;
-            uint32 CreationTime = 0;
-            uint32 ResultID = 0;
-            uint8 ApplicationStatus = 0;
-        };
 
-        struct LfgListSearchResult
+        class LFGListClubFinderRequestPendingClubList final : public ClientPacket
         {
-            uint32 SequenceNum = 0;
-            ObjectGuid LeaderGuid;
-            ObjectGuid LastTouchedAny;
-            ObjectGuid LastTouchedName;
-            ObjectGuid LastTouchedComment;
-            ObjectGuid LastTouchedVoiceChat;
-            uint32 VirtualRealmAddress = 0;
-            Optional<uint32> BnetFriendCount = 0;
-            Optional<uint32> CharacterFriendCount = 0;
-            Optional<uint32> GuildMatesCount = 0;
-            Optional<uint32> MemberCount = 0;
-            uint32 CompletedEncounters = 0;
-            int32 CreationTime = 0;
-            uint8 ApplicationStatus = 0;
-            ObjectGuid PartyGUID;
-            ObjectGuid BNetFriends;
-            ObjectGuid CharacterFriends;
-            ObjectGuid GuildMates;
-            std::vector<MemberInfo> Members;
-            ListRequest JoinRequest;
-            bool Delisted = false;
-            bool ChangeTitle = false;
-            bool ChangeAutoAccept = false;
-            bool ChangeHonorLevel = false;
-            bool ChangePrivate = false;
+        public:
+            LFGListClubFinderRequestPendingClubList(WorldPacket&& packet) : ClientPacket(CMSG_CLUB_FINDER_REQUEST_PENDING_CLUBS_LIST, std::move(packet)) { }//1
+
+            void Read() override;
+
+            bool Queued = false;
         };
 
         class LfgListApplicantlistUpdate final : public ServerPacket
@@ -298,7 +277,7 @@ namespace WorldPackets
             int32 GroupFinderCategoryId = 0;
             int32 SubActivityGroupID = 0;
             int32 LFGListFilter = 0;
-            uint32 LanguageFilter = 0;
+            std::string LanguageSearchFilter;
         };
 
         class RequestLfgListBlacklist final : public ClientPacket
@@ -329,7 +308,7 @@ namespace WorldPackets
         class LfgListApplyToGroupResponce final : public ServerPacket
         {
         public:
-            LfgListApplyToGroupResponce() : ServerPacket(SMSG_LFG_LIST_APPLY_TO_GROUP_RESULT) { }
+            LfgListApplyToGroupResponce() : ServerPacket(SMSG_LFG_LIST_APPLY_TO_GROUP_RESULT, 28 + 28 + 4 + 4 + 1 + 1 + 150) { }
 
             WorldPacket const* Write() override;
 
@@ -345,7 +324,7 @@ namespace WorldPackets
         class LfgListJoinResult final : public ServerPacket
         {
         public:
-            LfgListJoinResult() : ServerPacket(SMSG_LFG_LIST_JOIN_RESULT) { }
+            LfgListJoinResult() : ServerPacket(SMSG_LFG_LIST_JOIN_RESULT, 28 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -357,7 +336,7 @@ namespace WorldPackets
         class LfgListSearchResults final : public ServerPacket
         {
         public:
-            LfgListSearchResults() : ServerPacket(SMSG_LFG_LIST_SEARCH_RESULTS) { }
+            LfgListSearchResults() : ServerPacket(SMSG_LFG_LIST_SEARCH_RESULTS, 6) { }
 
             WorldPacket const* Write() override;
 
@@ -391,7 +370,7 @@ namespace WorldPackets
         class LfgListUpdateStatus final : public ServerPacket
         {
         public:
-            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS) { }
+            LfgListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS, 28 + 1 + 1 + 4 + 4 + 2 + 2 + 2) { }
 
             WorldPacket const* Write() override;
 
@@ -402,6 +381,25 @@ namespace WorldPackets
             bool Listed = false;
         };
 
+        struct LFGListSearchResult
+        {
+            std::vector<MemberInfo> Members;
+            LFG::RideTicket ApplicationTicket;
+            ListRequest JoinRequest;
+            Optional<ObjectGuid> LeaderGuid;
+            Optional<ObjectGuid> UnkGuid;
+            Optional<ObjectGuid> UnkGuid2;
+            Optional<ObjectGuid> UnkGuid3;
+            Optional<uint32> VirtualRealmAddress;
+            Optional<uint32> UnkInt2;
+            uint32 UnkInt = 0;
+            bool UnkBIt = false;
+            bool UnkBIt2 = false;
+            bool UnkBIt3 = false;
+            bool UnkBIt4 = false;
+            bool UnkBit96 = false;
+        };
+
         class LfgListSearchResultUpdate final : public ServerPacket
         {
         public:
@@ -409,7 +407,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Array<LfgListSearchResult, 50> ResultUpdate;
+            Array<LFGListSearchResult, 50> ResultUpdate;
         };
 
         class LfgListUpdateExpiration final : public ServerPacket

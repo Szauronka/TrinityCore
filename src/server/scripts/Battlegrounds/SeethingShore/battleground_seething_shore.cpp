@@ -41,7 +41,7 @@
 
 #include <unordered_map>
 
-namespace SeethingShore
+namespace BGSeethingShore
 {
     namespace Actions
     {
@@ -205,7 +205,7 @@ struct battleground_seething_shore final : BattlegroundScript
     {
         for (ObjectGuid const& guid : _commanderGUIDs)
             if (Creature const* creature = battlegroundMap->GetCreature(guid))
-                creature->AI()->DoAction(SeethingShore::Actions::CommanderText1);
+                creature->AI()->DoAction(BGSeethingShore::Actions::CommanderText1);
     }
 
     void OnPrepareStage3() override
@@ -251,45 +251,45 @@ struct battleground_seething_shore final : BattlegroundScript
 
         if (team == ALLIANCE)
         {
-            battleground->PlaySoundToAll(SeethingShore::Sounds::PvpFlagCapturedAlliance);
-            player->CastSpell(player, SeethingShore::Spells::CapturedAllianceCosmeticFx, true);
+            battleground->PlaySoundToAll(BGSeethingShore::Sounds::PvpFlagCapturedAlliance);
+            player->CastSpell(player, BGSeethingShore::Spells::CapturedAllianceCosmeticFx, true);
         }
         else if (team == HORDE)
         {
-            battleground->PlaySoundToAll(SeethingShore::Sounds::PvpFlagCapturedHorde);
-            player->CastSpell(player, SeethingShore::Spells::CapturedHordeCosmeticFx, true);
+            battleground->PlaySoundToAll(BGSeethingShore::Sounds::PvpFlagCapturedHorde);
+            player->CastSpell(player, BGSeethingShore::Spells::CapturedHordeCosmeticFx, true);
         }
 
         battleground->AddPoint(team, 100);
-        UpdateWorldState(SeethingShore::WorldStates::AllianceScore, battleground->GetTeamScore(TEAM_ALLIANCE));
-        UpdateWorldState(SeethingShore::WorldStates::HordeScore, battleground->GetTeamScore(TEAM_HORDE));
-        player->CastSpell(player, SeethingShore::Spells::AchievementCredit, true);
+        UpdateWorldState(BGSeethingShore::WorldStates::AllianceScore, battleground->GetTeamScore(TEAM_ALLIANCE));
+        UpdateWorldState(BGSeethingShore::WorldStates::HordeScore, battleground->GetTeamScore(TEAM_HORDE));
+        player->CastSpell(player, BGSeethingShore::Spells::AchievementCredit, true);
 
         // the achievement criteria doesn't have a aura condition so we do it manually here
-        if (player->HasAura(SeethingShore::Spells::AchievementTrackerCreditClaimJumper))
-            player->CastSpell(player, SeethingShore::Spells::AchievementCreditClaimJumper, true);
+        if (player->HasAura(BGSeethingShore::Spells::AchievementTrackerCreditClaimJumper))
+            player->CastSpell(player, BGSeethingShore::Spells::AchievementCreditClaimJumper, true);
 
         if (battleground->GetTeamScore(teamId) >= WARNING_NEAR_VICTORY_SCORE && _isInformedNearVictory[teamId])
         {
             _isInformedNearVictory[teamId] = true;
             if (teamId == TEAM_ALLIANCE)
-                battleground->SendBroadcastText(SeethingShore::Texts::AllianceNearVictory, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                battleground->SendBroadcastText(BGSeethingShore::Texts::AllianceNearVictory, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             else
-                battleground->SendBroadcastText(SeethingShore::Texts::HordeNearVictory, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                battleground->SendBroadcastText(BGSeethingShore::Texts::HordeNearVictory, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         }
 
-        battleground->UpdatePvpStat(player, SeethingShore::PvpStats::CapturedAzerite, 1);
+        battleground->UpdatePvpStat(player, BGSeethingShore::PvpStats::CapturedAzerite, 1);
         capturePoint->SetAnimKitId(2560, false);
         capturePoint->DespawnOrUnsummon(2s);
 
         _activeAzeriteNodes.erase(capturePoint->GetAreaId());
 
         if (Creature const* commander = battlegroundMap->GetCreature(_commanderGUIDs[teamId]))
-            commander->AI()->DoAction(SeethingShore::Actions::CaptureAzeriteNode);
+            commander->AI()->DoAction(BGSeethingShore::Actions::CaptureAzeriteNode);
 
-        if (team == HORDE && battleground->GetTeamScore(TEAM_HORDE) >= static_cast<uint32>(battlegroundMap->GetWorldStateValue(SeethingShore::WorldStates::MaxScore)))
+        if (team == HORDE && battleground->GetTeamScore(TEAM_HORDE) >= static_cast<uint32>(battlegroundMap->GetWorldStateValue(BGSeethingShore::WorldStates::MaxScore)))
             battleground->EndBattleground(HORDE);
-        else if (team == ALLIANCE && battleground->GetTeamScore(TEAM_ALLIANCE) >= static_cast<uint32>(battlegroundMap->GetWorldStateValue(SeethingShore::WorldStates::MaxScore)))
+        else if (team == ALLIANCE && battleground->GetTeamScore(TEAM_ALLIANCE) >= static_cast<uint32>(battlegroundMap->GetWorldStateValue(BGSeethingShore::WorldStates::MaxScore)))
             battleground->EndBattleground(ALLIANCE);
     }
 
@@ -297,16 +297,16 @@ struct battleground_seething_shore final : BattlegroundScript
     {
         switch (creature->GetEntry())
         {
-            case SeethingShore::Creatures::Controller:
+            case BGSeethingShore::Creatures::Controller:
                 _controllerGUID = creature->GetGUID();
                 break;
-            case SeethingShore::Creatures::AirSupplyGroundDummy:
+            case BGSeethingShore::Creatures::AirSupplyGroundDummy:
                 _airSupplyGroundDummyGUIDs.emplace_back(creature->GetGUID());
                 break;
-            case SeethingShore::Creatures::NathanosBlightCaller:
+            case BGSeethingShore::Creatures::NathanosBlightCaller:
                 _commanderGUIDs[TEAM_HORDE] = creature->GetGUID();
                 break;
-            case SeethingShore::Creatures::MathiasShaw:
+            case BGSeethingShore::Creatures::MathiasShaw:
                 _commanderGUIDs[TEAM_ALLIANCE] = creature->GetGUID();
                 break;
             default:
@@ -318,8 +318,8 @@ struct battleground_seething_shore final : BattlegroundScript
     {
         switch (gameobject->GetEntry())
         {
-            case SeethingShore::GameObjects::AllianceAirshipPrepCollision:
-            case SeethingShore::GameObjects::HordeAirshipPrepCollision:
+            case BGSeethingShore::GameObjects::AllianceAirshipPrepCollision:
+            case BGSeethingShore::GameObjects::HordeAirshipPrepCollision:
                 _doors.emplace_back(gameobject->GetGUID());
                 break;
             default:
@@ -331,10 +331,10 @@ struct battleground_seething_shore final : BattlegroundScript
     {
         switch (gameobject->GetEntry())
         {
-            case SeethingShore::GameObjects::BerserkBuff:
-            case SeethingShore::GameObjects::FoodBuff:
-            case SeethingShore::GameObjects::SpeedBuff:
-                DoAction(SeethingShore::Actions::ConsumeBuff, gameobject, nullptr);
+            case BGSeethingShore::GameObjects::BerserkBuff:
+            case BGSeethingShore::GameObjects::FoodBuff:
+            case BGSeethingShore::GameObjects::SpeedBuff:
+                DoAction(BGSeethingShore::Actions::ConsumeBuff, gameobject, nullptr);
                 break;
             default:
                 break;
@@ -345,12 +345,12 @@ struct battleground_seething_shore final : BattlegroundScript
     {
         switch (actionId)
         {
-            case SeethingShore::Actions::CaptureAzeriteNode:
+            case BGSeethingShore::Actions::CaptureAzeriteNode:
                 HandleAssaultPoint(WorldObject::ToGameObject(target), WorldObject::ToPlayer(source));
                 break;
-            case SeethingShore::Actions::ConsumeBuff:
+            case BGSeethingShore::Actions::ConsumeBuff:
                 if (source)
-                    if (Creature const* groundDummy = source->FindNearestCreature(SeethingShore::Creatures::AirSupplyGroundDummy, 20.0f))
+                    if (Creature const* groundDummy = source->FindNearestCreature(BGSeethingShore::Creatures::AirSupplyGroundDummy, 20.0f))
                         _activeBuffs.erase(groundDummy->GetStringId(StringIdType::Spawn));
                 break;
             default:
@@ -366,17 +366,17 @@ struct battleground_seething_shore final : BattlegroundScript
 
             CastSpellExtraArgs const args = CastSpellExtraArgs(true)
                 .SetCustomArg(targets);
-            controller->CastSpell(nullptr, SeethingShore::Spells::ActivateAzerite, args);
+            controller->CastSpell(nullptr, BGSeethingShore::Spells::ActivateAzerite, args);
             _firstSetDone = true;
 
             for (uint32 const node : targets)
                 _activeAzeriteNodes.insert(node);
         }
 
-        battleground->SendBroadcastText(SeethingShore::Texts::AzeriteSpawning, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        battleground->SendBroadcastText(BGSeethingShore::Texts::AzeriteSpawning, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         battlegroundMap->DoOnPlayers([&](Player* player)
         {
-            player->CastSpell(player, SeethingShore::Spells::EarthQuakeCameraShake, true);
+            player->CastSpell(player, BGSeethingShore::Spells::EarthQuakeCameraShake, true);
         });
     }
 
@@ -385,14 +385,14 @@ struct battleground_seething_shore final : BattlegroundScript
         if (!_firstSetDone)
         {
             return {
-                SeethingShore::Areas::Ruins,
-                SeethingShore::Areas::TarPits,
-                SeethingShore::Areas::Ridge
+                BGSeethingShore::Areas::Ruins,
+                BGSeethingShore::Areas::TarPits,
+                BGSeethingShore::Areas::Ridge
             };
         }
 
         std::vector<uint32> selected;
-        std::ranges::copy_if(SeethingShore::Areas::AzeriteNodes.begin(), SeethingShore::Areas::AzeriteNodes.end(), std::back_inserter(selected), [this](uint32 node)
+        std::ranges::copy_if(BGSeethingShore::Areas::AzeriteNodes.begin(), BGSeethingShore::Areas::AzeriteNodes.end(), std::back_inserter(selected), [this](uint32 node)
         {
             return !_activeAzeriteNodes.contains(node);
         });
@@ -410,7 +410,7 @@ struct battleground_seething_shore final : BattlegroundScript
 
         for (ObjectGuid const& guid : _commanderGUIDs)
             if (Creature const* creature = battlegroundMap->GetCreature(guid))
-                creature->AI()->DoAction(SeethingShore::Actions::SpawnBuff);
+                creature->AI()->DoAction(BGSeethingShore::Actions::SpawnBuff);
 
         for (ObjectGuid const& guid : _airSupplyGroundDummyGUIDs)
         {
@@ -425,7 +425,7 @@ struct battleground_seething_shore final : BattlegroundScript
                     continue;
 
                 _activeBuffs.insert(creature->GetStringId(StringIdType::Spawn));
-                creature->AI()->DoAction(SeethingShore::Actions::SpawnBuff);
+                creature->AI()->DoAction(BGSeethingShore::Actions::SpawnBuff);
             }
         }
     }
@@ -433,7 +433,7 @@ struct battleground_seething_shore final : BattlegroundScript
     std::vector<std::string_view> SelectBuffsToSpawn() const
     {
         std::vector<std::string_view> selected;
-        std::ranges::copy_if(SeethingShore::StringIds::AirSupplyGroundDummies.begin(), SeethingShore::StringIds::AirSupplyGroundDummies.end(), std::back_inserter(selected), [this](std::string_view buff)
+        std::ranges::copy_if(BGSeethingShore::StringIds::AirSupplyGroundDummies.begin(), BGSeethingShore::StringIds::AirSupplyGroundDummies.end(), std::back_inserter(selected), [this](std::string_view buff)
         {
             return !_activeBuffs.contains(buff);
         });
@@ -464,8 +464,8 @@ class spell_bg_seething_shore_activate_azerite : public SpellScript
     {
         return ValidateSpellInfo(
         {
-            SeethingShore::Spells::AzeriteGeyser,
-            SeethingShore::Spells::ActivateAzerite
+            BGSeethingShore::Spells::AzeriteGeyser,
+            BGSeethingShore::Spells::ActivateAzerite
         });
     }
 
@@ -502,7 +502,7 @@ class spell_bg_seething_shore_activate_azerite : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        GetHitCreature()->CastSpell(GetHitUnit(), SeethingShore::Spells::AzeriteGeyser, true);
+        GetHitCreature()->CastSpell(GetHitUnit(), BGSeethingShore::Spells::AzeriteGeyser, true);
     }
 
     void Register() override
@@ -519,8 +519,8 @@ class spell_bg_seething_shore_azerite_geyser : public AuraScript
     {
         if (Unit* unitOwner = GetUnitOwner())
         {
-            unitOwner->CastSpell(unitOwner, Trinity::Containers::SelectRandomContainerElement(SeethingShore::Spells::SummonAzeriteCaptureNodeSpells), true);
-            unitOwner->CastSpell(unitOwner, SeethingShore::Spells::AzeriteKnockBack, true);
+            unitOwner->CastSpell(unitOwner, Trinity::Containers::SelectRandomContainerElement(BGSeethingShore::Spells::SummonAzeriteCaptureNodeSpells), true);
+            unitOwner->CastSpell(unitOwner, BGSeethingShore::Spells::AzeriteKnockBack, true);
             unitOwner->GetMotionMaster()->MoveTargetedHome();
         }
     }
@@ -538,7 +538,7 @@ class spell_bg_seething_shore_rocket_parachute_trigger : public AuraScript
     {
         return ValidateSpellInfo(
         {
-            SeethingShore::Spells::RocketParachute2
+            BGSeethingShore::Spells::RocketParachute2
         });
     }
 
@@ -547,7 +547,7 @@ class spell_bg_seething_shore_rocket_parachute_trigger : public AuraScript
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
         args.OriginalCastId = GetAura()->GetCastId();
-        GetTarget()->CastSpell(GetTarget(), SeethingShore::Spells::RocketParachute2, args);
+        GetTarget()->CastSpell(GetTarget(), BGSeethingShore::Spells::RocketParachute2, args);
     }
 
     void Register() override
@@ -566,7 +566,7 @@ public:
     {
         return ValidateSpellInfo(
         {
-            SeethingShore::Spells::Parachute
+            BGSeethingShore::Spells::Parachute
         });
     }
 
@@ -579,7 +579,7 @@ public:
         float const delta = target->GetPositionZ() - target->GetFloorZ();
         if (delta <= 30.0f)
         {
-            SpellCastResult const castResult = target->CastSpell(target, SeethingShore::Spells::Parachute, true);
+            SpellCastResult const castResult = target->CastSpell(target, BGSeethingShore::Spells::Parachute, true);
             _parachuteDeployed = castResult == SPELL_CAST_OK;
         }
     }
@@ -588,7 +588,7 @@ public:
     {
         // this should prevent next tick from re-applying this aura
         if (Unit* unitOwner = GetUnitOwner())
-            unitOwner->RemoveAurasDueToSpell(SeethingShore::Spells::RocketParachute);
+            unitOwner->RemoveAurasDueToSpell(BGSeethingShore::Spells::RocketParachute);
     }
 
     void Register() override
@@ -610,8 +610,8 @@ class spell_bg_seething_shore_parachute : public SpellScript
             && ValidateSpellInfo(
                 {
                     static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()),
-                    SeethingShore::Spells::AchievementTrackerCreditClaimJumper,
-                    SeethingShore::Spells::AchievementTrackerDeathFromAbove
+                    BGSeethingShore::Spells::AchievementTrackerCreditClaimJumper,
+                    BGSeethingShore::Spells::AchievementTrackerDeathFromAbove
                 });
     }
 
@@ -624,8 +624,8 @@ class spell_bg_seething_shore_parachute : public SpellScript
             args.OriginalCastId = GetSpell()->m_castId;
 
             player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValue(player)), args);
-            player->CastSpell(player, SeethingShore::Spells::AchievementTrackerCreditClaimJumper, true);
-            player->CastSpell(player, SeethingShore::Spells::AchievementTrackerDeathFromAbove, true);
+            player->CastSpell(player, BGSeethingShore::Spells::AchievementTrackerCreditClaimJumper, true);
+            player->CastSpell(player, BGSeethingShore::Spells::AchievementTrackerDeathFromAbove, true);
         }
     }
 
@@ -673,7 +673,7 @@ struct go_bg_seething_shore_azerite : GameObjectAI
 
         if (ZoneScript* zoneScript = me->GetZoneScript())
         {
-            zoneScript->DoAction(SeethingShore::Actions::CaptureAzeriteNode, player, me);
+            zoneScript->DoAction(BGSeethingShore::Actions::CaptureAzeriteNode, player, me);
             return false;
         }
 
@@ -698,8 +698,8 @@ struct transport_seething_shore : TransportScript
                 return;
             }
 
-            player->CastSpell(player, SeethingShore::Spells::RocketParachute, true);
-            player->CastSpell(player, SeethingShore::Spells::NoFallingDamage, true);
+            player->CastSpell(player, BGSeethingShore::Spells::RocketParachute, true);
+            player->CastSpell(player, BGSeethingShore::Spells::NoFallingDamage, true);
         }
     }
 };
@@ -711,8 +711,8 @@ struct npc_bg_seething_shore_air_supplies_crate : ScriptedAI
 
     void JustAppeared() override
     {
-        DoCastAOE(SeethingShore::Spells::RopeBeam);
-        DoCastAOE(SeethingShore::Spells::PingVehicle);
+        DoCastAOE(BGSeethingShore::Spells::RopeBeam);
+        DoCastAOE(BGSeethingShore::Spells::PingVehicle);
     }
 };
 
@@ -743,12 +743,12 @@ struct npc_bg_seething_shore_air_supply_ground_dummy : ScriptedAI
 
     static inline const std::unordered_map<std::string_view, AirSupplyData> AIR_SUPPLY_DATA =
     {
-        { SeethingShore::StringIds::AirSupplyGroundDummy1, { { 1398.8298f, 2727.5322f, 121.74067f, 1.789716362953186035f }, { 1398.7153f, 2728.0469f, 28.024399f } } },
-        { SeethingShore::StringIds::AirSupplyGroundDummy2, { { 1226.2812f, 2934.0356f, 152.03821f, 2.737864494323730468f }, { 1224.4445f, 2934.8203f, 72.7618f } } },
-        { SeethingShore::StringIds::AirSupplyGroundDummy3, { { 1226.276f, 2826.9246f, 145.53375f,5.083248138427734375f }, { 1226.9896f, 2825.0894f, 39.256886f } } },
-        { SeethingShore::StringIds::AirSupplyGroundDummy4, { { 1384.7483f, 2847.356f, 113.422775f, 2.29029250144958496f }, { 1384.2257f, 2847.9524f, 38.665867f } } },
-        { SeethingShore::StringIds::AirSupplyGroundDummy5, { { 1323.1545f, 2627.9531f, 99.90129f, 3.868808984756469726f }, { 1322.7587f, 2627.6008f, 0.9027778f } } },
-        { SeethingShore::StringIds::AirSupplyGroundDummy6, { { 1423.8021f, 2870.2188f, 115.70237f, 1.629547119140625f }, { 1423.7188f, 2871.6362f, 36.968292f } } }
+        { BGSeethingShore::StringIds::AirSupplyGroundDummy1, { { 1398.8298f, 2727.5322f, 121.74067f, 1.789716362953186035f }, { 1398.7153f, 2728.0469f, 28.024399f } } },
+        { BGSeethingShore::StringIds::AirSupplyGroundDummy2, { { 1226.2812f, 2934.0356f, 152.03821f, 2.737864494323730468f }, { 1224.4445f, 2934.8203f, 72.7618f } } },
+        { BGSeethingShore::StringIds::AirSupplyGroundDummy3, { { 1226.276f, 2826.9246f, 145.53375f,5.083248138427734375f }, { 1226.9896f, 2825.0894f, 39.256886f } } },
+        { BGSeethingShore::StringIds::AirSupplyGroundDummy4, { { 1384.7483f, 2847.356f, 113.422775f, 2.29029250144958496f }, { 1384.2257f, 2847.9524f, 38.665867f } } },
+        { BGSeethingShore::StringIds::AirSupplyGroundDummy5, { { 1323.1545f, 2627.9531f, 99.90129f, 3.868808984756469726f }, { 1322.7587f, 2627.6008f, 0.9027778f } } },
+        { BGSeethingShore::StringIds::AirSupplyGroundDummy6, { { 1423.8021f, 2870.2188f, 115.70237f, 1.629547119140625f }, { 1423.7188f, 2871.6362f, 36.968292f } } }
     };
 
     void UpdateAI(uint32 diff) override
@@ -763,13 +763,13 @@ struct npc_bg_seething_shore_air_supply_ground_dummy : ScriptedAI
             return;
 
         auto const& [spawn, destination] = AIR_SUPPLY_DATA.at(stringId);
-        if (TempSummon* supplies = me->GetMap()->SummonCreature(SeethingShore::Creatures::AirSupplies, spawn))
+        if (TempSummon* supplies = me->GetMap()->SummonCreature(BGSeethingShore::Creatures::AirSupplies, spawn))
             supplies->GetMotionMaster()->MovePath(ConvertPosToPath(destination), false);
     }
 
     void DoAction(int32 actionId) override
     {
-        if (actionId == SeethingShore::Actions::SpawnBuff)
+        if (actionId == BGSeethingShore::Actions::SpawnBuff)
         {
             _scheduler.Schedule(5s, [&](TaskContext)
             {
@@ -792,7 +792,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
         if (pathId != npc_bg_seething_shore_air_supply_ground_dummy::PATH_ID_GROUND)
             return;
 
-        Creature* groundDummy = me->FindNearestCreature(SeethingShore::Creatures::AirSupplyGroundDummy, 20.0f);
+        Creature* groundDummy = me->FindNearestCreature(BGSeethingShore::Creatures::AirSupplyGroundDummy, 20.0f);
         if (!groundDummy)
             return;
 
@@ -804,7 +804,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
             case 1:
             case 2:
                 // pretty sure some serverside spell is used, and we could drop this whole switch
-                if (GameObject* buff = GameObject::CreateGameObject(SeethingShore::GameObjects::Buffs[action], groundDummy->GetMap(), groundDummy->GetPosition(), rot, 255, GO_STATE_READY))
+                if (GameObject* buff = GameObject::CreateGameObject(BGSeethingShore::GameObjects::Buffs[action], groundDummy->GetMap(), groundDummy->GetPosition(), rot, 255, GO_STATE_READY))
                 {
                     buff->SetSpawnedByDefault(false);
                     buff->SetRespawnTime(300); // this is equal to the haste rune buff area trigger
@@ -812,13 +812,13 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
                 }
                 break;
             case 3:
-                groundDummy->CastSpell(groundDummy, SeethingShore::Spells::CreateHasteRuneBuffAreaTrigger, true);
+                groundDummy->CastSpell(groundDummy, BGSeethingShore::Spells::CreateHasteRuneBuffAreaTrigger, true);
                 break;
             default:
                 break;
         }
 
-        groundDummy->CastSpell(nullptr, SeethingShore::Spells::DustCloudImpactBigger, true);
+        groundDummy->CastSpell(nullptr, BGSeethingShore::Spells::DustCloudImpactBigger, true);
         me->DespawnOrUnsummon();
     }
 };
@@ -829,7 +829,7 @@ struct at_bg_seething_shore_haste_rune_buff : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        at->PlaySpellVisual(SeethingShore::SpellVisuals::HasteRuneBuff);
+        at->PlaySpellVisual(BGSeethingShore::SpellVisuals::HasteRuneBuff);
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -838,8 +838,8 @@ struct at_bg_seething_shore_haste_rune_buff : AreaTriggerAI
         {
             if (ZoneScript* zonescript = at->GetZoneScript())
             {
-                player->CastSpell(player, SeethingShore::Spells::SpeedUp, true);
-                zonescript->DoAction(SeethingShore::Actions::ConsumeBuff, at);
+                player->CastSpell(player, BGSeethingShore::Spells::SpeedUp, true);
+                zonescript->DoAction(BGSeethingShore::Actions::ConsumeBuff, at);
                 at->Remove();
             }
         }
@@ -861,27 +861,27 @@ struct npc_bg_seething_shore_commander : ScriptedAI
     {
         switch (actionId)
         {
-            case SeethingShore::Actions::CommanderText1:
-                Talk(SeethingShore::CommanderTexts::Intro1);
+            case BGSeethingShore::Actions::CommanderText1:
+                Talk(BGSeethingShore::CommanderTexts::Intro1);
                 _scheduler.Schedule(30s, [this](TaskContext context)
                 {
-                    Talk(SeethingShore::CommanderTexts::Intro2);
+                    Talk(BGSeethingShore::CommanderTexts::Intro2);
                     context.Schedule(15s, [this](TaskContext context2)
                     {
-                        Talk(SeethingShore::CommanderTexts::Intro3);
+                        Talk(BGSeethingShore::CommanderTexts::Intro3);
                         context2.Schedule(12s, [this](TaskContext)
                         {
-                            Talk(SeethingShore::CommanderTexts::Intro4);
+                            Talk(BGSeethingShore::CommanderTexts::Intro4);
                         });
                     });
                 });
                 break;
-            case SeethingShore::Actions::CaptureAzeriteNode:
+            case BGSeethingShore::Actions::CaptureAzeriteNode:
                 if (urand(0, 1))
-                    Talk(SeethingShore::CommanderTexts::CapturedAzerite);
+                    Talk(BGSeethingShore::CommanderTexts::CapturedAzerite);
                 break;
-            case SeethingShore::Actions::SpawnBuff:
-                Talk(SeethingShore::CommanderTexts::SuppliesSpawned);
+            case BGSeethingShore::Actions::SpawnBuff:
+                Talk(BGSeethingShore::CommanderTexts::SuppliesSpawned);
                 break;
             default:
                 break;
@@ -901,8 +901,8 @@ struct npc_bg_seething_shore_vignette_dummy : ScriptedAI
     {
         _scheduler.Schedule(38s, [this](TaskContext)
         {
-            if (Creature* fissure = me->FindNearestCreature(SeethingShore::Creatures::AzeriteFissure, 5.0f))
-                me->SendPlaySpellVisual(fissure, SeethingShore::SpellVisuals::AzeriteBirth, 0, 0, 0.0f);
+            if (Creature* fissure = me->FindNearestCreature(BGSeethingShore::Creatures::AzeriteFissure, 5.0f))
+                me->SendPlaySpellVisual(fissure, BGSeethingShore::SpellVisuals::AzeriteBirth, 0, 0, 0.0f);
         });
     }
 

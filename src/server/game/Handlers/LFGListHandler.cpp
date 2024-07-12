@@ -41,7 +41,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
         return;
     }
 
-    auto list = sLFGListMgr->GetFilteredList(packet.GroupFinderCategoryId, packet.SubActivityGroupID, packet.LanguageFilter, GetPlayer());
+    auto list = sLFGListMgr->GetFilteredList(packet.GroupFinderCategoryId, packet.SubActivityGroupID, packet.LanguageSearchFilter, GetPlayer());
     results.AppicationsCount = list.size();
 
     for (auto& lfgEntry : list)
@@ -60,21 +60,20 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
                 continue;
 
         auto activityID = lfgEntry->GroupFinderActivityData->ID;
-
         result.ApplicationTicket.RequesterGuid = group->GetGUID();
         result.ApplicationTicket.Id = group->GetGUID().GetCounter();
         result.ApplicationTicket.Type = WorldPackets::LFG::RideType::LfgListApplication;
         result.ApplicationTicket.Time = lfgEntry->CreationTime;
-        result.LeaderGuid = group->GetLeaderGUID();
-        result.LastTouchedAny = group->GetLeaderGUID();
-        result.LastTouchedName = group->GetLeaderGUID();
-        result.LastTouchedComment = group->GetLeaderGUID();
         result.LastTouchedVoiceChat = group->GetLeaderGUID();
+        result.PartyGUID = group->GetLeaderGUID();
+        result.BNetFriends = group->GetLeaderGUID();
+        result.GuildMates = group->GetLeaderGUID();
         result.VirtualRealmAddress = GetVirtualRealmAddress();
         result.CompletedEncounters = 0;
-        result.CreationTime = lfgEntry->CreationTime;
-        result.ResultID = 3; 
+        result.Age = lfgEntry->CreationTime;
+        result.ResultID = 3;
         result.ApplicationStatus = AsUnderlyingType(LFGListApplicationStatus::None);
+
 
         for (auto const& member : group->GetMemberSlots())
         {
@@ -107,21 +106,19 @@ void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
     list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
     list->ItemLevel = packet.Request.ItemLevel;
     list->HonorLevel = packet.Request.HonorLevel;
-    list->PlayStyle = packet.Request.PlayStyle;
-    list->PvPRating = packet.Request.PvPRating;
-    list->AutoAccept = packet.Request.AutoAccept;
     list->GroupName = packet.Request.GroupName;
     list->Comment = packet.Request.Comment;
-    if(packet.Request.VoiceChatReq)
-        list->VoiceChat = packet.Request.VoiceChat;
-    list->HonorLevel = packet.Request.HonorLevel;
-    if (packet.Request.QuestID.has_value())
-        list->QuestID = *packet.Request.QuestID;
-    if (packet.Request.MythicPlusRating.has_value())
-        list->MythicPlusRating = *packet.Request.MythicPlusRating;
-    list->ApplicationGroup = nullptr;
+    list->VoiceChat = packet.Request.VoiceChat;
+    list->TypeActivity = packet.Request.TypeActivity;
     list->PrivateGroup = packet.Request.PrivateGroup;
-    list->IsCrossFaction = *packet.Request.IsCrossFaction;
+    list->HasQuest = packet.Request.HasQuest;
+    list->AutoAccept = packet.Request.AutoAccept;
+    if (packet.Request.HasQuest)
+        list->QuestID = *packet.Request.QuestID;
+    list->minChallege = packet.Request.minChallege;
+    if (list->minChallege)
+        packet.Request.MinMyticPlusRating;
+    list->ApplicationGroup = nullptr;
     ChatHandler(GetPlayer()->GetSession()).PSendSysMessage("GroupFinder Join");
     sLFGListMgr->Insert(list, GetPlayer());
 }
@@ -188,23 +185,17 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPackets::LfgList::LfgListUpda
     auto entry = sLFGListMgr->GetEntrybyGuid(packet.Ticket.Id);
     if (!entry || !entry->ApplicationGroup->IsLeader(_player->GetGUID()))
         return;
-
     entry->AutoAccept = packet.UpdateRequest.AutoAccept;
     entry->GroupName = packet.UpdateRequest.GroupName;
     entry->Comment = packet.UpdateRequest.Comment;
-    if(entry->VoiceChatReq)
-        entry->VoiceChat = packet.UpdateRequest.VoiceChat;
+    entry->VoiceChat = packet.UpdateRequest.VoiceChat;
     entry->HonorLevel = packet.UpdateRequest.HonorLevel;
-    entry->PvPRating = packet.UpdateRequest.PvPRating;
-    if (packet.UpdateRequest.QuestID)
+    if (packet.UpdateRequest.HasQuest)
         entry->QuestID = *packet.UpdateRequest.QuestID;
-    if (packet.UpdateRequest.MythicPlusRating)
-        entry->MythicPlusRating = *packet.UpdateRequest.MythicPlusRating;
 
     if (packet.UpdateRequest.ItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(entry->GroupFinderActivityData, _player))
         entry->ItemLevel = packet.UpdateRequest.ItemLevel;
     entry->PrivateGroup = packet.UpdateRequest.PrivateGroup;
-    entry->IsCrossFaction = *packet.UpdateRequest.IsCrossFaction;
 
     sLFGListMgr->AutoInviteApplicantsIfPossible(entry);
     sLFGListMgr->SendLFGListStatusUpdate(entry);
