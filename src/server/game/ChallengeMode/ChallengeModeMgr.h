@@ -136,7 +136,7 @@ public:
     bool HasOploteLoot(ObjectGuid const& guid);
     OploteLoot* GetOploteLoot(ObjectGuid const& guid);
     static uint32 GetCAForLoot(ChallengeModeMgr* const challenge, uint32 goEntry);
-    static uint32 GetBigCAForLoot(ChallengeModeMgr* const challenge, uint32 goEntry, uint32& count);
+    static uint32 GetBigCAForLoot(ChallengeModeMgr* const challenge, uint32 /*goEntry*/, uint32& count);
     static uint32 GetCAForOplote(uint32 challengeLevel);
     static uint32 GetBigCAForOplote(uint32 challengeLevel, uint32& count);
     uint32 GetChallengeLevel() const;

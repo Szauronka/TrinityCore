@@ -69,7 +69,7 @@ OploteLoot* ChallengeModeMgr::GetOploteLoot(ObjectGuid const& guid)
     return Trinity::Containers::MapGetValuePtr(_oploteWeekLoot, guid);
 }
 
-uint32 ChallengeModeMgr::GetCAForLoot(ChallengeModeMgr* const challenge, uint32 goEntry)
+uint32 ChallengeModeMgr::GetCAForLoot(ChallengeModeMgr* const challenge, uint32 /*goEntry*/)
 {
     if (!challenge)
         return 0;
