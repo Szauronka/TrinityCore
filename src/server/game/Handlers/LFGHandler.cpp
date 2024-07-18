@@ -263,7 +263,20 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
     if (WorldPackets::LFG::RideTicket const* ticket = sLFGMgr->GetTicket(_player->GetGUID()))
         lfgUpdateStatus.Ticket = *ticket;
 
-    lfgUpdateStatus.SubType = lfg::LFG_QUEUE_DUNGEON || lfg::LFG_QUEUE_LFR || lfg::LFG_QUEUE_SCENARIO; // other types not implemented
+    int conditionForDungeon = 1;
+    if (conditionForDungeon == 1)
+    {
+        lfgUpdateStatus.SubType = lfg::LFG_QUEUE_DUNGEON;
+    }
+    else if (conditionForDungeon == 2)
+    {
+        lfgUpdateStatus.SubType = lfg::LFG_QUEUE_LFR;
+    }
+    else if (conditionForDungeon == 3)
+    {
+        lfgUpdateStatus.SubType = lfg::LFG_QUEUE_SCENARIO;
+    }
+
     lfgUpdateStatus.Reason = updateData.updateType;
     std::transform(updateData.dungeons.begin(), updateData.dungeons.end(), std::back_inserter(lfgUpdateStatus.Slots), [](uint32 dungeonId)
     {

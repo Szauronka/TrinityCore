@@ -487,7 +487,8 @@ WorldQuestTemplate* WorldQuestMgr::GetWorldQuestTemplate(uint32 questId)
         return nullptr;
 
     uint8 questTeamId = GetQuestTeamId(quest);
-    questTeamId = questTeamId == TEAM_NEUTRAL ? TEAM_ALLIANCE : questTeamId;
+    if (questTeamId == TEAM_NEUTRAL)
+        questTeamId = TEAM_ALLIANCE;
 
     auto teamTemplates = expansionTemplates->second.find(questTeamId);
     if (teamTemplates == expansionTemplates->second.end())

@@ -669,7 +669,7 @@ private:
     InstanceScript* _instance;
 };
 
-void InstanceScript::GetScenarioByID(Player* p_Player, uint32 p_ScenarioId)
+void InstanceScript::GetScenarioByID(uint32 p_ScenarioId)
 {
     InstanceMap* map = instance->ToInstanceMap();
 
@@ -699,7 +699,7 @@ void InstanceScript::AfterChallengeModeStarted()
         uint32 scenarioId = *_challengeModeScenario;
         DoOnPlayers([this, scenarioId](Player* player)
             {
-                GetScenarioByID(player, scenarioId);
+                GetScenarioByID(scenarioId);
             });
     }
 }
