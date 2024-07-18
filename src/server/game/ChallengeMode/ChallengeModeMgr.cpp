@@ -69,7 +69,7 @@ OploteLoot* ChallengeModeMgr::GetOploteLoot(ObjectGuid const& guid)
     return Trinity::Containers::MapGetValuePtr(_oploteWeekLoot, guid);
 }
 
-uint32 ChallengeModeMgr::GetCAForLoot(ChallengeModeMgr* const challenge, uint32 /*goEntry*/)
+uint32 ChallengeModeMgr::GetCAForLoot(ChallengeModeMgr* const challenge)
 {
     if (!challenge)
         return 0;
@@ -180,7 +180,7 @@ uint32 ChallengeModeMgr::GetCAForLoot(ChallengeModeMgr* const challenge, uint32 
     return 0;
 }
 
-uint32 ChallengeModeMgr::GetBigCAForLoot(ChallengeModeMgr* const challenge, uint32 goEntry, uint32& count)
+uint32 ChallengeModeMgr::GetBigCAForLoot(ChallengeModeMgr* const challenge, uint32& count)
 {
     if (!challenge || challenge->GetChallengeLevel() <= 10)
         return 0;
@@ -539,6 +539,7 @@ void ChallengeModeMgr::HitTimer()
                 }
             }
         }
+            break;
         default:
             break;
     }
