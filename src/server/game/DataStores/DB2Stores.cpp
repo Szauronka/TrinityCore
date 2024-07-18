@@ -2821,7 +2821,7 @@ double DB2Manager::GetChallngeWeight(uint32 mapID)
 GroupFinderActivityEntry const* DB2Manager::GetActivityID(uint32 activityID)
 {
     for (GroupFinderActivityEntry const* activity : sGroupFinderActivityStore)
-        if (activity->ID == uint32(activityID))
+        if (uint32(activity->ID) == activityID)
             return activity;
 
     return nullptr;
