@@ -48,7 +48,10 @@ enum class PhaseFlags : uint16
     Cosmetic                = 0x10,
     Personal                = 0x20,
     Expensive               = 0x40,
-    UsePreloadConditions    = 0x100
+    EventsAreObservable     = 0x80,
+    UsePreloadConditions    = 0x100,
+    UnsharablePersonal      = 0x200,
+    ObjectsAreVisible       = 0x400
 };
 
 DEFINE_ENUM_FLAG(PhaseShiftFlags);
