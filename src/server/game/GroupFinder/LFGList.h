@@ -157,7 +157,7 @@ struct LFGListEntry
     uint32 GetID() const;
 
     std::map<ObjectGuid::LowType, LFGListApplicationEntry> ApplicationsContainer;
-    GroupFinderActivityEntry const* GroupFinderActivityData;
+    GroupFinderActivityEntry* GroupFinderActivityData;
     Group* ApplicationGroup;
 
     uint32 Timeout = 0;

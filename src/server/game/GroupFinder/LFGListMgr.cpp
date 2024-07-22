@@ -432,7 +432,7 @@ LFGListStatus LFGListMgr::CanQueueFor(LFGListEntry* entry, Player* requestingPla
     return LFGListStatus::None;
 }
 
-bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry const* activity) const
+bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry* activity) const
 {
     if (!activity)
         return false;
@@ -450,7 +450,7 @@ bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry const* activity) const
     }
 }
 
-bool LFGListMgr::IsActivityDungeon(GroupFinderActivityEntry const* activity) const
+bool LFGListMgr::IsActivityDungeon(GroupFinderActivityEntry* activity) const
 {
     if (!activity)
         return false;
@@ -468,7 +468,7 @@ bool LFGListMgr::IsActivityDungeon(GroupFinderActivityEntry const* activity) con
     }
 }
 
-float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* /*activity*/, Player* player) const
+float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry* /*activity*/, Player* player) const
 {
     if (player == nullptr)
         return 0.0f;

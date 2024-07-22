@@ -1516,21 +1516,6 @@ bool Player::TeleportToBGEntryPoint()
     return TeleportTo(m_bgData.joinPos);
 }
 
-bool Player::SafeTeleport(uint32 mapid, float x, float y, float z, float orientation, uint32 options, uint32 spellID)
-{
-    return false;
-}
-
-bool Player::SafeTeleport(WorldLocation const& loc, uint32 options)
-{
-    return SafeTeleport(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
-}
-
-bool Player::SafeTeleport(uint32 mapid, Position const* pos, uint32 options, uint32 spellID)
-{
-    return SafeTeleport(mapid, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), pos->GetOrientation(), options, spellID);
-}
-
 void Player::ProcessDelayedOperations()
 {
     if (m_DelayedOperations == 0)

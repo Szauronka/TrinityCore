@@ -432,7 +432,8 @@ typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModified
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
 typedef std::unordered_map<uint32 /*encounterId*/, std::vector<JournalEncounterItemEntry const*>> ItemsByJournalEncounterContainer;
-typedef std::unordered_map<uint32, std::vector <GroupFinderActivityEntry const*>>GroupFinderActivityContainer;
+typedef std::unordered_map<uint32, std::vector <GroupFinderActivityEntry*>>GroupFinderActivityContainer;
+typedef std::vector<GroupFinderActivityEntry*> GroupFinderActivityStore;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
 typedef std::unordered_map<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryContainer;
@@ -522,7 +523,7 @@ namespace
     ItemsByJournalEncounterContainer _itemsByJournalEncounter;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
     GroupFinderActivityContainer _groupFinderActivityByID;
-    std::vector<GroupFinderActivityEntry const*> _groupFinderActivity;
+    std::vector<GroupFinderActivityEntry*> _groupFinderActivity;
     MapChallengeModeEntryContainer _mapChallengeModeEntrybyMap;
     MapChallengeModeListContainer _challengeModeMaps;
     MapChallengeWeightListContainer _challengeWeightMaps;
@@ -1397,7 +1398,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    for (GroupFinderActivityEntry const* activities : sGroupFinderActivityStore)
+    GroupFinderActivityStore sGroupFinderActivityStore;
+    for (GroupFinderActivityEntry* activities : sGroupFinderActivityStore)
         _groupFinderActivity.push_back(activities);
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
@@ -2818,10 +2820,11 @@ double DB2Manager::GetChallngeWeight(uint32 mapID)
     return 0.0;
 }
 
-GroupFinderActivityEntry const* DB2Manager::GetActivityID(uint32 activityID)
+GroupFinderActivityEntry* DB2Manager::GetActivityID(uint32 activityID)
 {
-    for (GroupFinderActivityEntry const* activity : sGroupFinderActivityStore)
-        if (uint32(activity->ID) == activityID)
+    GroupFinderActivityStore sGroupFinderActivityStore;
+    for (GroupFinderActivityEntry* activity : sGroupFinderActivityStore)
+        if (activity->ID == static_cast<int32>(activityID))
             return activity;
 
     return nullptr;

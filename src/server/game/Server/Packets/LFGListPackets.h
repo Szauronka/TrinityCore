@@ -318,7 +318,7 @@ namespace WorldPackets
             uint32 InviteExpireTimer = 0;
             uint8 Status = 0;
             uint8 Role = 0;
-            uint8 ApplicationStatus = 0;
+            uint8 ApplicationStatus = 4;
         };
 
         class LfgListJoinResult final : public ServerPacket

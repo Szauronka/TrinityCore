@@ -1229,10 +1229,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool TeleportTo(TeleportLocation const& teleportLocation, TeleportToOptions options = TELE_TO_NONE);
         bool TeleportToBGEntryPoint();
 
-        bool SafeTeleport(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, uint32 spellID = 0);
-        bool SafeTeleport(WorldLocation const& loc, uint32 options = 0);
-        bool SafeTeleport(uint32 mapid, Position const* pos, uint32 options = 0, uint32 spellID = 0);
-
         bool HasSummonPending() const;
         void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
