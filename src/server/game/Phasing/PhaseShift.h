@@ -43,9 +43,12 @@ enum class PhaseShiftFlags : uint32
 
 enum class PhaseFlags : uint16
 {
-    None        = 0x0,
-    Cosmetic    = 0x1,
-    Personal    = 0x2
+    None                    = 0x0,
+    UsePlayerConditions     = 0x4,
+    Cosmetic                = 0x10,
+    Personal                = 0x20,
+    Expensive               = 0x40,
+    UsePreloadConditions    = 0x100
 };
 
 DEFINE_ENUM_FLAG(PhaseShiftFlags);
