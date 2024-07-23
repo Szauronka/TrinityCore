@@ -514,7 +514,7 @@ public:
     JournalTierEntry const* GetJournalTier(uint32 index) const;
     double GetChallngeWeight(uint32 mapID);
     static GroupFinderActivityEntry* GetActivityID(uint32 activityID);
-    const GroupFinderActivityEntry* FindActivityByID(const std::vector<GroupFinderActivityEntry>& activities, uint32_t activityID);
+    const GroupFinderActivityEntry* FindActivityByID(const std::vector<GroupFinderActivityEntry>& activities, uint32 activityID);
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);
