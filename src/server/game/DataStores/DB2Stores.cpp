@@ -2830,6 +2830,15 @@ GroupFinderActivityEntry* DB2Manager::GetActivityID(uint32 activityID)
     return nullptr;
 }
 
+const GroupFinderActivityEntry* DB2Manager::FindActivityByID(const std::vector<GroupFinderActivityEntry>& activities, uint32_t activityID) {
+    for (const auto& activity : activities) {
+        if (activity.ID == activityID) {
+            return &activity;
+        }
+    }
+    return nullptr;
+}
+
 LFGDungeonsEntry const* DB2Manager::GetLfgDungeon(uint32 mapId, Difficulty difficulty)
 {
     for (LFGDungeonsEntry const* dungeon : sLFGDungeonsStore)

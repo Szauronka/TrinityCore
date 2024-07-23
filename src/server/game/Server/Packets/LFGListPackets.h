@@ -390,14 +390,22 @@ namespace WorldPackets
             Optional<ObjectGuid> UnkGuid;
             Optional<ObjectGuid> UnkGuid2;
             Optional<ObjectGuid> UnkGuid3;
-            Optional<uint32> VirtualRealmAddress;
-            Optional<uint32> UnkInt2;
+            Optional<uint32> VirtualRealmAddress = 0;
+            Optional<uint32> UnkInt2 = 0;
             uint32 UnkInt = 0;
             bool UnkBIt = false;
             bool UnkBIt2 = false;
             bool UnkBIt3 = false;
             bool UnkBIt4 = false;
             bool UnkBit96 = false;
+
+            LFGListSearchResult()
+                : LeaderGuid(),
+                UnkGuid(),
+                UnkGuid2(),
+                UnkGuid3(),
+                VirtualRealmAddress()
+                {}
         };
 
         class LfgListSearchResultUpdate final : public ServerPacket

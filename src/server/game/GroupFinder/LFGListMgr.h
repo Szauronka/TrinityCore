@@ -58,6 +58,9 @@ class LFGListMgr
 
         void SendLfgListJoinResult(LFGListEntry const* entry, LFGListStatus status, Player* player) const;
         void SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LFGListEntry::LFGListApplicationEntry const* application, Player* player);
+
+        std::vector<GroupFinderActivityEntry> groupFinderActivities;
+
     private:
         std::map < ObjectGuid::LowType, LFGListEntry* > _lfgListQueue;
         std::recursive_mutex m_lock;

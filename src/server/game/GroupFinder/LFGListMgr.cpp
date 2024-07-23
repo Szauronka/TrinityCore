@@ -257,6 +257,7 @@ LFGListEntry* LFGListMgr::GetEntryByApplicant(WorldPackets::LFG::RideTicket appl
 
 void LFGListMgr::OnPlayerApplyForGroup(Player* player, WorldPackets::LFG::RideTicket const* applicationTicket, uint32 activityID, std::string comment, uint8 role)
 {
+    (void)activityID;
 
     auto entry = GetEntrybyGuid(applicationTicket->Id);
     if (!entry)
