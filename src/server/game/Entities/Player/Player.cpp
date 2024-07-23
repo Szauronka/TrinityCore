@@ -30905,8 +30905,7 @@ void Player::_LoadCompletedChallenges(PreparedQueryResult&& result)
 
 bool Player::HasChallengeCompleted(uint32 keyID) const
 {
-    if (m_CompletedChallenges.find(keyID) == m_CompletedChallenges.end())
-        return false;
+    return m_CompletedChallenges.find(keyID) != m_CompletedChallenges.end();
 }
 
 void Player::RequestSpellCast(std::unique_ptr<SpellCastRequest> castRequest)
