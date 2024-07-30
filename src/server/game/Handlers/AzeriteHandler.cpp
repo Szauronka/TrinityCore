@@ -213,9 +213,13 @@ void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::
         return;
 
     // tiers are ordered backwards, you first select the highest one
-    for (int32 i = actualTier + 1; i < azeriteEmpoweredItem->GetMaxAzeritePowerTier(); ++i)
+    for (int32 i = azeriteEmpoweredItem->GetMaxAzeritePowerTier() - 1; i > actualTier; --i)
+    {
         if (!azeriteEmpoweredItem->GetSelectedAzeritePower(i))
+        {
             return;
+        }
+    }
 
     bool activateAzeritePower = azeriteEmpoweredItem->IsEquipped() && heartOfAzeroth->IsEquipped();
     if (azeritePower->ItemBonusListID && activateAzeritePower)

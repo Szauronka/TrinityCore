@@ -69,14 +69,16 @@ void AzeriteEmpoweredItem::SaveToDB(CharacterDatabaseTransaction trans)
 void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, AzeriteEmpoweredItemData& azeriteEmpoweredItem)
 {
     InitAzeritePowerData();
-    bool needSave = false;
+    bool needSave = !m_azeritePowers;
+
     if (m_azeritePowers)
     {
-        for (int32 i = MAX_AZERITE_EMPOWERED_TIER; --i >= 0; )
+        for (int32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
         {
             int32 selection = azeriteEmpoweredItem.SelectedAzeritePowers[i];
             if (GetTierForAzeritePower(Classes(owner->GetClass()), selection) != i)
             {
+                TC_LOG_INFO("server.debug", "LoadAzeriteEmpoweredItemData GetTierForAzeritePower class %u, selection %u, i %u", uint32(owner->GetClass()), selection, i);
                 needSave = true;
                 break;
             }
@@ -84,13 +86,11 @@ void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, Aze
             SetSelectedAzeritePower(i, selection);
         }
     }
-    else
-        needSave = true;
 
     if (needSave)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_AZERITE_EMPOWERED);
-        for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
+        for (int32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
             stmt->setInt32(i, m_azeriteEmpoweredItemData->Selections[i]);
 
         stmt->setUInt64(5, GetGUID().GetCounter());
@@ -118,14 +118,16 @@ uint32 AzeriteEmpoweredItem::GetRequiredAzeriteLevelForTier(uint32 tier) const
 
 int32 AzeriteEmpoweredItem::GetTierForAzeritePower(Classes playerClass, int32 azeritePowerId) const
 {
-    auto azeritePowerItr = std::find_if(m_azeritePowers->begin(), m_azeritePowers->end(), [&](AzeritePowerSetMemberEntry const* power)
-    {
-        return power->AzeritePowerID == azeritePowerId && power->Class == playerClass;
-    });
+    auto azeritePowerItr = std::find_if(m_azeritePowers->begin(), m_azeritePowers->end(),
+        [playerClass, azeritePowerId](AzeritePowerSetMemberEntry const* power)
+        {
+            return power->AzeritePowerID == azeritePowerId && power->Class == playerClass;
+        });
+
     if (azeritePowerItr != m_azeritePowers->end())
         return (*azeritePowerItr)->Tier;
 
-    return MAX_AZERITE_EMPOWERED_TIER;
+    return MAX_AZERITE_EMPOWERED_TIER; // Return a default or error value if not found
 }
 
 void AzeriteEmpoweredItem::SetSelectedAzeritePower(int32 tier, int32 azeritePowerId)
