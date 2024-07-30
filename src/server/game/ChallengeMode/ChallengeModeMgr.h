@@ -64,32 +64,32 @@ struct OploteLoot
 
 enum ChallengeSpells : uint32
 {
-    ChallengersMight = 206150, /// generic creature aura
-    ChallengersBurden = 206151, /// generic player aura
-    ChallengerBolstering = 209859,
-    ChallengerNecrotic = 209858,
-    ChallengerOverflowing = 221772,
-    ChallengerSanguine = 226489,
-    ChallengerRaging = 228318,
-    ChallengerSummonVolcanicPlume = 209861,
-    ChallengerVolcanicPlume = 209862,
-    ChallengerBursting = 240443,
-    ChallengerQuake = 240447,
-    ChallengerGrievousWound = 240559,
+    ChallengersMight                 = 206150, /// generic creature aura
+    ChallengersBurden                = 206151, /// generic player aura
+    ChallengerBolstering             = 209859,
+    ChallengerNecrotic               = 209858,
+    ChallengerOverflowing            = 221772,
+    ChallengerSanguine               = 226489,
+    ChallengerRaging                 = 228318,
+    ChallengerSummonVolcanicPlume    = 209861,
+    ChallengerVolcanicPlume          = 209862,
+    ChallengerBursting               = 240443,
+    ChallengerQuake                  = 240447,
+    ChallengerGrievousWound          = 240559,
 
     //Explosive
-    SPELL_FEL_EXPLOSIVES_SUMMON_1 = 240444, //Short dist
-    SPELL_FEL_EXPLOSIVES_SUMMON_2 = 243110, //Long dist
-    SPELL_FEL_EXPLOSIVES_VISUAL = 240445,
-    SPELL_FEL_EXPLOSIVES_DMG = 240446,
+    SPELL_FEL_EXPLOSIVES_SUMMON_1    = 240444, //Short dist
+    SPELL_FEL_EXPLOSIVES_SUMMON_2    = 243110, //Long dist
+    SPELL_FEL_EXPLOSIVES_VISUAL      = 240445,
+    SPELL_FEL_EXPLOSIVES_DMG         = 240446,
 
-    SPELL_CHALLENGE_ANTIKICK = 305284,
+    SPELL_CHALLENGE_ANTIKICK         = 305284,
 };
 
 enum ChallengeNpcs : uint32
 {
-    NpcVolcanicPlume = 105877,
-    NPC_FEL_EXPLOSIVES = 120651,
+    NpcVolcanicPlume     = 105877,
+    NPC_FEL_EXPLOSIVES   = 120651,
 };
 
 enum MiscChallengeData : uint32
