@@ -873,10 +873,6 @@ void ChallengeModeMgr::GenerateCurrentWeekAffixes()
 
 void ChallengeModeMgr::GenerateOploteLoot(bool manual)
 {
-    bool _manual = false;
-    manual = _manual;
-    TC_LOG_ERROR("misc", "GenerateOploteLoot manual {} _challengeWeekList {}", _manual, _challengeWeekList.size());
-
     CharacterDatabase.Query("DELETE FROM challenge_oplote_loot WHERE date <= UNIX_TIMESTAMP()");
     _oploteWeekLoot.clear();
 
