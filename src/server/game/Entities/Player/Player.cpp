@@ -6357,7 +6357,12 @@ void Player::UpdateWorldQuestPosition(float x, float y)
                 if (!HasWorldQuestEnabled(quest->GetExpansion()))
                     continue;
 
-                if (!sWorldQuestMgr->IsQuestActive(quest->GetQuestId()))
+                ActiveWorldQuest const* activeWorldQuest = sWorldQuestMgr->GetActiveWorldQuest(quest->GetQuestId());
+                if (!activeWorldQuest)
+                    continue;
+
+                std::vector<WorldQuestReward const*> worldQuestRewards = sWorldQuestMgr->GetRewardsForPlayerById(this, activeWorldQuest->RewardId);
+                if (!worldQuestRewards.size())
                     continue;
             }
 
@@ -15014,6 +15019,10 @@ void Player::CompleteQuest(uint32 quest_id)
             SetQuestSlotState(questStatus->Slot, QUEST_STATE_COMPLETE);
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
+            if (qInfo->HasFlag(QUEST_FLAGS_TRACKING_EVENT) || qInfo->IsWorldQuest())
+                RewardQuest(qInfo, LootItemType::Item, 0, this, false);
+
+        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
                 RewardQuest(qInfo, LootItemType::Item, 0, this, false);
     }
@@ -15293,6 +15302,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     if (uint32 honor = quest->CalculateHonorGain(GetLevel()))
         RewardHonor(nullptr, 0, honor);
 
+    if (quest->IsWorldQuest())
+        sWorldQuestMgr->RewardQuestForPlayer(this, quest->GetQuestId());
+
     // title reward
     if (quest->GetRewTitle())
     {
@@ -15328,6 +15340,14 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         SetMonthlyQuestStatus(quest_id);
     else if (quest->IsSeasonal())
         SetSeasonalQuestStatus(quest_id);
+
+    else if (!quest->IsWorldQuest() && !quest->IsEmissaryQuest())
+    {
+        m_RewardedQuests.insert(quest_id);
+        //m_accuntQuests.insert(quest_id);
+        m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
+    }
+
 
     RemoveActiveQuest(quest_id, false);
     if (quest->CanIncreaseRewardedQuestCounters())
