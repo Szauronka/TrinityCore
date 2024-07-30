@@ -598,7 +598,7 @@ void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestU
     }
 }
 
-void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPackets::Quest::QueryQuestRewardResponse& packet)
+void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, uint32 treasurePickerId, WorldPackets::Quest::QueryQuestRewardResponse& packet)
 {
     ActiveWorldQuest const* activeWorldQuest = GetActiveWorldQuest(questId);
     if (!activeWorldQuest)
@@ -607,6 +607,9 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
     std::vector<WorldQuestReward const*> worldQuestRewards = GetRewardsForPlayerById(player, activeWorldQuest->RewardId);
     if (!worldQuestRewards.size())
         return;
+
+    packet.QuestID = questId;
+    packet.TreasurePickerID = treasurePickerId;
 
     for (WorldQuestReward const* worldQuestReward : worldQuestRewards)
     {

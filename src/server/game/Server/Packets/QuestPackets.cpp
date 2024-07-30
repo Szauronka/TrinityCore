@@ -908,6 +908,7 @@ WorldPacket const* QueryQuestRewardResponse::Write()
     _worldPacket << MoneyReward;
     _worldPacket << BonusCount;
     _worldPacket << Flags;
+    _worldPacket << uint32(BonusRewards.size());
 
     for (auto& currency : CurrencyRewards)
     {
@@ -922,6 +923,14 @@ WorldPacket const* QueryQuestRewardResponse::Write()
         _worldPacket.WriteBit(item.HasItemBonus);
         _worldPacket << item.ContentTuningID;
         _worldPacket << item.Contex;
+    }
+
+    for (auto const& bonus : BonusRewards)
+    {
+        _worldPacket << bonus.ItemRewards.size();
+        _worldPacket << bonus.CurrencyRewards.size();
+        _worldPacket << bonus.BonusMoney;
+        _worldPacket << bonus.HasBonus;
     }
 
 

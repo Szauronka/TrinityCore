@@ -888,6 +888,14 @@ namespace WorldPackets
                 uint32 Contex = 0;
             };
 
+            struct BonusReward
+            {
+                uint64 BonusMoney = 0;
+                bool HasBonus = false;
+                std::vector<CurrencyReward> CurrencyRewards;
+                std::vector<ItemReward> ItemRewards;
+            };
+
             uint32 QuestID = 0;
             uint32 TreasurePickerID = 0;
             uint32 Quantity = 0;
@@ -897,6 +905,7 @@ namespace WorldPackets
             uint32 Flags = 0;
             std::vector<CurrencyReward> CurrencyRewards;
             std::vector<ItemReward> ItemRewards;
+            std::vector<BonusReward> BonusRewards;
         };
 
         class IsQuestCompleteResponse final : public ServerPacket

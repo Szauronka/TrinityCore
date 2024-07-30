@@ -913,6 +913,7 @@ void WorldSession::HandleQueryAdventureMapPOI(WorldPackets::Quest::QueryAdventur
 
 void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest)
 {
+    // Lookup the UiMap entry using the provided UiMapID
     UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapQuestLinesRequest.UiMapID);
     if (!uiMap)
         return;
@@ -920,14 +921,17 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
     WorldPackets::Quest::UiMapQuestLinesResponse response;
     response.UiMapID = uiMap->ID;
 
+    // Retrieve the list of quest lines associated with the UiMapID
     if (std::vector<uint32> const* questLines = sObjectMgr->GetUiMapQuestLinesList(uiMap->ID))
     {
         for (uint32 questLineId : *questLines)
         {
+            // Retrieve the list of quests associated with the quest line
             std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(questLineId);
             if (!questLineQuests)
                 continue;
 
+            // Check each quest in the quest line
             for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
                 if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
                     if (_player->CanTakeQuest(quest, false))
@@ -935,6 +939,7 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
         }
     }
 
+    // Retrieve the list of quests directly associated with the UiMapID
     if (std::vector<uint32> const* quests = sObjectMgr->GetUiMapQuestsList(uiMap->ID))
     {
         for (uint32 questId : *quests)
@@ -945,13 +950,16 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
 
     SendPacket(response.Write());
 }
+
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)
 {
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
     WorldPackets::Quest::QueryQuestRewardResponse response;
-    response.QuestID = packet.QuestID;
-    response.TreasurePickerID = packet.TreasurePickerID;
-    
-    sWorldQuestMgr->BuildRewardPacket(GetPlayer(), packet.QuestID, response);
+
+    sWorldQuestMgr->BuildRewardPacket(player, packet.QuestID, packet.TreasurePickerID, response);
     SendPacket(response.Write());
 }
 
