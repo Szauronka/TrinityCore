@@ -88,7 +88,7 @@ public:
     std::vector<WorldQuestReward const*> GetRewardsForPlayerById(Player* player, uint32 rewardId);
 
     void BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdateResponse& packet);
-    void BuildRewardPacket(Player* player, uint32 questId, WorldPackets::Quest::QueryQuestRewardResponse& packet);
+    void BuildRewardPacket(Player* player, uint32 questId, uint32 treasurePickerId, WorldPackets::Quest::QueryQuestRewardResponse& packet);
     void FillInitWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     std::vector<CriteriaEntry const*> GetCriteriasForQuest(uint32 quest_id);
