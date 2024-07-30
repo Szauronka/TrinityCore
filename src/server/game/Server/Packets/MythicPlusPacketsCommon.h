@@ -350,12 +350,12 @@ namespace WorldPackets
         class Rewards final : public ServerPacket
         {
         public:
-            Rewards() : ServerPacket(SMSG_WEEKLY_REWARDS_PROGRESS_RESULT) { }
+            Rewards() : ServerPacket(SMSG_WEEKLY_REWARDS_PROGRESS_RESULT, 8) { }
 
             WorldPacket const* Write() override;
 
-            uint32 Week = 1;
             std::vector<MapChallengeModeReward> MapChallengeModeRewards;
+            std::vector<ItemReward> ItemRewards;
         };
     }
 }

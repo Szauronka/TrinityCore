@@ -246,6 +246,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void LoadGrid(float x, float y);
         void LoadGridForActiveObject(float x, float y, WorldObject const* object);
         void LoadAllCells();
+        void RespawnAllObjects();
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         void GridMarkNoUnload(uint32 x, uint32 y);
         void GridUnmarkNoUnload(uint32 x, uint32 y);
@@ -664,6 +665,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         ScriptScheduleMap m_scriptSchedule;
 
     public:
+        std::set<WorldObject*> GetWorldObjects() const { return i_worldObjects; }
         void ProcessRespawns();
         void ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::LowType spawnId, uint32& respawnDelay, uint32 mode) const;
 

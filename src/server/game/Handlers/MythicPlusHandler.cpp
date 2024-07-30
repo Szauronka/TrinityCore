@@ -4,10 +4,12 @@
 #include "GameObject.h"
 #include "Item.h"
 #include "MythicPlusPacketsCommon.h"
+#include "MiscPackets.h"
 #include "InstanceScript.h"
 #include <Map.h>
 #include <ObjectAccessor.h>
 #include <ChallengeModeMgr.h>
+#include <GameTime.h>
 
 
 void WorldSession::HandleMythicPlusRequestMapStats(WorldPackets::MythicPlus::MythicPlusRequestMapStats& /*mythicPlusRequestMapStats*/)
@@ -86,49 +88,64 @@ void WorldSession::HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChall
 
 void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChallengeMode& packet)
 {
+    Player* owner = GetPlayer();
 
-    GameObject* object = _player->GetGameObjectIfCanInteractWith(packet.GameObjectGUID, GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE);
-    if (!object)
-    {
-        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - {} not found or you can not interact with it.", packet.GameObjectGUID.ToString().c_str());
+    if (!owner)
         return;
-    }
 
-    Item* key = _player->GetItemByPos(packet.Bag, packet.Slot);
-    if (!key)
-    {
-        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - item in Bag {} and Slot {} not found.", packet.Bag, packet.Slot);
+    InstanceMap* map = owner->GetMap()->ToInstanceMap();
+
+    if (!map)
         return;
-    }
 
-    if (key->GetTemplate()->GetClass() != ITEM_CLASS_REAGENT || key->GetTemplate()->GetSubClass() != ITEM_SUBCLASS_KEYSTONE)
-    {
-        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with item {} which have class {} and subclass {}.",
-            key->GetGUID().ToString().c_str(),
-            key->GetTemplate()->GetClass(),
-            key->GetTemplate()->GetSubClass());
+    Item const* keystone = owner->GetItemByPos(packet.Bag, packet.Slot);
+
+    if (!keystone)
         return;
-    }
 
-    uint32 challengeModeId = key->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
-    uint32 challengeModeLevel = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL);
-    uint32 challengeModeAffix1 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1);
-    uint32 challengeModeAffix2 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2);
-    uint32 challengeModeAffix3 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3);
-    uint32 challengeModeAffix4 = key->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4);
+    uint32 challengeId = keystone->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
+    uint32 challengeLevel = keystone->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL);
 
-    MapChallengeModeEntry const* entry = sMapChallengeModeStore.LookupEntry(challengeModeId);
-    if (!entry || !challengeModeLevel || entry->MapID != _player->GetMapId())
+    Group* group = owner->GetGroup();
+
+    auto StartChallengeFor = [challengeId, map](Player* target)
     {
-        TC_LOG_INFO("server.info", "WORLD: HandleChallengeModeStart - Tried to start a challenge with wrong challengeModeId {} and level {}.", challengeModeId, challengeModeLevel);
-        return;
+        WorldPackets::Misc::ChangePlayerDifficultyResult changePlayerDiffResultFirst;
+
+        changePlayerDiffResultFirst.Result = WorldPackets::Misc::ChangePlayerDifficultyResult::LoadingScreenEnable;
+        changePlayerDiffResultFirst.Unused = false;
+        changePlayerDiffResultFirst.NextDifficultyChangeTime = GameTime::GetGameTime() + 2;
+
+        target->GetSession()->SendPacket(changePlayerDiffResultFirst.Write());
+        target->SetDungeonDifficultyID(Difficulty::DIFFICULTY_MYTHIC_KEYSTONE);
+
+        map->RespawnAllObjects();
+
+        WorldPackets::Misc::ChangePlayerDifficultyResult changePlayerDiffResultSecond;
+
+        changePlayerDiffResultSecond.Result = WorldPackets::Misc::ChangePlayerDifficultyResult::Sucess;
+        changePlayerDiffResultSecond.MapId = map->GetId();
+        changePlayerDiffResultSecond.DifficultyRecID = Difficulty::DIFFICULTY_MYTHIC_KEYSTONE;
+
+        target->GetSession()->SendPacket(changePlayerDiffResultSecond.Write());
+
+        target->TeleportTo(map->GetId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
+    };
+
+    if (group)
+    {
+        group->SetDungeonDifficultyID(Difficulty::DIFFICULTY_MYTHIC_KEYSTONE);
+
+        Group::MemberSlotList const& members = group->GetMemberSlots();
+
+        for (auto itr = members.begin(); itr != members.end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer((*itr).guid))
+                StartChallengeFor(player);
+        }
     }
-
-    if (InstanceScript* instanceScript = _player->GetInstanceScript())
-        instanceScript->StartChallengeMode(challengeModeId, challengeModeLevel, challengeModeAffix1, challengeModeAffix2, challengeModeAffix3, challengeModeAffix4);
-
-    // Blizzard do not delete the key at challenge start, will require mort research
-    _player->DestroyItem(packet.Bag, packet.Slot, true);
+    else
+        StartChallengeFor(owner);
 }
 
 void WorldSession::HandleRequestLeaders(WorldPackets::MythicPlus::RequestLeaders& packet)
@@ -187,5 +204,12 @@ void WorldSession::HandleRequestLeaders(WorldPackets::MythicPlus::RequestLeaders
     }
 
     SendPacket(result.Write());
+}
+
+void WorldSession::SendWeeklyRewardsRequests(WorldPackets::Misc::RequestWeeklyRewards& weeklyRewards)
+{
+    WorldPackets::MythicPlus::Rewards weeklyResult;
+
+    SendPacket(weeklyResult.Write());
 }
 

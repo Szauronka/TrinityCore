@@ -306,15 +306,19 @@ namespace WorldPackets
 
         WorldPacket const* Rewards::Write()
         {
-            _worldPacket << Week;
-            _worldPacket << uint32(MapChallengeModeRewards.size());
-
+            _worldPacket << static_cast<uint32>(MapChallengeModeRewards.size());
 
             for (auto const& map : MapChallengeModeRewards)
             {
                 _worldPacket << map.Rewards.size();
             }
 
+            for (auto const& iRewards : ItemRewards)
+            {
+                _worldPacket << iRewards.ItemDisplayID;
+                _worldPacket << iRewards.ItemID;
+                _worldPacket << iRewards.Quantity;
+            }
 
             return &_worldPacket;
         }

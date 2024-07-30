@@ -732,7 +732,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     _challengeModeLevel = level;
 
 
-    instance->SendToPlayers(WorldPackets::Misc::ChangePlayerDifficultyResult(5).Write());
+    instance->SendToPlayers(WorldPackets::Misc::ChangePlayerDifficultyResult().Write());
 
     // Add the health/dmg modifier aura to all creatures
     ChallengeModeWorker worker(this);
@@ -762,8 +762,8 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
     ShowChallengeDoor();
     AfterChallengeModeStarted();
 
-    WorldPackets::Misc::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
-    changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
+    WorldPackets::Misc::ChangePlayerDifficultyResult changePlayerDifficultyResult;
+    changePlayerDifficultyResult.MapId = instance->GetId();
     changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
     instance->SendToPlayers(changePlayerDifficultyResult.Write());
 
