@@ -1203,3 +1203,11 @@ void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownT
 
     _player->SendDirectMessage(startTimer.Write());
 }
+
+void WorldSession::HandleClaimWeeklyRewards(WorldPackets::Misc::ClaimWeeklyRewards& packet)
+{
+    WorldPackets::Misc::WeeklyRewardClaimResult send;
+    send.Result;
+
+    SendPacket(send.Write());
+}

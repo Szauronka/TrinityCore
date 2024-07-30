@@ -854,23 +854,39 @@ WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
 
 WorldPacket const* WorldPackets::Misc::ChangePlayerDifficultyResult::Write()
 {
-	_worldPacket.WriteBits(Type, 4);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteBits(Result, 4);
 
-	switch (Type)
-	{
-	case 5:
-	{
-		_worldPacket.WriteBit(false);
-		_worldPacket << uint32(2766309915);
-		break;
-	}
-	case 11:
-	{
-		_worldPacket << InstanceDifficultyID;
-		_worldPacket << DifficultyRecID;
-		break;
-	}
-	}
+    switch (Result)
+    {
+    case SetPlayerDifficultyResults::LoadingScreenEnable:
+    {
+        _worldPacket.WriteBit(Unused);
+        _worldPacket.FlushBits();
+        _worldPacket << NextDifficultyChangeTime;
+        break;
+    }
+    case SetPlayerDifficultyResults::Sucess:
+    {
+        _worldPacket << MapId;
+        _worldPacket << DifficultyRecID;
+        break;
+    }
+    default:
+        break;
+    }
 
-	return &_worldPacket;
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ClaimWeeklyRewards::Read()
+{
+    _worldPacket >> UNK;
+}
+
+WorldPacket const* WorldPackets::Misc::WeeklyRewardClaimResult::Write()
+{
+    _worldPacket << Result;
+
+    return &_worldPacket;
 }

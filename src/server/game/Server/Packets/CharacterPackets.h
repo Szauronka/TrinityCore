@@ -843,14 +843,6 @@ namespace WorldPackets
             Optional<uint32> Flags2;
             Optional<uint32> Flags3;
         };
-
-        class RequestWeeklyRewards final : public ClientPacket
-        {
-        public:
-            RequestWeeklyRewards(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WEEKLY_REWARDS, std::move(packet)) { }
-
-            void Read() override { };
-        };
 		
         class SavePersonalEmblem final : public ClientPacket
         {

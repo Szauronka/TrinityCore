@@ -283,7 +283,6 @@ namespace WorldPackets
         class SetFactionInactive;
         class SetWatchedFaction;
         class SetPlayerDeclinedNames;
-        class RequestWeeklyRewards;
         class SavePersonalEmblem;
 
         enum class LoginFailureReason : uint8;
@@ -567,6 +566,8 @@ namespace WorldPackets
         class QueryCountdownTimer;
         class RequestLatestSplashScreen;
         class QueryCountdownTimer;
+        class RequestWeeklyRewards;
+        class ClaimWeeklyRewards;
     }
 
     namespace Movement
@@ -1297,8 +1298,6 @@ class TC_GAME_API WorldSession
         void SendUndeleteCooldownStatusResponse(uint32 currentCooldown, uint32 maxCooldown);
         void SendUndeleteCharacterResponse(CharacterUndeleteResult result, WorldPackets::Character::CharacterUndeleteInfo const* undeleteInfo);
 
-        void SendWeeklyRewardsRequests(WorldPackets::Character::RequestWeeklyRewards& weeklyRewards);
-
         // played time
         void HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& packet);
 
@@ -1854,6 +1853,8 @@ class TC_GAME_API WorldSession
         void HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted);
         void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);
         void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer);
+        void SendWeeklyRewardsRequests(WorldPackets::Misc::RequestWeeklyRewards& weeklyRewards);
+        void HandleClaimWeeklyRewards(WorldPackets::Misc::ClaimWeeklyRewards& packet);
 
         // Adventure Journal
         void HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest);

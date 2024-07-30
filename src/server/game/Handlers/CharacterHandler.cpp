@@ -2965,10 +2965,3 @@ void WorldSession::SendUndeleteCharacterResponse(CharacterUndeleteResult result,
 
     SendPacket(response.Write());
 }
-
-void WorldSession::SendWeeklyRewardsRequests(WorldPackets::Character::RequestWeeklyRewards& weeklyRewards)
-{
-    WorldPackets::MythicPlus::Rewards weeklyResult;
-
-    SendPacket(weeklyResult.Write());
-}

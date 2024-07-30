@@ -1072,13 +1072,60 @@ namespace WorldPackets
         class ChangePlayerDifficultyResult final : public ServerPacket
         {
         public:
-            ChangePlayerDifficultyResult(uint32 type = 0) : ServerPacket(SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT, 4), Type(type) { }
+            ChangePlayerDifficultyResult() : ServerPacket(SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT, 9) {}
 
             WorldPacket const* Write() override;
 
-            uint8 Type = 0;
-            uint32 InstanceDifficultyID = 0;
+            enum SetPlayerDifficultyResults : uint8
+            {
+                SetDifficulty        = 0,
+                CooldownResult       = 1,
+                WorldState           = 2,
+                EncounterInProgress  = 3,
+                PlayerInCombat       = 4,
+                PlayerBusy           = 5,
+                LoadingScreenEnable  = 6,
+                AlreadyInProgress    = 7,
+                FailedCondition      = 8,
+                Complete             = 9,
+                Sucess               = 12
+            };
+
+            ObjectGuid Guid;
+            int64  NextDifficultyChangeTime = 0;
+            uint32 MapId = 0;
             uint32 DifficultyRecID = 0;
+            uint32 MapID = 0;
+            SetPlayerDifficultyResults Result = SetDifficulty;
+            bool Unused = false;
+        };
+
+        class RequestWeeklyRewards final : public ClientPacket
+        {
+        public:
+            RequestWeeklyRewards(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WEEKLY_REWARDS, std::move(packet)) { }
+
+            void Read() override { };
+        };
+
+        class ClaimWeeklyRewards final : public ClientPacket
+        {
+        public:
+            ClaimWeeklyRewards(WorldPacket&& packet) : ClientPacket(CMSG_CLAIM_WEEKLY_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 UNK = 0;
+        };
+
+        class WeeklyRewardClaimResult final : public ServerPacket
+        {
+        public:
+            WeeklyRewardClaimResult() : ServerPacket(SMSG_WEEKLY_REWARD_CLAIM_RESULT) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Result = 0;
         };
     }
 }
