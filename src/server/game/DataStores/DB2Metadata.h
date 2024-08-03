@@ -7493,7 +7493,7 @@ struct LFGDungeonsGroupingMapMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1339818 , -1, 3, 2, 0x3538AE33, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1339818 , -1, 3, 2, 0x105EA15A, Fields, 2 };
 };
 
 struct LFGRoleRequirementMeta
