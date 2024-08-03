@@ -17,6 +17,7 @@
 
 #include "LFGListPackets.h"
 #include "Optional.h"
+#include "PacketUtilities.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist const& blackList)
 {
@@ -200,7 +201,11 @@ void WorldPackets::LfgList::LfgListSearch::Read()
             _worldPacket.FlushBits();
 
             for (int i = 0; i < 3; i++)
-                LanguageSearchFilter += " " + _worldPacket.ReadString(len[i]);
+            {
+                std::string_view svLen = _worldPacket.ReadString(len[i]);
+                LanguageSearchFilter += " " + std::string(svLen);
+            }
+            delete[] len;
         }
     }
 
