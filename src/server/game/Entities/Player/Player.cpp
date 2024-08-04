@@ -6360,12 +6360,7 @@ void Player::UpdateWorldQuestPosition(float x, float y)
                 if (!HasWorldQuestEnabled(quest->GetExpansion()))
                     continue;
 
-                ActiveWorldQuest const* activeWorldQuest = sWorldQuestMgr->GetActiveWorldQuest(quest->GetQuestId());
-                if (!activeWorldQuest)
-                    continue;
-
-                std::vector<WorldQuestReward const*> worldQuestRewards = sWorldQuestMgr->GetRewardsForPlayerById(this, activeWorldQuest->RewardId);
-                if (!worldQuestRewards.size())
+                if (!sWorldQuestMgr->IsQuestActive(quest->GetQuestId()))
                     continue;
             }
 
