@@ -749,6 +749,7 @@ namespace WorldPackets
             uint32 HonorPointCount = 0;
             uint64 Money = 0;
             uint32 Xp = 0;
+            uint32 SpellID = 0;
             std::vector<PlayerChoiceResponseRewardEntry> Items;
             std::vector<PlayerChoiceResponseRewardEntry> Currencies;
             std::vector<PlayerChoiceResponseRewardEntry> Factions;

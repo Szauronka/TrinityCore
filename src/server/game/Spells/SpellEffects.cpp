@@ -4789,6 +4789,18 @@ void Spell::EffectQuestStart()
         if (!player->CanTakeQuest(quest, false))
             return;
 
+        if (!player->CanAddQuest(quest, false))
+            return;
+
+        player->AddQuestAndCheckCompletion(quest, player);
+        player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, true);
+    }
+
+    /*if (Quest const* quest = sObjectMgr->GetQuestTemplate(effectInfo->MiscValue))
+    {
+        if (!player->CanTakeQuest(quest, false))
+            return;
+
         if (quest->IsAutoAccept() && player->CanAddQuest(quest, false))
         {
             player->AddQuestAndCheckCompletion(quest, player);
@@ -4796,7 +4808,7 @@ void Spell::EffectQuestStart()
         }
         else
             player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, false);
-    }
+    }*/
 }
 
 void Spell::EffectCreateTamedPet()

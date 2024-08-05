@@ -1006,6 +1006,9 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
         if (playerChoiceResponse->Reward->Xp)
             _player->GiveXP(playerChoiceResponse->Reward->Xp, nullptr, 0.0f);
 
+        if (playerChoiceResponse->Reward->SpellID)
+            _player->CastSpell(_player, playerChoiceResponse->Reward->SpellID, true);
+
         for (PlayerChoiceResponseRewardItem const& item : playerChoiceResponse->Reward->Items)
         {
             ItemPosCountVec dest;

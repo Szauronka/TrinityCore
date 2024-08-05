@@ -29669,9 +29669,57 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     displayPlayerChoice.HideWarboardHeader = playerChoice->HideWarboardHeader;
     displayPlayerChoice.KeepOpenAfterChoice = playerChoice->KeepOpenAfterChoice;
 
+    std::vector<PlayerChoiceResponse> playerChoiceResponses;
     for (std::size_t i = 0; i < playerChoice->Responses.size(); ++i)
     {
-        PlayerChoiceResponse const& playerChoiceResponseTemplate = playerChoice->Responses[i];
+        PlayerChoiceResponse const& _playerChoiceResponseTemplate = playerChoice->Responses[i];
+        if (!_playerChoiceResponseTemplate.ResponseId)
+            continue;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_playerChoiceResponseTemplate.Reward->SpellID, DIFFICULTY_NONE);
+        if (!spellInfo)
+            continue;
+
+        bool playerEligible = true;
+
+        for (SpellEffectInfo const& effect : spellInfo->GetEffects())
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(effect.MiscValue);
+            if (!quest)
+            {
+                playerEligible = false;
+                continue;
+            }
+
+            if (!CanTakeQuest(quest, false))
+            {
+                playerEligible = false;
+                continue;
+            }
+
+            if (!CanAddQuest(quest, false))
+            {
+                playerEligible = false;
+                continue;
+            }
+        }
+
+        if (playerEligible)
+            playerChoiceResponses.push_back(_playerChoiceResponseTemplate);
+    }
+
+    // don't send empty choice (warboard)
+    if ((choiceId == 342 || choiceId == 352) && playerChoiceResponses.empty())
+    {
+        ChatHandler(GetSession()).PSendSysMessage("Please come back later.");
+        return;
+    }
+
+    for (std::size_t i = 0; i < playerChoiceResponses.size(); ++i)
+    {
+        auto const& playerChoiceResponseTemplate = playerChoiceResponses[i];
+        if (!playerChoiceResponseTemplate.ResponseId)
+            return;
         WorldPackets::Quest::PlayerChoiceResponse& playerChoiceResponse = displayPlayerChoice.Responses[i];
         playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
         playerChoiceResponse.ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier;
@@ -29764,6 +29812,9 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
             mawPower.MaxStacks = playerChoiceResponseTemplate.MawPower->MaxStacks;
         }
     }
+
+    if (playerChoiceResponses.size() > 3 && (choiceId == 342 || choiceId == 352))
+        displayPlayerChoice.Responses.resize(3);
 
     SendDirectMessage(displayPlayerChoice.Write());
 }

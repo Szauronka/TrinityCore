@@ -21,8 +21,10 @@
 // void Add${NameOfDirectory}Scripts()
 
 void AddSCitem_scripts();
+void AddSC_Warboard_Scripts();
 
 void AddCustomScripts()
 {
+    AddSC_Warboard_Scripts();
     AddSCitem_scripts();
 }
