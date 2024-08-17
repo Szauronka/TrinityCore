@@ -1771,8 +1771,8 @@ struct FriendshipRepReactionEntry
 {
     uint32 ID;
     LocalizedString Reaction;
-    uint32 FriendshipRepID;
-    uint16 ReactionThreshold;
+    int32 FriendshipRepID;
+    int32 ReactionThreshold;
     int32 OverrideColor;
 };
 
@@ -2995,6 +2995,7 @@ struct MapDifficultyEntry
     int32 ItemContextPickerID;
     int32 Flags;
     int32 ContentTuningID;
+    int32 WorldStateExpressionID;
     uint32 MapID;
 
     bool HasResetSchedule() const { return ResetInterval != MAP_DIFFICULTY_RESET_ANYTIME; }
@@ -3474,6 +3475,7 @@ struct QuestSortEntry
     uint32 ID;
     LocalizedString SortName;
     int8 UiOrderIndex;
+    int32 Flags;
 };
 
 struct QuestV2CliTaskEntry
@@ -4389,6 +4391,7 @@ struct TraitCondEntry
     int32 SpecSetID;
     int32 TraitNodeGroupID;
     int32 TraitNodeID;
+    int32 TraitNodeEntryID;
     int32 TraitCurrencyID;
     int32 SpentAmountRequired;
     int32 Flags;
@@ -4702,6 +4705,7 @@ struct UiMapEntry
     int32 AlternateUiMapGroup;
     int32 ContentTuningID;
     int32 AdventureMapTextureKitID;
+    int8 MapArtZoneTextPosition;
 
     EnumFlag<UiMapFlag> GetFlags() const { return static_cast<UiMapFlag>(Flags); }
 };
