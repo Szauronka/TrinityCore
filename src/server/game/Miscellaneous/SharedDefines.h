@@ -97,8 +97,8 @@ enum Expansions
     EXPANSION_BATTLE_FOR_AZEROTH       = 7,
     EXPANSION_SHADOWLANDS              = 8,
     EXPANSION_DRAGONFLIGHT             = 9,
-    MAX_EXPANSIONS,
     EXPANSION_THE_WAR_WITHIN           = 10,
+    MAX_EXPANSIONS,
 
     MAX_ACCOUNT_EXPANSIONS
 };
