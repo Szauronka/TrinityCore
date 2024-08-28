@@ -4401,6 +4401,7 @@ struct TraitCondEntry
     int32 TraitCondAccountElementID;
 
     TraitConditionType GetCondType() const { return static_cast<TraitConditionType>(CondType); }
+    EnumFlag<TraitCondFlags> GetFlags() const { return static_cast<TraitCondFlags>(Flags); }
 };
 
 struct TraitCostEntry
