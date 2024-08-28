@@ -75,7 +75,7 @@ enum LfgFlags
 /// Determines the type of instance
 enum LfgType
 {
-    LFG_TYPE_10_V10_BATTLEGROUND                 = 0,
+    LFG_TYPE_NONE                                = 0, //  10v10 Rated Battleground
     LFG_TYPE_DUNGEON                             = 1,
     LFG_TYPE_RAID                                = 2,
     LFG_TYPE_ZONE                                = 4,
@@ -90,6 +90,100 @@ enum LfgSubType
     LFG_SUB_TYPE_TIMEWALKING_RAID   = 4,
     LFG_SUB_TYPE_BATTLEFIELD        = 5,
     LFG_SUB_TYPE_BATTLEGROUND       = 6
+
+};
+
+enum EDungeonCategories
+{
+    LFG_CATEGORY_CLASSIC_NORMAL             = 258,
+    LFG_CATEGORY_BURNINGCRUSADE_NORMAL      = 259,
+    LFG_CATEGORY_BURNINGCRUSADE_HEROIC      = 260,
+    LFG_CATEGORY_LICHKING_NORMAL            = 261,
+    LFG_CATEGORY_LICHKING_HEROIC            = 262,
+    LFG_CATEGORY_CATACLYSM_NORMAL           = 300,
+    LFG_CATEGORY_CATACLYSM_HEROIC           = 301,
+    LFG_CATEGORY_HOUROFTWILIGHT_HEROIC      = 434,
+    LFG_CATEGORY_PANDARIA_NORMAL            = 463,
+    LFG_CATEGORY_PANDARIA_HEROIC            = 462,
+    LFG_CATEGORY_DRAENOR_NORMAL             = 788,
+    LFG_CATEGORY_DRAENOR_HEROIC             = 789,
+    LFG_CATEGORY_LEGION_NORMAL              = 1045,
+    LFG_CATEGORY_LEGION_HEROIC              = 1046,
+    LFG_CATEGORY_BFA_NORMAL                 = 1670,
+    LFG_CATEGORY_BFA_HEROIC                 = 1671,
+    LFG_CATEGORY_SHADOWLANDS_NORMAL         = 2086,
+    LFG_CATEGORY_SHADOWLANDS_HEROIC         = 2087,
+    LFG_CATEGORY_DRAGONFLIGHT_NORMAL        = 2350,
+    LFG_CATEGORY_DRAGONFLIGHT_HEROIC        = 2351,
+    LFG_CATEGORY_SEASONAL                   = 230,
+    LFG_CATEGORY_DARKMAULCITADEL,
+    LFG_CATEGORY_SCENARIOS,
+    LFG_CATEGORY_TIMEWALKING_RAID
+};
+
+enum EDungeonGroups
+{
+    GROUP_ALL                       = 0,
+    GROUP_CLASSIC_NORMAL            = 1,
+    GROUP_BURNINGCRUSADE_NORMAL     = 2,
+    GROUP_BURNINGCRUSADE_HEROIC     = 3,
+    GROUP_LICHKING_NORMAL           = 4,
+    GROUP_LICHKING_HEROIC           = 5,
+    GROUP_CLASSIC_RAID              = 6,
+    GROUP_BURNINGCRUSADE_RAID       = 7,
+    GROUP_LICHKING_RAID_10          = 8,
+    GROUP_LICHKING_RAID_25          = 9,
+    GROUP_WORLD_EVENTS              = 11,   // Seasonal
+    GROUP_CATACLYSM_HEROIC          = 12,
+    GROUP_CATACLYSM_NORMAL          = 13,
+    GROUP_CATACLYSM_RAID_25         = 14,
+    GROUP_CATACLYSM_RAID_10         = 15,
+    GROUP_RATED_BG                  = 20,
+    GROUP_HOUROFTWILIGHT_HEROIC     = 33,
+    GROUP_PANDARIA_HEROIC           = 36,
+    GROUP_PANDARIA_NORMAL           = 37,
+    GROUP_SCENARIOS                 = 38,
+    GROUP_PANDARIA_RAID_25          = 40,
+    GROUP_PANDARIA_RAID_10          = 41,
+    GROUP_HC_SCENARIOS              = 43,
+    GROUP_TIMEWALKING               = 44,
+    GROUP_PANDARIA_RAID_FLEX        = 45,
+    GROUP_PANDARIA_WORLD_BOSS       = 46,
+    GROUP_DRAENOR_NORMAL            = 47,
+    GROUP_DRAENOR_HEROIC            = 48,
+    GROUP_DRAENOR_RAID_NORMAL       = 49,
+    GROUP_DRAENOR_RAID_HC           = 50,
+    GROUP_DRAENOR_RAID_MYTHIC       = 51,
+    GROUP_LEGION_HEROIC             = 52,
+    GROUP_LEGION_NORMAL             = 53,
+    GROUP_LEGION_RAID_NORMAL        = 54,
+    GROUP_LEGION_RAID_HC            = 55,
+    GROUP_LEGION_RAID_MYTHIC        = 56,
+    GROUP_BFA_NORMAL                = 57,
+    GROUP_BFA_HEROIC                = 58,
+    GROUP_BFA_RAID_NORMAL           = 159,
+    GROUP_BFA_RAID_HC               = 160,
+    GROUP_BFA_RAID_MYTHIC           = 161,
+    GROUP_BFA_MYTHIC                = 162,
+    GROUP_SHADOWLANDS_MYTHIC        = 163,
+    GROUP_SHADOWLANDS_HEROIC        = 164,
+    GROUP_SHADOWLANDS_NORMAL        = 165,
+    GROUP_DARKMAULCITADEL           = 166,  // Exile's Reach
+    GROUP_SHADOWLANDS_RAID_MYTHIC   = 167,
+    GROUP_SHADOWLANDS_RAID_HC       = 168,
+    GROUP_SHADOWLANDS_RAID_NORMAL   = 169,
+    GROUP_DRAGONFLIGHT_MYTHIC       = 170,
+    GROUP_DRAGONFLIGHT_HEROIC       = 171,
+    GROUP_DRAGONFLIGHT_NORMAL       = 172,
+    GROUP_DRAGONFLIGHT_FOLLOWER     = 173,
+    GROUP_THE_WAR_WITHIN_NORMAL     = 177,
+    GROUP_THE_WAR_WITHIN_HC         = 178,
+    GROUP_PANDARIA_FOLLOWER         = 180,
+    GROUP_TIMERUNNING_DUNGEONS      = 182,
+    GROUP_TIMERUNNING_HC_DUNGEONS   = 183,
+    GROUP_TIMERUNNING_SCENARIOS     = 184,
+    GROUP_TIMERUNNING_HC_SCENARIO   = 185,
+    GROUP_TWW_HEROIC_SEASON_1       = 186 
 
 };
 
@@ -312,13 +406,16 @@ struct LFGDungeonData
     std::string name;
     uint32 map;
     uint8 type;
+    uint8 subType;
     uint8 expansion;
     uint8 group;
     uint32 contentTuningId;
     Difficulty difficulty;
+    uint32 RequiredPlayerConditionId;
     bool seasonal;
     float x, y, z, o;
     uint16 requiredItemLevel;
+    uint16 requiredChromieTime;
     uint32 finalDungeonEncounterId;
 
     // Helpers
@@ -423,7 +520,7 @@ class TC_GAME_API LFGMgr
         /// Gets the random dungeon reward corresponding to given dungeon and player level
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
         /// Returns all random and seasonal dungeons for given level and expansion
-        LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, uint32 contentTuningReplacementConditionMask);
+        LfgDungeonSet GetRandomAndSeasonalDungeons(Player const* player, uint8 expansion, uint32 contentTuningReplacementConditionMask);
         /// Teleport a player to/from selected dungeon
         void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
         /// Inits new proposal to boot a player
@@ -440,6 +537,12 @@ class TC_GAME_API LFGMgr
         void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons);
         /// Leaves lfg
         void LeaveLfg(ObjectGuid guid, bool disconnected = false);
+
+        /// Toggle to solo debug
+        void ToggleSoloLFG();
+        /// Check if debug mode
+        bool IsSoloLFG() const { return m_isSoloLFG; }
+
         /// Gets unique join queue data
         WorldPackets::LFG::RideTicket const* GetTicket(ObjectGuid guid) const;
 
@@ -498,7 +601,10 @@ class TC_GAME_API LFGMgr
         LFGQueue& GetQueue(ObjectGuid guid);
 
         LfgDungeonSet const& GetDungeonsByRandom(uint32 randomdungeon);
+        LFGDungeonsEntry GetDungeonEntry(uint32 dungeonID);
         LfgType GetDungeonType(uint32 dungeon);
+
+        LfgSubType GetLfgSubType(uint32 dungeon);
 
         void SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot const& boot);
         void SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData const& data);
@@ -513,6 +619,8 @@ class TC_GAME_API LFGMgr
         uint32 m_QueueTimer;                               /// used to check interval of update
         uint32 m_lfgProposalId;                            /// used as internal counter for proposals
         uint32 m_options;                                  /// Stores config options
+
+        bool m_isSoloLFG;                                  /// solo lfg
 
         LfgQueueContainer QueuesStore;                     /// Queues
         LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType

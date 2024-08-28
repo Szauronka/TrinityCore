@@ -21,6 +21,8 @@
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist const& blackList)
 {
+    if (blackList.ActivityID)
+        data << blackList.BlacklistEntryCount;
     data << blackList.ActivityID;
     data << blackList.Reason;
 
@@ -29,6 +31,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LfgList::LFGListBlacklist& blackList)
 {
+    Optional<uint32>BlacklistEntryCount = data.ReadBit();
+    if (blackList.ActivityID)
+        data >> blackList.BlacklistEntryCount;
     data >> blackList.ActivityID;
     data >> blackList.Reason;
     return data;
@@ -134,6 +139,10 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateBlacklist::Write()
         _worldPacket << Blacklist[i];
     }
 
+    _worldPacket << static_cast<uint32>(Blacklist.size());
+    for (auto const& map : Blacklist)
+        _worldPacket << map;
+
     return &_worldPacket;
 }
 
@@ -143,8 +152,8 @@ WorldPacket const* WorldPackets::LfgList::LfgListUpdateStatus::Write()
     _worldPacket << RemainingTime;
     _worldPacket << ResultId;
     _worldPacket << Request;
-    _worldPacket.FlushBits();
     _worldPacket.WriteBit(Listed);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -158,7 +167,6 @@ void WorldPackets::LfgList::LfgListInviteResponse::Read()
 {
     _worldPacket >> ApplicantTicket;
     Accept = _worldPacket.ReadBit();
-    _worldPacket.FlushBits();
 }
 
 void WorldPackets::LfgList::LfgListLeave::Read()

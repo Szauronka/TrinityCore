@@ -3040,6 +3040,21 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
         void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
 
+        /*********************************************************/
+        /***                  CHROMIE                          ***/
+        /*********************************************************/
+
+        void SetChromieTime(Player* player, uint16 chromieTime);
+        static uint16 GetChromieTime(Player* player);
+        std::string GetChromieTimeName(Player* player);
+        static uint8 GetChromieTimeExpansionLevel(uint8 chromieTime);
+
+        void SetChromieTimeExpansion(uint8 chromieTimeExpansion, uint16 expansionLevelMask)
+        {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::UiChromieTimeExpansionID), chromieTimeExpansion);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ExpansionLevelMask), expansionLevelMask);
+        }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

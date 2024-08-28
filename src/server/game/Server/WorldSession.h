@@ -611,6 +611,7 @@ namespace WorldPackets
         class TrainerBuySpell;
         class RequestStabledPets;
         class SetPetSlot;
+        class ChromieTimeSelectExpansion;
     }
 
     namespace Party
@@ -1313,6 +1314,8 @@ class TC_GAME_API WorldSession
 
         // repair
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
+
+        void HandleChromieTimeSelectExpansionOpcode(WorldPackets::NPC::ChromieTimeSelectExpansion& selectedExpansion);
 
         // Knockback
         void HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck);

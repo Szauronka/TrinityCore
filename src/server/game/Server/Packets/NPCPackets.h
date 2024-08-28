@@ -307,6 +307,25 @@ namespace WorldPackets
             ObjectGuid GossipGUID;
             std::vector<NPC::ClientGossipText> QuestDataText;
         };
+
+        class ChromieTimeSelectExpansion final : public ClientPacket
+        {
+        public:
+            ChromieTimeSelectExpansion(WorldPacket&& packet) : ClientPacket(CMSG_CHROMIE_TIME_SELECT_EXPANSION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GUID;
+            uint32 Expansion = 0;
+        };
+
+        class ChromieTimeSelectExpansionSuccess  final : public ServerPacket
+        {
+        public:
+            ChromieTimeSelectExpansionSuccess() : ServerPacket(SMSG_CHROMIE_TIME_SELECT_EXPANSION_SUCCESS, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

@@ -527,6 +527,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_WORLDSTATE, "INSERT IGNORE INTO worldstates (entry, value) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_WORLD_STATE, "REPLACE INTO world_state_value (Id, Value) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_WORLD_VARIABLE, "REPLACE INTO world_variable (Id, Value) VALUES (?, ?)", CONNECTION_ASYNC);
+
+    PrepareStatement(CHAR_SEL_CHROMIE_TIME, "SELECT chromieTime FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_CHROMIE_TIME, "UPDATE characters SET chromieTime = ? WHERE guid = ?", CONNECTION_ASYNC);
+
     PrepareStatement(CHAR_DEL_CHARACTER_SKILL, "DELETE FROM character_skills WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHARACTER_SOCIAL_FLAGS, "UPDATE character_social SET flags = ? WHERE guid = ? AND friend = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHARACTER_SOCIAL, "INSERT INTO character_social (guid, friend, flags) VALUES (?, ?, ?)", CONNECTION_ASYNC);

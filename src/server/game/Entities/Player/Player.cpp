@@ -29865,11 +29865,16 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         return;
     }
 
+    int32 count = 0;
+
     for (std::size_t i = 0; i < playerChoiceResponses.size(); ++i)
     {
         auto const& playerChoiceResponseTemplate = playerChoiceResponses[i];
         if (!playerChoiceResponseTemplate.ResponseId)
             return;
+        count++;
+        if (count > 4 && choiceId != 644)
+            continue;
         WorldPackets::Quest::PlayerChoiceResponse& playerChoiceResponse = displayPlayerChoice.Responses[i];
         playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
         playerChoiceResponse.ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier;
@@ -29962,7 +29967,11 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
             mawPower.MaxStacks = playerChoiceResponseTemplate.MawPower->MaxStacks;
         }
     }
+    // Resize to 4 if not Covenant Choice (covenant choice has 8 response!)
+    if (playerChoice->Responses.size() > 4 && choiceId != 644)
+        displayPlayerChoice.Responses.resize(4);
 
+    // Resize to 3 if it's Warboard Choice
     if (playerChoiceResponses.size() > 3 && (choiceId == 342 || choiceId == 352))
         displayPlayerChoice.Responses.resize(3);
 
@@ -31505,4 +31514,120 @@ bool Player::CanExecutePendingSpellCastRequest()
         return false;
 
     return true;
+}
+
+void Player::SetChromieTime(Player* player, uint16 chromieTime)
+{
+    ObjectGuid guid = player->GetGUID();
+    UIChromieTimeExpansionInfoEntry const* expansion = sUIChromieTimeExpansionInfoStore.LookupEntry(chromieTime);
+
+    if (!expansion)
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::UiChromieTimeExpansionID), CHROMIE_TIME_CURRENT);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::Field_4), player->GetTeam() == ALLIANCE ? 3 : 5);
+        //SetUpdateFieldValue(player, player->m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ContentTuningConditionMask), ?); // That's a rough one
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ExpansionLevelMask), 0);
+    }
+    else
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::UiChromieTimeExpansionID), expansion->ID);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::Field_4), player->GetTeam() == ALLIANCE ? 3 : 5);
+        //SetUpdateFieldValue(player, player->m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ContentTuningConditionMask), ?); // That's a rough one
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ExpansionLevelMask), expansion->ExpansionMask);
+    }
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHROMIE_TIME);
+    stmt->setUInt16(0, chromieTime);
+    stmt->setUInt64(1, guid.GetCounter());
+    CharacterDatabase.Execute(stmt);
+}
+
+uint16 Player::GetChromieTime(Player* player)
+{
+    ObjectGuid guid = player->GetGUID();
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHROMIE_TIME);
+    stmt->setUInt64(0, guid.GetCounter());
+    PreparedQueryResult chromieTime = CharacterDatabase.Query(stmt);
+
+    if (!chromieTime)
+        return 0;
+
+    Field* fields = chromieTime->Fetch();
+    uint16 _chromieTime = fields[0].GetUInt16();
+
+    return _chromieTime;
+}
+
+std::string Player::GetChromieTimeName(Player* player)
+{
+    uint16 chromieTime = GetChromieTime(player);
+    std::string chromieTimeName = "Unknown Chromie Time ?!";
+    switch (chromieTime)
+    {
+    case ChromieTime::CHROMIE_TIME_CURRENT:
+        chromieTimeName = "You are in the present!";
+        break;
+    case ChromieTime::CHROMIE_TIME_CATACLYSM:
+        chromieTimeName = "Cataclysm";
+        break;
+    case ChromieTime::CHROMIE_TIME_DRAENOR:
+        chromieTimeName = "Draenor";
+        break;
+    case ChromieTime::CHROMIE_TIME_BATTLE_FOR_AZEROTH:
+        chromieTimeName = "Battle For Azeroth";
+        break;
+    case ChromieTime::CHROMIE_TIME_LEGION:
+        chromieTimeName = "Legion";
+        break;
+    case ChromieTime::CHROMIE_TIME_NORTHREND:
+        chromieTimeName = "Northrend";
+        break;
+    case ChromieTime::CHROMIE_TIME_OUTLAND:
+        chromieTimeName = "Outland";
+        break;
+    case ChromieTime::CHROMIE_TIME_PANDARIA:
+        chromieTimeName = "Pandaria";
+        break;
+    case ChromieTime::CHROMIE_TIME_SHADOWLANDS:
+        chromieTimeName = "Shadowlands";
+        break;
+    case ChromieTime::CHROMIE_TIME_DRAGONFLIGHT:
+        chromieTimeName = "DragonFlight";
+        break;
+    }
+    return chromieTimeName;
+}
+
+uint8 Player::GetChromieTimeExpansionLevel(uint8 chromieTime)
+{
+    switch (chromieTime)
+    {
+    case ChromieTime::CHROMIE_TIME_OUTLAND:
+        return EXPANSION_THE_BURNING_CRUSADE;
+        break;
+    case ChromieTime::CHROMIE_TIME_NORTHREND:
+        return EXPANSION_WRATH_OF_THE_LICH_KING;
+        break;
+    case ChromieTime::CHROMIE_TIME_CATACLYSM:
+        return EXPANSION_CATACLYSM;
+        break;
+    case ChromieTime::CHROMIE_TIME_PANDARIA:
+        return EXPANSION_MISTS_OF_PANDARIA;
+        break;
+    case ChromieTime::CHROMIE_TIME_DRAENOR:
+        return EXPANSION_WARLORDS_OF_DRAENOR;
+        break;
+    case ChromieTime::CHROMIE_TIME_LEGION:
+        return EXPANSION_LEGION;
+        break;
+    case ChromieTime::CHROMIE_TIME_SHADOWLANDS:
+        return EXPANSION_SHADOWLANDS;
+        break;
+    case ChromieTime::CHROMIE_TIME_DRAGONFLIGHT:
+        return EXPANSION_DRAGONFLIGHT;
+    case ChromieTime::CHROMIE_TIME_CURRENT: // The War Within
+    default:
+        return EXPANSION_THE_WAR_WITHIN;
+        break;
+    }
 }

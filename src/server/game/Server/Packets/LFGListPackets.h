@@ -32,6 +32,7 @@ namespace WorldPackets
         {
             uint32 ActivityID = 0;
             uint32 Reason = 0;
+            uint32 BlacklistEntryCount = 0;
         };
 
         struct ApplicationToGroup

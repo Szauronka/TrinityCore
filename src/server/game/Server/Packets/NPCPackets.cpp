@@ -285,4 +285,10 @@ WorldPacket const* GossipQuestUpdate::Write()
         _worldPacket << text;
     return &_worldPacket;
 }
+
+void ChromieTimeSelectExpansion::Read()
+{
+    _worldPacket >> GUID;
+    _worldPacket >> Expansion;
+}
 }

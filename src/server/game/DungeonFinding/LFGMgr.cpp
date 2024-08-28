@@ -39,27 +39,27 @@
 #include "WorldSession.h"
 #include <sstream>
 #include "Containers.h"
+#include "ConditionMgr.h"
 
 namespace lfg
 {
 
 LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), contentTuningId(0),
-    difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0)
+    difficulty(DIFFICULTY_NONE), RequiredPlayerConditionId(0), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), requiredChromieTime(0), finalDungeonEncounterId(0)
 {
 }
 
 LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
-    type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
-    contentTuningId(uint32(dbc->ContentTuningID)), difficulty(Difficulty(dbc->DifficultyID)),
-    seasonal((dbc->Flags[0] & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-    requiredItemLevel(0), finalDungeonEncounterId(0)
+        type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
+        RequiredPlayerConditionId(uint32(dbc->RequiredPlayerConditionId)), contentTuningId(uint32(dbc->ContentTuningID)), difficulty(Difficulty(dbc->DifficultyID)),
+        seasonal((dbc->Flags[0] & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
+        requiredItemLevel(0), requiredChromieTime(0), finalDungeonEncounterId(0)
 {
-    if (JournalEncounterEntry const* journalEncounter = sJournalEncounterStore.LookupEntry(dbc->FinalEncounterID))
-        finalDungeonEncounterId = journalEncounter->DungeonEncounterID;
 }
 
 LFGMgr::LFGMgr() : m_QueueTimer(0), m_lfgProposalId(1),
-    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
+    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK)),
+    m_isSoloLFG(false)
 {
 }
 
@@ -493,28 +493,35 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
         bool isScenario = false;
         for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end() && joinData.result == LFG_JOIN_OK; ++it)
         {
-            LfgType type = GetDungeonType(*it);
-            switch (type)
+            LFGDungeonsEntry dungeon = LFGMgr::GetDungeonEntry(*it);
+            LfgType type = GetDungeonType(dungeon.TypeID);
+            LfgSubType subType = GetLfgSubType(dungeon.Subtype);
+
+            if (type == LFG_TYPE_DUNGEON && subType == LFG_SUB_TYPE_DUNGEON) ///  < Dungeons (Wailing Caverns, The Everbloom, Ruby Life Pools etc..) >
             {
-            case LFG_TYPE_RANDOM:
-                if (dungeons.size() > 1)               // Only allow 1 random dungeon
-                    joinData.result = LFG_JOIN_INVALID_SLOT;
-                else
-                    rDungeonId = (*dungeons.begin());
-                [[fallthrough]]; // Random can only be dungeon or heroic dungeon
-            case LFG_TYPE_DUNGEON:
                 if (isRaid)
                     joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
                 isDungeon = true;
-                break;
-            case LFG_TYPE_RAID:
+            }
+
+            if (type == LFG_TYPE_DUNGEON && subType == LFG_SUB_TYPE_TIMEWALKING_RAID) /// <  ( Timewalking Raid: Black Temple, Timewalking Raid: Ulduar, Timewalking Raid: Firelands) >
+            {
+                // Only allow 1 raid
+                if (dungeons.size() > 1)
+                    joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
+                isRaid = true;
+            }
+
+            if (type == LFG_TYPE_RAID && subType == LFG_SUB_TYPE_LFR) /// < ( RAIDS ) >
+            {
                 if (isDungeon)
                     joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
                 isRaid = true;
-                break;
-            default:
-                joinData.result = LFG_JOIN_INVALID_SLOT;
-                break;
+            }
+
+            if (type == LFG_TYPE_RANDOM && subType == LFG_SUB_TYPE_DUNGEON) /// < Dungeon Categories ( Random Classic Dungeon, Random Timewalking Dungeon (Burning Crusade), Random Heroic (Dragonflight) etc.. ) >
+            {
+                rDungeonId = *dungeons.begin(); // rDungeonId will be the category if we joined to random
             }
         }
 
@@ -654,11 +661,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
 
         if (!isContinue)
         {
-            if (rDungeonId)
-            {
-                dungeons.clear();
-                dungeons.insert(rDungeonId);
-            }
             SetSelectedDungeons(guid, dungeons);
         }
         // Send update to player
@@ -1655,7 +1657,97 @@ LfgDungeonSet const& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
 {
     LFGDungeonData const* dungeon = GetLFGDungeon(randomdungeon);
     uint32 group = dungeon ? dungeon->group : 0;
+    switch (randomdungeon)
+    {
+    case LFG_CATEGORY_CLASSIC_NORMAL:
+        group = GROUP_CLASSIC_NORMAL;
+        break;
+    case LFG_CATEGORY_BURNINGCRUSADE_NORMAL:
+        group = GROUP_BURNINGCRUSADE_NORMAL;
+        break;
+    case LFG_CATEGORY_BURNINGCRUSADE_HEROIC:
+        group = GROUP_BURNINGCRUSADE_HEROIC;
+        break;
+    case LFG_CATEGORY_LICHKING_NORMAL:
+        group = GROUP_LICHKING_NORMAL;
+        break;
+    case LFG_CATEGORY_LICHKING_HEROIC:
+        group = GROUP_LICHKING_HEROIC;
+        break;
+    case LFG_CATEGORY_CATACLYSM_NORMAL:
+        group = GROUP_CATACLYSM_NORMAL;
+        break;
+    case LFG_CATEGORY_CATACLYSM_HEROIC:
+        group = GROUP_CATACLYSM_HEROIC;
+        break;
+    case LFG_CATEGORY_HOUROFTWILIGHT_HEROIC:
+        group = GROUP_HOUROFTWILIGHT_HEROIC;
+        break;
+    case LFG_CATEGORY_PANDARIA_NORMAL:
+        group = GROUP_PANDARIA_NORMAL;
+        break;
+    case LFG_CATEGORY_PANDARIA_HEROIC:
+        group = GROUP_PANDARIA_HEROIC;
+        break;
+    case LFG_CATEGORY_DRAENOR_NORMAL:
+        group = GROUP_DRAENOR_NORMAL;
+        break;
+    case LFG_CATEGORY_DRAENOR_HEROIC:
+        group = GROUP_DRAENOR_HEROIC;
+        break;
+    case LFG_CATEGORY_LEGION_NORMAL:
+        group = GROUP_LEGION_NORMAL;
+        break;
+    case LFG_CATEGORY_LEGION_HEROIC:
+        group = GROUP_LEGION_HEROIC;
+        break;
+    case LFG_CATEGORY_BFA_NORMAL:
+        group = GROUP_BFA_NORMAL;
+        break;
+    case LFG_CATEGORY_BFA_HEROIC:
+        group = GROUP_BFA_HEROIC;
+        break;
+    case LFG_CATEGORY_SHADOWLANDS_NORMAL:
+        group = GROUP_SHADOWLANDS_NORMAL;
+        break;
+    case LFG_CATEGORY_SHADOWLANDS_HEROIC:
+        group = GROUP_SHADOWLANDS_HEROIC;
+        break;
+    case LFG_CATEGORY_DRAGONFLIGHT_NORMAL:
+        group = GROUP_DRAGONFLIGHT_NORMAL;
+        break;
+    case LFG_CATEGORY_DRAGONFLIGHT_HEROIC:
+        group = GROUP_DRAGONFLIGHT_HEROIC;
+        break;
+    case LFG_CATEGORY_SEASONAL:
+        group = GROUP_WORLD_EVENTS;
+        break;
+    case LFG_CATEGORY_DARKMAULCITADEL:
+        group = GROUP_DARKMAULCITADEL;
+        break;
+    case LFG_CATEGORY_SCENARIOS:
+    case LFG_CATEGORY_TIMEWALKING_RAID:
+        group = GROUP_SCENARIOS;
+        break;
+    default:
+        group = GROUP_ALL;
+        break;
+    }
+
     return CachedDungeonMapStore[group];
+}
+
+LFGDungeonsEntry LFGMgr::GetDungeonEntry(uint32 dungeonID)
+{
+    LFGDungeonsEntry dungeon;
+
+    for (LFGDungeonsEntry const* _dungeon : sLFGDungeonsStore)
+    {
+        if (_dungeon->ID == dungeonID)
+            dungeon = *_dungeon;
+    }
+
+    return dungeon;
 }
 
 /**
@@ -1693,6 +1785,14 @@ LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
         return LFG_TYPE_DUNGEON;
 
     return LfgType(dungeon->type);
+}
+
+LfgSubType LFGMgr::GetLfgSubType(uint32 dungeonId)
+{
+    LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId);
+    if (!dungeon)
+        return LFG_SUB_TYPE_DUNGEON;
+    return LfgSubType(dungeon->subType);
 }
 
 LfgState LFGMgr::GetState(ObjectGuid guid)
@@ -1815,12 +1915,12 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
 
     uint8 level = player->GetLevel();
     uint8 expansion = player->GetSession()->GetExpansion();
+    uint8 playerSelectedExpansion = Player::GetChromieTimeExpansionLevel(Player::GetChromieTime(player));
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
-    for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end(); ++it)
+    for (LFGDungeonsEntry const* dungeon : sLFGDungeonsStore)
     {
-        LFGDungeonData const* dungeon = GetLFGDungeon(*it);
         if (!dungeon) // should never happen - We provide a list from sLfgDungeonsStore
             continue;
 
@@ -1828,26 +1928,35 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
         {
             if (denyJoin)
                 return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (dungeon->expansion > expansion)
+            if (dungeon->ExpansionLevel > expansion)
                 return LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
+            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->MapID, player))
                 return LFG_LOCKSTATUS_NOT_IN_SEASON;
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
+            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->MapID, player))
                 return LFG_LOCKSTATUS_RAID_LOCKED;
             /*if (sInstanceLockMgr.FindActiveInstanceLock(guid, {dungeon->map, Difficulty(dungeon->difficulty)}))
                 return LFG_LOCKSTATUS_RAID_LOCKED;*/
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Player::GetChromieTime(player) > CHROMIE_TIME_CURRENT && dungeon->ExpansionLevel != playerSelectedExpansion)
+            {
+                return lfg::LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
+            }
+
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
             {
                 if (levels->MinLevel > level)
                     return LFG_LOCKSTATUS_TOO_LOW_LEVEL;
                 if (levels->MaxLevel < level)
                     return LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
             }
-            if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
-                return LFG_LOCKSTATUS_NOT_IN_SEASON;
-            if (dungeon->requiredItemLevel > player->GetAverageItemLevel())
+
+            if ((dungeon->Flags[0] & lfg::LFG_FLAG_SEASONAL) && !sLFGMgr->IsSeasonActive(dungeon->ID))
+            {
+                return lfg::LFG_LOCKSTATUS_NOT_IN_SEASON;
+            }
+
+            if (dungeon->MentorItemLevel > player->GetAverageItemLevel())
                 return LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
-            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
             {
                 if (ar->achievement && !player->HasAchieved(ar->achievement))
                     return LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
@@ -1865,7 +1974,7 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                     return LFG_LOCKSTATUS_MISSING_ITEM;
             }
 
-            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
             {
                 if (ar->levelMin != 0 && ar->levelMin > player->GetLevel())
                     lockStatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
@@ -1873,7 +1982,7 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                     lockStatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
             }
 
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, 0))
             {
                 if (levels->MinLevel != 0 && levels->MinLevel > player->GetLevel())
                     lockStatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
@@ -1889,8 +1998,18 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
             return 0;
         }();
 
-        if (lockStatus)
-            lock[dungeon->Entry()] = LfgLockInfoData(lockStatus, dungeon->requiredItemLevel, player->GetAverageItemLevel());
+       if (lockStatus)
+        {
+            switch (lockStatus)
+            {
+            case lfg::LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION:
+                lock[dungeon->Entry()] = lfg::LfgLockInfoData(lockStatus, dungeon->MinGear, player->GetAverageItemLevel(), true);
+                break;
+            default:
+                lock[dungeon->Entry()] = lfg::LfgLockInfoData(lockStatus, dungeon->MinGear, player->GetAverageItemLevel(), false);
+                break;
+            }
+        }
     }
 
     return lock;
@@ -2200,6 +2319,11 @@ bool LFGMgr::AllQueued(GuidList const& check)
     return true;
 }
 
+void LFGMgr::ToggleSoloLFG()
+{
+    m_isSoloLFG = !m_isSoloLFG;
+}
+
 time_t LFGMgr::GetQueueJoinTime(ObjectGuid guid)
 {
     uint8 queueId = GetQueueId(guid);
@@ -2327,17 +2451,26 @@ uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
     return 0;
 }
 
-LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, uint32 contentTuningReplacementConditionMask)
+LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(Player const* player, uint8 expansion, uint32 contentTuningReplacementConditionMask)
 {
+    uint8 level = player->GetLevel();
     LfgDungeonSet randomDungeons;
+
     for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
     {
         lfg::LFGDungeonData const& dungeon = itr->second;
-        if (!(dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id))))
+
+        if (!(dungeon.type == LFG_TYPE_DUNGEON
+            || dungeon.type == LFG_TYPE_RANDOM
+            || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id))))
             continue;
 
         if (dungeon.expansion > expansion)
             continue;
+
+        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(dungeon.RequiredPlayerConditionId))
+            if (!ConditionMgr::IsPlayerMeetingCondition(player, condition))
+                continue;
 
         if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon.contentTuningId, contentTuningReplacementConditionMask))
             if (levels->MinLevel > level || level > levels->MaxLevel)

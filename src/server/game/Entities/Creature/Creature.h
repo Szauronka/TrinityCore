@@ -46,6 +46,20 @@ struct VendorItemCount
     time_t lastIncrementTime;
 };
 
+enum ChromieTime : int32
+{
+    CHROMIE_TIME_CURRENT                = 0,
+    CHROMIE_TIME_CATACLYSM              = 5,
+    CHROMIE_TIME_OUTLAND                = 6,
+    CHROMIE_TIME_NORTHREND              = 7,
+    CHROMIE_TIME_PANDARIA               = 8,
+    CHROMIE_TIME_DRAENOR                = 9,
+    CHROMIE_TIME_LEGION                 = 10,
+    CHROMIE_TIME_SHADOWLANDS            = 14,
+    CHROMIE_TIME_BATTLE_FOR_AZEROTH     = 15,
+    CHROMIE_TIME_DRAGONFLIGHT           = 16
+};
+
 typedef std::list<VendorItemCount> VendorItemCounts;
 
 // max different by z coordinate for creature aggro reaction
@@ -470,6 +484,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void InitializeInteractSpellId();
         void SetInteractSpellId(int32 interactSpellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::InteractSpellID), interactSpellId); }
+
+        static void SetChromieTime(Player* player, uint16 chromieTime);
+        static uint16 GetChromieTime(Player* player);
+        static std::string GetChromieTimeName(Player* player);
+        static uint8 GetChromieTimeExpansionLevel(uint8 chromieTime);
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
