@@ -14312,8 +14312,6 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
             break;
         case GossipOptionNpc::GarrisonRecruitment: // NYI
             break;
-        case GossipOptionNpc::ChromieTimeNpc: // NYI
-            break;
         case GossipOptionNpc::RuneforgeLegendaryCrafting: // NYI
             break;
         case GossipOptionNpc::RuneforgeLegendaryUpgrade: // NYI
@@ -19816,7 +19814,6 @@ void Player::_LoadWorldQuestStatus(PreparedQueryResult result)
         } while (result->NextRow());
     }
 }
-
 
 void Player::_LoadSpells(PreparedQueryResult result, PreparedQueryResult favoritesResult)
 {
@@ -31637,9 +31634,64 @@ uint8 Player::GetChromieTimeExpansionLevel(uint8 chromieTime)
         break;
     case ChromieTime::CHROMIE_TIME_DRAGONFLIGHT:
         return EXPANSION_DRAGONFLIGHT;
+        break;
+    case ChromieTime::CHROMIE_TIME_BATTLE_FOR_AZEROTH:
+        return EXPANSION_BATTLE_FOR_AZEROTH;
+        break;
     case ChromieTime::CHROMIE_TIME_CURRENT: // The War Within
     default:
         return EXPANSION_THE_WAR_WITHIN;
         break;
     }
 }
+
+Item* Player::GetEquippedItem(EquipmentSlots slot) const
+{
+    return GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+}
+
+float Player::GetAverageItemLevelEquipped() const
+{
+    uint32 levelSum = 0;
+    uint32 count = 0;
+    bool has2hInMain = false;
+    uint32 invType = INVTYPE_NON_EQUIP;
+
+    if (Item* item = GetEquippedItem(EQUIPMENT_SLOT_MAINHAND))
+        invType = item->GetTemplate()->GetInventoryType();
+
+    if (GetClass() == CLASS_HUNTER)
+        has2hInMain = invType == INVTYPE_RANGED || invType == INVTYPE_RANGEDRIGHT;
+    else
+        has2hInMain = invType == INVTYPE_2HWEAPON;
+
+    bool hasOffHand = GetEquippedItem(EQUIPMENT_SLOT_OFFHAND) != nullptr;
+
+    for (EquipmentSlots i = EQUIPMENT_SLOT_HEAD; i < EQUIPMENT_SLOT_TABARD; i = (EquipmentSlots)(int(i) + 1))
+    {
+        if (i == EQUIPMENT_SLOT_BODY) // skip shirt
+            continue;
+        if (i == EQUIPMENT_SLOT_RANGED) // ranged slot was removed in MOP
+            continue;
+
+        if (Item* item = GetEquippedItem(i))
+        {
+            uint32 ilvl = item->GetItemLevel(this);
+            if (i == EQUIPMENT_SLOT_MAINHAND && has2hInMain && !hasOffHand)
+            {
+                ilvl += ilvl;
+                count++;
+            }
+
+            levelSum += ilvl;
+        }
+        count++;
+
+        if (has2hInMain && !hasOffHand && i == EQUIPMENT_SLOT_OFFHAND)
+            count--;
+    }
+    uint32 iLevel = levelSum / (count ? count : 1);
+
+    return iLevel;
+}
+

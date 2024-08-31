@@ -453,6 +453,20 @@ enum DrunkenState
 
 #define MAX_DRUNKEN   4
 
+enum ChromieTime : int32
+{
+    CHROMIE_TIME_CURRENT             = 0,
+    CHROMIE_TIME_CATACLYSM           = 5,
+    CHROMIE_TIME_OUTLAND             = 6,
+    CHROMIE_TIME_NORTHREND           = 7,
+    CHROMIE_TIME_PANDARIA            = 8,
+    CHROMIE_TIME_DRAENOR             = 9,
+    CHROMIE_TIME_LEGION              = 10,
+    CHROMIE_TIME_SHADOWLANDS         = 14,
+    CHROMIE_TIME_BATTLE_FOR_AZEROTH  = 15,
+    CHROMIE_TIME_DRAGONFLIGHT        = 16
+};
+
 enum PlayerFlags
 {
     PLAYER_FLAGS_GROUP_LEADER           = 0x00000001,
@@ -1089,6 +1103,14 @@ struct ChallengeAffix
     uint32 affix_4 = 0;
 };
 
+enum PlayerAvgItemLevelOffsets
+{
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED_AND_BAG   = 0,
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED           = 1,
+    PLAYER_AVG_ITEM_LEVEL_NON_PVP            = 2,
+    PLAYER_AVG_ITEM_LEVEL_PVP                = 3
+};
+
 /// Holder for Battleground data
 struct BGData
 {
@@ -1610,6 +1632,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void AddArmorProficiency(uint32 newflag) { m_ArmorProficiency |= newflag; }
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
         uint32 GetArmorProficiency() const { return m_ArmorProficiency; }
+        Item* GetEquippedItem(EquipmentSlots slot) const;
         bool IsUseEquipedWeapon(bool mainhand) const;
         bool IsTwoHandUsed() const;
         bool IsUsingTwoHandedWeaponInOneHand() const;
@@ -2902,6 +2925,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
                 .ModifyValue(&UF::RestInfo::Threshold), threshold);
         }
 
+        float GetAverageItemLevelEquipped() const;
+
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
 
         bool MeetPlayerCondition(uint32 conditionId) const;
@@ -3218,6 +3243,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 m_ExtraFlags;
 
         WorldQuestStatusMap m_worldquests;
+
+        int32 m_chromieTime;
+
         QuestStatusMap m_QuestStatus;
         QuestObjectiveStatusMap m_questObjectiveStatus;
         QuestStatusSaveMap m_QuestStatusSave;

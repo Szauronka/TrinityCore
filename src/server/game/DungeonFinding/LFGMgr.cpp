@@ -1719,15 +1719,23 @@ LfgDungeonSet const& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
     case LFG_CATEGORY_DRAGONFLIGHT_HEROIC:
         group = GROUP_DRAGONFLIGHT_HEROIC;
         break;
-    case LFG_CATEGORY_SEASONAL:
-        group = GROUP_WORLD_EVENTS;
+    case LFG_CATEGORY_SCENARIO_PANDARIA_HC:
+        group = GROUP_TIMERUNNING_HC_SCENARIO;
         break;
-    case LFG_CATEGORY_DARKMAULCITADEL:
-        group = GROUP_DARKMAULCITADEL;
+    case LFG_CATEGORY_SCENARIO_PANDARIA_NORMAL:
+        group = GROUP_TIMERUNNING_SCENARIOS;
         break;
-    case LFG_CATEGORY_SCENARIOS:
-    case LFG_CATEGORY_TIMEWALKING_RAID:
-        group = GROUP_SCENARIOS;
+    case LFG_CATEGORY_TIMERUNNING_PANDARIA:
+        group = GROUP_TIMEWALKING;
+        break;
+    case LFG_CATEGORY_TWW_NORMAL_DUNGEON:
+        group = GROUP_THE_WAR_WITHIN_NORMAL;
+        break;
+    case LFG_CATEGORY_TWW_HEROIC_DUNGEON:
+        group = GROUP_THE_WAR_WITHIN_HC;
+        break;
+    case LFG_CATEGORY_TWW_MYTHIC_DUNGEON:
+        group = GROUP_TWW_HEROIC_SEASON_1;
         break;
     default:
         group = GROUP_ALL;
@@ -1916,7 +1924,7 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
     uint8 level = player->GetLevel();
     uint8 expansion = player->GetSession()->GetExpansion();
     uint8 playerSelectedExpansion = Player::GetChromieTimeExpansionLevel(Player::GetChromieTime(player));
-    LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
+    uint32 contentTuningReplacementConditionMask = player->m_playerData->CtrOptions->ContentTuningConditionMask;
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
     for (LFGDungeonsEntry const* dungeon : sLFGDungeonsStore)
@@ -1941,7 +1949,7 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return lfg::LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
             }
 
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, contentTuningReplacementConditionMask))
             {
                 if (levels->MinLevel > level)
                     return LFG_LOCKSTATUS_TOO_LOW_LEVEL;

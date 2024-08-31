@@ -5948,7 +5948,7 @@ void Spell::EffectCreatePrivateConversation()
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Conversation::CreateConversation(effectInfo->MiscValue, unitTarget, destTarget->GetPosition(), unitTarget->GetGUID(), GetSpellInfo());
+    Conversation::CreateConversation(effectInfo->MiscValue, unitTarget, destTarget->GetPosition(), unitTarget->GetGUID(), GetSpellInfo(), true);
 }
 
 void Spell::EffectSendChatMessage()
@@ -5993,11 +5993,18 @@ void Spell::EffectSetChromieTime()
         return;
 
     if (!effectInfo->MiscValue)
+    {
         caster->SetChromieTimeExpansion(0, 0); // Selected the Present
+        caster->SetChromieTime(caster, effectInfo->MiscValue); // Set the time on the database too not just in the UF
+    }
     else
     {
         UIChromieTimeExpansionInfoEntry const* expansion = sUIChromieTimeExpansionInfoStore.LookupEntry(effectInfo->MiscValue);
+        if (!expansion)
+            return;
+
         caster->SetChromieTimeExpansion(expansion->ID, expansion->ExpansionMask);
+        caster->SetChromieTime(caster, effectInfo->MiscValue);
     }
 }
 

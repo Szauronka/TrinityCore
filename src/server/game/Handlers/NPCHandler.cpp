@@ -422,6 +422,9 @@ void WorldSession::HandleChromieTimeSelectExpansionOpcode(WorldPackets::NPC::Chr
     //uint32 conversationId = 0;
     switch (selectedExpansion.Expansion)
     {
+    case 0:
+        _player->CastSpell(_player, 335595, true);
+        break;
     case 5:
         _player->CastSpell(_player, 325537, true);  //Selected Cataclysm
         questId = 60891;
@@ -459,8 +462,14 @@ void WorldSession::HandleChromieTimeSelectExpansionOpcode(WorldPackets::NPC::Chr
         break;
     case 15:
         _player->CastSpell(_player, 420123, true); // Selected Battle For Azeroth
+        questId = 46727;
+        //conversationId = 26049;
+        break;
     case 16:
         _player->CastSpell(_player, 452212, true); // Selected DragonFlight
+        questId = 65435;
+        //conversationId = 26050;
+        break;
     default:
         break;
     }
@@ -470,7 +479,6 @@ void WorldSession::HandleChromieTimeSelectExpansionOpcode(WorldPackets::NPC::Chr
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
                 if (Creature* chromie = ObjectAccessor::GetCreature(*_player, selectedExpansion.GUID))
                     _player->AddQuest(quest, chromie);
-
 
     WorldPackets::NPC::ChromieTimeSelectExpansionSuccess expansionSuccess;
     SendPacket(expansionSuccess.Write());
