@@ -316,15 +316,16 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* ap
     switch (status)
     {
     case LFGListApplicationStatus::Invited:
-        if (!listEntry->ApplicationGroup->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(listEntry) >= 5 || player && CanQueueFor(listEntry, player) != LFGListStatus::None)
+        if (!listEntry->ApplicationGroup->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(listEntry) >= 5 || player && CanQueueFor(listEntry, player) != LFGListStatus::None) { }
             break;
+
     case LFGListApplicationStatus::Applied:
         application->ResetTimeout();
         listEntry->ResetTimeout();
 
         if (notify && player)
             SendLfgListApplyForGroupResult(listEntry, application, player);
-        break;
+            break;
     case LFGListApplicationStatus::InviteDeclined:
     case LFGListApplicationStatus::Declined:
     case LFGListApplicationStatus::Cancelled:
@@ -433,7 +434,7 @@ LFGListStatus LFGListMgr::CanQueueFor(LFGListEntry* entry, Player* requestingPla
     return LFGListStatus::None;
 }
 
-bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry* activity) const
+bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry const* activity) const
 {
     if (!activity)
         return false;
@@ -469,12 +470,16 @@ bool LFGListMgr::IsActivityDungeon(GroupFinderActivityEntry* activity) const
     }
 }
 
-float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry* /*activity*/, Player* player) const
+float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* activity, Player* player) const
 {
     if (player == nullptr)
         return 0.0f;
 
-   //return player->GetAverageItemLevelEquipped() + (IsActivityPvP(activity) ? PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_PVP : PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_NON_PVP);
+    float avgItemLevel = player->GetAverageItemLevelEquipped();
+
+    float activityOffset = static_cast<float>(IsActivityPvP(activity) ? PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_PVP : PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_NON_PVP);
+
+    return avgItemLevel + activityOffset;
 }
 
 float LFGListMgr::GetLowestItemLevelInGroup(LFGListEntry* entry) const
@@ -533,6 +538,8 @@ void LFGListMgr::SendLfgListJoinResult(LFGListEntry const* entry, LFGListStatus 
 
 void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LFGListEntry::LFGListApplicationEntry const* application, Player* player)
 {
+    uint8 role = 0;
+
     if (!player)
         return;
 
@@ -583,7 +590,7 @@ void LFGListMgr::SendLfgListApplyForGroupResult(LFGListEntry const* lfgEntry, LF
 
     for (auto const& member : group->GetMemberSlots())
     {
-        uint8 role = member.roles >= 2 ? std::log2(member.roles) - 1 : member.roles;
+        role = member.roles >= 2 ? std::log2(member.roles) - 1 : member.roles;
         responce.SearchResult.Members.emplace_back(member._class, member.roles);
     }
     for (auto const& member : lfgEntry->ApplicationsContainer)

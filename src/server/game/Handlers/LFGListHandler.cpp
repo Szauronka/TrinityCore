@@ -103,7 +103,7 @@ void WorldSession::HandleLfgListSearch(WorldPackets::LfgList::LfgListSearch& pac
 void WorldSession::HandleLfgListJoin(WorldPackets::LfgList::LfgListJoin& packet)
 {
     auto list = new LFGListEntry;
-    list->GroupFinderActivityData == sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
+    list->GroupFinderActivityData = sGroupFinderActivityStore.LookupEntry(packet.Request.ActivityID);
     list->ItemLevel = packet.Request.ItemLevel;
     list->HonorLevel = packet.Request.HonorLevel;
     list->GroupName = packet.Request.GroupName;

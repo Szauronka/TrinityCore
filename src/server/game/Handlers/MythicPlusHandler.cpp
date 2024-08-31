@@ -88,6 +88,8 @@ void WorldSession::HandleResetChallengeMode(WorldPackets::MythicPlus::ResetChall
 
 void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChallengeMode& packet)
 {
+    uint32 challengeLevel = 0;
+    uint32 challengeId = 0;
     Player* owner = GetPlayer();
 
     if (!owner)
@@ -103,8 +105,8 @@ void WorldSession::HandleStartChallengeMode(WorldPackets::MythicPlus::StartChall
     if (!keystone)
         return;
 
-    uint32 challengeId = keystone->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
-    uint32 challengeLevel = keystone->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL);
+    challengeId = keystone->GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID);
+    challengeLevel = keystone->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL);
 
     Group* group = owner->GetGroup();
 
@@ -206,7 +208,7 @@ void WorldSession::HandleRequestLeaders(WorldPackets::MythicPlus::RequestLeaders
     SendPacket(result.Write());
 }
 
-void WorldSession::SendWeeklyRewardsRequests(WorldPackets::Misc::RequestWeeklyRewards& weeklyRewards)
+void WorldSession::SendWeeklyRewardsRequests(WorldPackets::Misc::RequestWeeklyRewards& /*weeklyRewards*/)
 {
     WorldPackets::MythicPlus::Rewards weeklyResult;
 

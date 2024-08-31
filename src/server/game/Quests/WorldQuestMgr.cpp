@@ -384,12 +384,13 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* worldQuestTemplate)
 
 void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest, bool deleteFromMap/* = true*/)
 {
+    uint32 questID = activeWorldQuest->QuestId;
     Quest const* quest = sObjectMgr->GetQuestTemplate(activeWorldQuest->QuestId);
     if (!quest)
         return;
 
     // Can't disable non active world quests
-    if (!IsQuestActive(activeWorldQuest->QuestId))
+    if (!IsQuestActive(questID))
         return;
 
     // Remove to connected quest status/rewarded and criteria for the next world quest fill
@@ -426,12 +427,16 @@ void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest, bool delete
 
     delete activeWorldQuest;
     if (deleteFromMap)
-        _activeWorldQuests.erase(activeWorldQuest->QuestId);
+        _activeWorldQuests.erase(questID);
 }
 
 bool WorldQuestMgr::IsQuestActive(uint32 questId)
 {
-    return GetActiveWorldQuest(questId) != nullptr;
+    ActiveWorldQuest const* activeWorldQuest = sWorldQuestMgr->GetActiveWorldQuest(questId);
+    if (!activeWorldQuest)
+        return false;
+
+    return true;
 }
 
 void WorldQuestMgr::RewardQuestForPlayer(Player* player, uint32 questId)
@@ -695,10 +700,6 @@ void WorldQuestMgr::RefreshEmissaryQuests()
                 ActivateQuest(it.second);
         }
     }
-}
-
-void WorldQuestMgr::GetAreaPoiID(ActiveWorldQuestMap activeWorldQuests, AreaPOIEntry areaPoi)
-{
 }
 
 void WorldQuestMgr::AddEmissaryQuestsOnPlayerIfNeeded(Player* player)

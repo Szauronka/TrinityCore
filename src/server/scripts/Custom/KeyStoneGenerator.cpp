@@ -24,7 +24,7 @@ struct KeyStoneGenerator_npc : public ScriptedAI
         return true;
     }
 
-    bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+    bool OnGossipSelect(Player* player, uint32 /*sender*/ , uint32 action) override
     {
         switch (action)
         {

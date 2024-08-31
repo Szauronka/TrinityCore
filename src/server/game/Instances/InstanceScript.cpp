@@ -682,22 +682,12 @@ void InstanceScript::GetScenarioByID(uint32 p_ScenarioId)
         TC_LOG_DEBUG("scripts", "InstanceScript: GetScenarioByID failed");
 }
 
-void InstanceScript::DoOnPlayers(std::function<void(Player*)>&& function)
-{
-    Map::PlayerList const& plrList = instance->GetPlayers();
-
-    if (!plrList.isEmpty())
-        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-            if (Player* player = i->GetSource())
-                function(player);
-}
-
 void InstanceScript::AfterChallengeModeStarted()
 {
     if (_challengeModeScenario.has_value())
     {
         uint32 scenarioId = *_challengeModeScenario;
-        DoOnPlayers([this, scenarioId](Player* player)
+        instance->DoOnPlayers([this, scenarioId](Player* /*player*/)
             {
                 GetScenarioByID(scenarioId);
             });
@@ -777,7 +767,7 @@ void InstanceScript::StartChallengeMode(uint8 modeid, uint8 level, uint8 affix1,
 
     SendChallengeModeStart();
 
-    DoOnPlayers([this, level](Player* player)
+    instance->DoOnPlayers([this, level](Player* player)
     {
         CastChallengePlayerSpell(player);
         // HOOK to PLAYERSCRIPT
@@ -1022,13 +1012,13 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
         return;
     }
 
-    DoOnPlayers([achievementEntry](Player* player)
+    instance->DoOnPlayers([achievementEntry](Player* player)
         {
             player->CompletedAchievement(achievementEntry);
         });
 }
 
-void InstanceScript::SendMythicPlusMapStatsUpdate(Player* player, uint32 challengeId, uint32 recordTime) const
+void InstanceScript::SendMythicPlusMapStatsUpdate(Player* player, uint32 challengeId, uint32 /*recordTime*/) const
 {
     ChallengeByMap* bestMap = sChallengeModeMgr->BestForMember(player->GetGUID());
     if (!bestMap)
@@ -1064,7 +1054,7 @@ void InstanceScript::CompleteChallengeMode()
     for (uint8 i = 0; i < 3; ++i)
         if (uint32(mapChallengeModeEntry->CriteriaCount[i]) > totalDuration)
             ++mythicIncrement;
-    DoOnPlayers([this, mythicIncrement](Player* player)
+    instance->DoOnPlayers([this, mythicIncrement](Player* player)
         {
             player->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), std::max(_challengeModeLevel + mythicIncrement, 2));
         });
@@ -1115,7 +1105,7 @@ void InstanceScript::CompleteChallengeMode()
         challengeData->ChestID = _challengeChest.GetEntry();
 
     std::map<ObjectGuid::LowType /*guild*/, uint32> guildCounter;
-    DoOnPlayers([&](Player* player)
+    instance->DoOnPlayers([&](Player* player)
         {
             sChallengeModeMgr->Reward(player, _challengeModeLevel);
 
@@ -1160,7 +1150,7 @@ void InstanceScript::CompleteChallengeMode()
     sChallengeModeMgr->CheckBestGuildMapId(challengeData);
     sChallengeModeMgr->SaveChallengeToDB(challengeData);
 
-    DoOnPlayers([this, totalDurations, mapChallengeModeEntry](Player* player)
+    instance->DoOnPlayers([this, totalDurations, mapChallengeModeEntry](Player* player)
         {
             sChallengeModeMgr->Reward(player, _challengeModeLevel);
     if (player->HasChallengeCompleted(mapChallengeModeEntry->ID))

@@ -72,7 +72,6 @@ public:
 
     void ActivateQuest(WorldQuestTemplate* worldQuestTemplate);
     void DisableQuest(ActiveWorldQuest* activeWorldQuest, bool deleteFromMap/* = true*/);
-    void GetAreaPoiID(ActiveWorldQuestMap activeWorldQuests, AreaPOIEntry areaPoi);
 
     bool IsQuestActive(uint32 questId);
 
