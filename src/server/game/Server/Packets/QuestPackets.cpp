@@ -895,11 +895,6 @@ WorldPacket const* WorldPackets::Quest::QueryAdventureMapPOIResponse::Write()
     return &_worldPacket;
 }
 
-void UiMapQuestLinesRequest::Read()
-{
-    _worldPacket >> UiMapID;
-}
-
 WorldPacket const* UiMapQuestLinesResponse::Write()
 {
     _worldPacket << int32(UiMapID);
@@ -913,6 +908,11 @@ WorldPacket const* UiMapQuestLinesResponse::Write()
         _worldPacket << uint32(questID);
 
     return &_worldPacket;
+}
+
+void UiMapQuestLinesRequest::Read()
+{
+    _worldPacket >> UiMapID;
 }
 
 void WorldPackets::Quest::QueryTreasurePicker::Read()
@@ -973,6 +973,11 @@ WorldPacket const* ShowQuestCompletionText::Write()
     _worldPacket.WriteBit(ShowQuestComplete);
 
     return &_worldPacket;
+}
+
+void UiMapQuestLinesRequest::Read()
+{
+    _worldPacket >> UiMapID;
 }
 
 }

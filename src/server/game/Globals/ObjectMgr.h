@@ -2033,6 +2033,9 @@ class TC_GAME_API ObjectMgr
         UiMapQuestLinesMap _uiMapQuestLinesStore;
         UiMapQuestsMap _uiMapQuestsStore;
 
+        UiMapQuestLinesMap _uiMapQuestLinesStore;
+        UiMapQuestsMap _uiMapQuestsStore;
+
         std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;
 
         PhaseNameContainer _phaseNameStore;

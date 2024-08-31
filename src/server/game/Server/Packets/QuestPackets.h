@@ -940,7 +940,6 @@ namespace WorldPackets
 
             bool ShowQuestComplete = false;
         };
-
     }
 }
 
