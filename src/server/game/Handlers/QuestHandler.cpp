@@ -906,46 +906,6 @@ void WorldSession::HandleQueryAdventureMapPOI(WorldPackets::Quest::QueryAdventur
     SendPacket(result.Write());
 }
 
-void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest)
-{
-    // Lookup the UiMap entry using the provided UiMapID
-    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapQuestLinesRequest.UiMapID);
-    if (!uiMap)
-        return;
-
-    WorldPackets::Quest::UiMapQuestLinesResponse response;
-    response.UiMapID = uiMap->ID;
-
-    // Retrieve the list of quest lines associated with the UiMapID
-    if (std::vector<uint32> const* questLines = sObjectMgr->GetUiMapQuestLinesList(uiMap->ID))
-    {
-        for (uint32 questLineId : *questLines)
-        {
-            // Retrieve the list of quests associated with the quest line
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(questLineId);
-            if (!questLineQuests)
-                continue;
-
-            // Check each quest in the quest line
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
-                    if (_player->CanTakeQuest(quest, false))
-                        response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
-        }
-    }
-
-    // Retrieve the list of quests directly associated with the UiMapID
-    if (std::vector<uint32> const* quests = sObjectMgr->GetUiMapQuestsList(uiMap->ID))
-    {
-        for (uint32 questId : *quests)
-            if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
-                if (_player->CanTakeQuest(quest, false))
-                    response.QuestIDs.push_back(questId);
-    }
-
-    SendPacket(response.Write());
-}
-
 void WorldSession::HandleQueryTreasurePicker(WorldPackets::Quest::QueryTreasurePicker& packet)
 {
     Player* player = GetPlayer();

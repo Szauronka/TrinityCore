@@ -1631,7 +1631,6 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverCloseQuest(WorldPackets::Quest::QuestGiverCloseQuest& questGiverCloseQuest);
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
-        void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
         void HandleRequestAreaPoiUpdate(WorldPackets::Quest::RequestAreaPoiUpdate& packet);
         bool AdventureMapPOIAvailable(uint32 adventureMapPOIID);

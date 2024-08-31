@@ -974,10 +974,4 @@ WorldPacket const* ShowQuestCompletionText::Write()
 
     return &_worldPacket;
 }
-
-void UiMapQuestLinesRequest::Read()
-{
-    _worldPacket >> UiMapID;
-}
-
 }
