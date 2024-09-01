@@ -611,6 +611,19 @@ ChallengeData* ChallengeModeMgr::BestForMemberMap(ObjectGuid const& guid, uint32
 
 uint32 ChallengeModeMgr::GetRandomChallengeId(uint32 flags/* = 4*/)
 {
+    std::vector<uint32> validChallengeIdsSeason1 = {
+        399, 402, 401, 400, 200, 210, 165, 2
+    };
+
+    std::vector<uint32> validChallengeIdsSeason2 = {
+        406, 405, 403, 404, 206, 245, 251, /* ID for Vortex Pinnacle here */
+    };
+
+    // Combine Season 1 and Season 2 into one vector, if needed
+    std::vector<uint32> validChallengeIds;
+    validChallengeIds.insert(validChallengeIds.end(), validChallengeIdsSeason1.begin(), validChallengeIdsSeason1.end());
+    validChallengeIds.insert(validChallengeIds.end(), validChallengeIdsSeason2.begin(), validChallengeIdsSeason2.end());
+
     std::vector<uint32> challenges;
 
     // Season1 Dragonflight
@@ -618,23 +631,24 @@ uint32 ChallengeModeMgr::GetRandomChallengeId(uint32 flags/* = 4*/)
     //
     // Season 2 Dragonflight
     // 406 Halls of Infusion, 405 Brackenhide Hollow, 403 Uldaman: Legacy of Tyr, 404 Neltharus, 206 Neltharion's Lair, 245 Freehold, 251 Underrot, Vortex Pinacle
-    for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
+    for (size_t i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
+    {
         if (MapChallengeModeEntry const* challengeModeEntry = sMapChallengeModeStore.LookupEntry(i))
-            if (challengeModeEntry->Flags & flags &&
-                (challengeModeEntry->ID == 399 ||
-				 challengeModeEntry->ID == 402 || 
-				 challengeModeEntry->ID == 401 ||
-				 challengeModeEntry->ID == 400 ||
-				 challengeModeEntry->ID == 200 ||
-				 challengeModeEntry->ID == 210 ||
-				 challengeModeEntry->ID == 165 ||
-				 challengeModeEntry->ID == 2  )) // Temp fix, only doable dungeons here
-                        challenges.push_back(challengeModeEntry->ID);
+        {
+            if (challengeModeEntry->Flags & flags)
+            {
+                if (std::find(validChallengeIds.begin(), validChallengeIds.end(), challengeModeEntry->ID) != validChallengeIds.end())
+                {
+                    challenges.push_back(challengeModeEntry->ID);
+                }
+            }
+        }
+    }
 
-        if (challenges.empty())
-            return 0;
+    if (challenges.empty())
+        return 0;
    
-        return Trinity::Containers::SelectRandomContainerElement(challenges);
+    return Trinity::Containers::SelectRandomContainerElement(challenges);
 }
 
 std::vector<int32> ChallengeModeMgr::GetBonusListIdsForRewards(uint32 baseItemIlevel, uint8 challengeLevel)

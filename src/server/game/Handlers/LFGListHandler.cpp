@@ -19,7 +19,7 @@
 #include "LFGListMgr.h"
 #include "Group.h"
 #include "LFGList.h"
-#include "LfgListPackets.h"
+#include "LFGListPackets.h"
 #include "SocialMgr.h"
 #include "Player.h"
 #include "Chat.h"

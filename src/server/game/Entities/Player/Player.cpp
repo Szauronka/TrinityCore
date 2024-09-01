@@ -31088,18 +31088,23 @@ bool Player::AddChallengeKey(uint32 challengeId, uint32 challengeLevel/* = 2*/)
 
         switch (m_challengeKeyInfo.Level)
         {
-            case 16:
-                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
-            case 15:
-                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
-            case 12:
-                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix2);
-            case 9:
-                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix1);
-            case 6:
-                item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
-            default:
-                break;
+        case 16:
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4, m_challengeKeyInfo.Affix3);
+            break;
+        case 15:
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, m_challengeKeyInfo.Affix3);
+            break;
+        case 12:
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, m_challengeKeyInfo.Affix2);
+            break;
+        case 9:
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix1);
+            break;
+        case 6:
+            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, m_challengeKeyInfo.Affix);
+            break;
+        default:
+            break;
         }
         item->SetState(ITEM_CHANGED, player);
         SendNewItem(item, count, true, false);

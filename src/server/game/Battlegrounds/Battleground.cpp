@@ -1047,15 +1047,17 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
     else
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
+        {
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
 
             Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
 
             WorldPackets::Misc::StartTimer startTimer;
-            startTimer.Type         = (CountdownTimerType::Pvp);
-            startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
-            startTimer.TotalTime    = countdownMaxForBGType;
+            startTimer.Type = (CountdownTimerType::Pvp);
+            startTimer.TimeLeft = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
+            startTimer.TotalTime = countdownMaxForBGType;
             player->SendDirectMessage(startTimer.Write());
+        }
 
         if (bp.Mercenary)
         {

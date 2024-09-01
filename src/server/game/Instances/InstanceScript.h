@@ -313,7 +313,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual void ShowChallengeDoor() { }
         virtual void HideChallengeDoor() { }
         void GetScenarioByID(uint32 p_ScenarioId);
-        void DoOnPlayers(std::function<void(Player*)>&& function);
         void AfterChallengeModeStarted();
 
         ChallengeModeMgr* GetChallenge() const;

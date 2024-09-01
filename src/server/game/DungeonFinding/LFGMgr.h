@@ -405,21 +405,21 @@ struct LFGDungeonData
     LFGDungeonData();
     LFGDungeonData(LFGDungeonsEntry const* dbc);
 
-    uint32 id;
+    uint32 id = 0;
     std::string name;
-    uint32 map;
-    uint8 type;
-    uint8 subType;
-    uint8 expansion;
-    uint8 group;
-    uint32 contentTuningId;
+    uint32 map = 0;
+    uint8 type = 0;;
+    uint8 subType = 0;;
+    uint8 expansion = 0;;
+    uint8 group = 0;;
+    uint32 contentTuningId = 0;;
     Difficulty difficulty;
-    uint32 RequiredPlayerConditionId;
-    bool seasonal;
-    float x, y, z, o;
-    uint16 requiredItemLevel;
-    uint16 requiredChromieTime;
-    uint32 finalDungeonEncounterId;
+    uint32 RequiredPlayerConditionId = 0;;
+    bool seasonal = false;
+    float x = 0.0f, y = 0.0f, z = 0.0f, o = 0.0f;
+    uint16 requiredItemLevel = 0;
+    uint16 requiredChromieTime = 0;
+    uint32 finalDungeonEncounterId = 0;
 
     // Helpers
     uint32 Entry() const { return id + (type << 24); }
