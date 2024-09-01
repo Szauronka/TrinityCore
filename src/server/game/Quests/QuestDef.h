@@ -605,6 +605,7 @@ class TC_GAME_API Quest
         bool IsAutoPush() const { return HasFlagEx(QUEST_FLAGS_EX_AUTO_PUSH); }
         bool IsWorldQuest() const { return HasFlagEx(QUEST_FLAGS_EX_IS_WORLD_QUEST); }
         bool IsEmissaryQuest() const { return _questInfoID == QUEST_INFO_EMISSARY_QUEST; }
+        bool IsNzothEmmissaryQuest() const { return (_questInfoID == QUEST_INFO_THREAT_EMISSARY_QUEST); }
 
         // Possibly deprecated flag
         bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_DEPRECATED); }
