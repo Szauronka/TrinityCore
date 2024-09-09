@@ -450,6 +450,7 @@ namespace WorldPackets
             bool StartCheat = false;
             bool AutoLaunched = false;
             bool FromContentPush = false;
+            bool ResetByScheduler = false;
         };
 
         struct QuestObjectiveCollect
